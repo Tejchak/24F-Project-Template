@@ -110,6 +110,16 @@ Create table if not exists Performance
     PRIMARY KEY(PID)
 )
 
+Create table if not exists Hospital (
+    HospitalID int auto_increment not null PRIMARY KEY,
+    Name varchar(25) not null,
+    City_ID int not null,
+    Zip int not null,
+    CONSTRAINT fk_07
+                                    foreign key  (City_ID) references City (City_ID),
+    CONSTRAINT fk_08
+                                    foreign key (Zip) references Location (Zipcode)
+);
 
 # select statement representing the avg rent pulling the info from housing table
 # SELECT avg(Rent) as Avg_Rent
