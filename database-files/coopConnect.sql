@@ -3,6 +3,8 @@ CREATE DATABASE if not exists coopConnect;
 
 show databases;
 
+Use coopConnect;
+
 Create table if not exists User
 (
     UserID int auto_increment not null,
@@ -39,14 +41,30 @@ Create table if not exists City
 (
     City_ID int auto_increment not null,
     Avg_Cost_Of_Living integer,
-    #Avg_Rent
-    #Avg_Wage
+    Avg_Rent double default 0.0,
+    Avg_Wage double default 0.0,
     Name varchar(25),
     Population int,
     Prop_Hybrid_Workers decimal(5,4),
     check (Prop_Hybrid_Workers >= 0 and Prop_Hybrid_Workers <=1),
     PRIMARY KEY(City_ID)
 );
+
+UPDATE City
+SET Avg_Rent = (
+    SELECT avg(Rent)
+    FROM Housing
+    WHERE Housing.City_ID = City.City_ID
+    GROUP BY City_ID
+);
+
+Update City
+SET Avg_Wage = (
+    SELECT avg(Job.Wage) as Avg_Wage
+    From User join Job
+on User.UserID = Job.User_ID
+    GROUP BY User.Current_City_ID
+    );
 
 Create table if not exists Housing
 (
@@ -61,16 +79,16 @@ Create table if not exists Housing
     CONSTRAINT fk_03
         foreign key (City_ID) references City (City_ID),
     CONSTRAINT fk_04
-        foreign key (zipID) references Location (Zipcode)
+        foreign key (zipID) references Location (Zip)
 );
 
 CREATE table if not exists Location
 (
-    Zipcode int not null,
+    Zip int not null,
     City_ID int not null,
     Student_pop int,
     Safety_Rating int,
-    PRIMARY KEY(Zipcode)
+    PRIMARY KEY(Zip)
 );
 
 CREATE table if not exists Sublet
@@ -95,7 +113,7 @@ CREATE table if not exists Job
     Employment_Status varchar(30),
     start_date datetime,
     PRIMARY KEY(Job_ID),
-    CONSTRAINT fk_05
+    CONSTRAINT fk_08
         foreign key (User_ID) references User (UserID)
 );
 
@@ -108,16 +126,19 @@ Create table if not exists Performance
     Top_Speed int,
     Low_Speed int,
     PRIMARY KEY(PID)
-)
+);
+
+CREATE table if not exists Airport
+(
+    Air_ID int auto_increment not null,
+    Name varchar(25) not null,
+    City_ID int not null,
+    Zip int not null,
+    PRIMARY KEY(Air_ID),
+    constraint fk_air_city
+        foreign key (City_ID) references City (City_ID),
+    constraint fk_air_zip
+        foreign key (Zip) references Location (Zip)
+);
 
 
-# select statement representing the avg rent pulling the info from housing table
-# SELECT avg(Rent) as Avg_Rent
-# From Housing
-# GROUP BY City_ID;
-
-# select statement representing the avg wage pulling the info from the user and job tables
-# SELECT avg(Job.Wage) as Avg_Wage
-# From User join Job
-# on User.UserID = Job.User_ID
-# GROUP BY User.Current_City_ID;
