@@ -149,6 +149,6 @@ Create table if not exists Hospital (
     CONSTRAINT fk_07
                                     foreign key  (City_ID) references City (City_ID),
     CONSTRAINT fk_08
-                                    foreign key (Zip) references Location (Zipcode)
+                                    foreign key (Zip) references Location (Zip)
 );
 
