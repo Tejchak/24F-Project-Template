@@ -151,4 +151,56 @@ Create table if not exists Hospital (
     CONSTRAINT fk_08
                                     foreign key (Zip) references Location (Zip)
 );
+#sample data for each table
+
+#Category data
+INSERT INTO Category (CategoryName) VALUES
+('Student'),
+('Employer');
+
+#City data
+INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers) VALUES
+(3000, 1500, 3500, 'Boston', 700000, 0.2500),
+(2000, 1000, 2500, 'Chicago', 2700000, 0.1500);
+
+#Location data
+INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
+(02115, 1, 50000, 8),
+(60616, 2, 30000, 7);
+
+#User data
+INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID) VALUES
+(1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1),
+(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2);
+
+#Housing data
+INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) VALUES
+(1, 02115, '123 Main St, Boston', 1500, 750),
+(2, 60616, '456 Oak St, Chicago', 1200, 850);
+
+#Sublet data
+INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date) VALUES
+(1, 1, '2024-01-01', '2024-06-01'),
+(2, 2, '2024-02-01', '2024-07-01');
+
+#Job data
+INSERT INTO Job (Wage, User_ID, Employment_Status, start_date) VALUES
+(20, 1, 'Part-Time', '2023-09-01'),
+(50, 2, 'Full-Time', '2023-07-01');
+
+#Performance data
+INSERT INTO Performance (Avg_Speed, Median_Speed, Top_Speed, Low_Speed) VALUES
+(60, 55, 80, 40),
+(70, 65, 90, 50);
+
+-- Insert into Airport
+INSERT INTO Airport (Name, City_ID, Zip) VALUES
+('Logan International', 1, 02115),
+('O\'Hare International', 2, 60616);
+
+-- Insert into Hospital
+INSERT INTO Hospital (Name, City_ID, Zip) VALUES
+('Boston Medical Center', 1, 02115),
+('Rush University Medical Center', 2, 60616);
+
 
