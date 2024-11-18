@@ -136,6 +136,18 @@ Create table if not exists Hospital (
     CONSTRAINT fk_11
                                     foreign key (Zip) references Location (Zip)
 );
+
+Create table if not exists JobPosting (
+    Post_ID int,
+    Compensation int,
+    Location_ID int not null,
+    User_ID int not null,
+    Primary Key (Post_ID),
+    Constraint jp_loc
+                                      foreign key (Location_ID) references Location (zip),
+    Constraint jp_user
+                                      foreign key (User_ID) references User (UserID)
+);
 #sample data for each table
 
 #Category data
