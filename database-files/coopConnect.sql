@@ -1,9 +1,31 @@
-#Creating the database
+# Creating the database
+DROP DATABASE if exists coopConnect;
 CREATE DATABASE if not exists coopConnect;
 
 show databases;
 
 Use coopConnect;
+
+CREATE table if not exists Category
+(
+    CategoryID int auto_increment not null,
+    CategoryName varchar(75) not null ,
+    Primary Key(CategoryID),
+    UNIQUE index uq_cat_idx (CategoryName)
+);
+
+Create table if not exists City
+(
+    City_ID int auto_increment not null,
+    Avg_Cost_Of_Living integer,
+    Avg_Rent double default 0.0,
+    Avg_Wage double default 0.0,
+    Name varchar(25),
+    Population int,
+    Prop_Hybrid_Workers decimal(5,4),
+    check (Prop_Hybrid_Workers >= 0 and Prop_Hybrid_Workers <=1),
+    PRIMARY KEY(City_ID)
+);
 
 Create table if not exists User
 (
@@ -29,42 +51,14 @@ Create table if not exists User
             on delete restrict
 );
 
-CREATE table if not exists Category
+CREATE table if not exists Location
 (
-    CategoryID int auto_increment not null,
-    CategoryName varchar(75) not null ,
-    Primary Key(CategoryID),
-    UNIQUE index uq_cat_idx (CategoryName)
+    Zip int not null,
+    City_ID int not null,
+    Student_pop int,
+    Safety_Rating int,
+    PRIMARY KEY(Zip)
 );
-
-Create table if not exists City
-(
-    City_ID int auto_increment not null,
-    Avg_Cost_Of_Living integer,
-    Avg_Rent double default 0.0,
-    Avg_Wage double default 0.0,
-    Name varchar(25),
-    Population int,
-    Prop_Hybrid_Workers decimal(5,4),
-    check (Prop_Hybrid_Workers >= 0 and Prop_Hybrid_Workers <=1),
-    PRIMARY KEY(City_ID)
-);
-
-UPDATE City
-SET Avg_Rent = (
-    SELECT avg(Rent)
-    FROM Housing
-    WHERE Housing.City_ID = City.City_ID
-    GROUP BY City_ID
-);
-
-Update City
-SET Avg_Wage = (
-    SELECT avg(Job.Wage) as Avg_Wage
-    From User join Job
-on User.UserID = Job.User_ID
-    GROUP BY User.Current_City_ID
-    );
 
 Create table if not exists Housing
 (
@@ -80,15 +74,6 @@ Create table if not exists Housing
         foreign key (City_ID) references City (City_ID),
     CONSTRAINT fk_04
         foreign key (zipID) references Location (Zip)
-);
-
-CREATE table if not exists Location
-(
-    Zip int not null,
-    City_ID int not null,
-    Student_pop int,
-    Safety_Rating int,
-    PRIMARY KEY(Zip)
 );
 
 CREATE table if not exists Sublet
@@ -131,7 +116,7 @@ Create table if not exists Performance
 CREATE table if not exists Airport
 (
     Air_ID int auto_increment not null,
-    Name varchar(25) not null,
+    Name varchar(50) not null,
     City_ID int not null,
     Zip int not null,
     PRIMARY KEY(Air_ID),
@@ -143,12 +128,12 @@ CREATE table if not exists Airport
 
 Create table if not exists Hospital (
     HospitalID int auto_increment not null PRIMARY KEY,
-    Name varchar(25) not null,
+    Name varchar(50) not null,
     City_ID int not null,
     Zip int not null,
     CONSTRAINT fk_07
                                     foreign key  (City_ID) references City (City_ID),
-    CONSTRAINT fk_08
+    CONSTRAINT fk_11
                                     foreign key (Zip) references Location (Zip)
 );
 #sample data for each table
@@ -204,3 +189,19 @@ INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 ('Rush University Medical Center', 2, 60616);
 
 
+UPDATE City
+SET Avg_Rent = (
+    SELECT avg(Rent)
+    FROM Housing
+    WHERE Housing.City_ID = City.City_ID
+    GROUP BY City_ID
+);
+
+Update City
+SET Avg_Wage = (
+    SELECT avg(Job.Wage)
+    From User join Job
+on User.UserID = Job.User_ID
+    where Current_City_ID = City.City_ID
+    GROUP BY User.Current_City_ID
+    );
