@@ -1,5 +1,5 @@
-#Creating the database
-Drop Database if exists coopConnect;
+# Creating the database
+DROP DATABASE if exists coopConnect;
 CREATE DATABASE if not exists coopConnect;
 
 show databases;
@@ -51,42 +51,14 @@ Create table if not exists User
             on delete restrict
 );
 
-CREATE table if not exists Category
+CREATE table if not exists Location
 (
-    CategoryID int auto_increment not null,
-    CategoryName varchar(75) not null ,
-    Primary Key(CategoryID),
-    UNIQUE index uq_cat_idx (CategoryName)
+    Zip int not null,
+    City_ID int not null,
+    Student_pop int,
+    Safety_Rating int,
+    PRIMARY KEY(Zip)
 );
-
-Create table if not exists City
-(
-    City_ID int auto_increment not null,
-    Avg_Cost_Of_Living integer,
-    Avg_Rent double default 0.0,
-    Avg_Wage double default 0.0,
-    Name varchar(25),
-    Population int,
-    Prop_Hybrid_Workers decimal(5,4),
-    check (Prop_Hybrid_Workers >= 0 and Prop_Hybrid_Workers <=1),
-    PRIMARY KEY(City_ID)
-);
-
-UPDATE City
-SET Avg_Rent = (
-    SELECT avg(Rent)
-    FROM Housing
-    WHERE Housing.City_ID = City.City_ID
-    GROUP BY City_ID
-);
-
-Update City
-SET Avg_Wage = (
-    SELECT avg(Job.Wage) as Avg_Wage
-    From User join Job
-on User.UserID = Job.User_ID
-    GROUP BY User.Current_City_ID
-    );
 
 Create table if not exists Housing
 (
@@ -160,9 +132,9 @@ Create table if not exists Hospital (
     City_ID int not null,
     Zip int not null,
     CONSTRAINT fk_07
-                                    foreign key  (City_ID) references City (City_ID),
-    CONSTRAINT fk_08
-                                    foreign key (Zip) references Location (Zip)
+        foreign key  (City_ID) references City (City_ID),
+    CONSTRAINT fk_11
+        foreign key (Zip) references Location (Zip)
 );
 
 Create table if not exists JobPosting (
@@ -172,10 +144,14 @@ Create table if not exists JobPosting (
     User_ID int not null,
     Primary Key (Post_ID),
     Constraint jp_loc
-                                      foreign key (Location_ID) references Location (zip),
+        foreign key (Location_ID) references Location (zip),
     Constraint jp_user
-                                      foreign key (User_ID) references User (UserID)
+        foreign key (User_ID) references User (UserID)
 );
+
+
+#sample data for each table
+
 #sample data for each table
 
 #Category data
@@ -218,14 +194,172 @@ INSERT INTO Performance (Avg_Speed, Median_Speed, Top_Speed, Low_Speed) VALUES
 (60, 55, 80, 40),
 (70, 65, 90, 50);
 
--- Insert into Airport
+## Insert into Airport
 INSERT INTO Airport (Name, City_ID, Zip) VALUES
 ('Logan International', 1, 02115),
 ('O\'Hare International', 2, 60616);
 
--- Insert into Hospital
+## Insert into Hospital
 INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 ('Boston Medical Center', 1, 02115),
 ('Rush University Medical Center', 2, 60616);
 
 
+UPDATE City
+SET Avg_Rent = (
+    SELECT avg(Rent)
+    FROM Housing
+    WHERE Housing.City_ID = City.City_ID
+    GROUP BY City_ID
+);
+
+Update City
+SET Avg_Wage = (
+    SELECT avg(Job.Wage)
+    From User join Job
+on User.UserID = Job.User_ID
+    where Current_City_ID = City.City_ID
+    GROUP BY User.Current_City_ID
+    );
+
+
+## Persona 1: Timothy (Northeastern Student)**
+
+## Find housing in the new city:
+SELECT H.Address, H.Rent, H.Sq_Ft, L.Safety_Rating
+FROM Housing H
+JOIN Location L ON H.zipID = L.Zip
+WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
+
+## Find other students in the area:
+SELECT U.name, U.email
+FROM User U
+WHERE U.Current_City_ID = (SELECT City_ID FROM City WHERE Name = 'New York')
+  AND U.CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student');
+
+## Understand the cost of living:
+SELECT Name, Avg_Cost_Of_Living, Avg_Rent, Avg_Wage
+FROM City
+WHERE Name IN ('New York', 'Charlotte');
+
+## Find information about the city:
+SELECT Name, Population, Prop_Hybrid_Workers
+FROM City
+WHERE Name = 'New York';
+
+## Sublet existing apartment:
+INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date)
+VALUES (
+    (SELECT Housing_ID FROM Housing WHERE Address = '123 Main St, Boston'),
+    (SELECT UserID FROM User WHERE email = 'john.doe@example.com'),
+    '2024-06-01',
+    '2024-12-01'
+);
+
+## Find housing close to work:
+SELECT H.Address, H.Rent, H.Sq_Ft, L.Safety_Rating
+FROM Housing H
+JOIN Location L ON H.zipID = L.Zip
+WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York')
+ORDER BY L.Safety_Rating DESC;
+
+## **Persona 2: John (System Administrator)**
+
+## Quickly add data to the database:
+INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers)
+VALUES (2500, 1200, 3000, 'Seattle', 800000, 0.3000);
+
+## Efficiently delete unused data:
+DELETE FROM Performance
+WHERE Date < '2023-01-01';
+
+## Manage user access levels:
+UPDATE User
+SET CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student')
+WHERE email = 'john.doe@hotmail.com';
+
+## Remove outdated logs:
+DELETE FROM Performance
+WHERE Date < '2023-01-01';
+
+## Monitor database usage:
+SELECT *
+FROM Performance
+ORDER BY Date DESC;
+
+## Monitor database performance:
+SELECT AVG(Avg_Speed) AS AvgPerformance, MAX(Top_Speed) AS PeakPerformance
+FROM Performance;
+
+## **Persona 3: Edward Elric (Employer)**
+
+## Access data on cost of living:
+SELECT Avg_Cost_Of_Living, Avg_Rent, Avg_Wage
+FROM City
+WHERE Name = 'New York';
+
+## Find current students in New York:
+SELECT COUNT(*) AS Total_Students
+FROM User
+WHERE Current_City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
+
+## Locate main student areas:
+SELECT L.Zip, L.Student_pop, L.Safety_Rating
+FROM Location L
+WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
+
+## Post job details:
+INSERT INTO JobPosting (Post_ID, Compensation, Location_ID, User_ID)
+VALUES (
+    1,
+    5000,
+    (SELECT Zip FROM Location WHERE City_ID = (SELECT City_ID FROM City WHERE Name = 'Boston') LIMIT 1),
+    (SELECT UserID FROM User WHERE email = 'jane.smith@example.com')
+);
+
+## Update compensation packages:
+UPDATE JobPosting
+SET Compensation = Compensation + 500
+WHERE Location_ID = (SELECT Zip FROM Location WHERE City_ID = (SELECT City_ID FROM City WHERE Name = 'New York'));
+
+## Analyze remote work preferences:
+SELECT Prop_Hybrid_Workers
+FROM City
+WHERE Name = 'New York';
+
+## **Persona 4: Helen (Student Mother)**
+
+## Access detailed city guides:
+SELECT Name, Population, Prop_Hybrid_Workers, Avg_Cost_Of_Living
+FROM City
+WHERE Name = 'New York';
+
+## Find safe housing for her child:
+SELECT H.Address, H.Rent, H.Sq_Ft, L.Safety_Rating
+FROM Housing H
+JOIN Location L ON H.zipID = L.Zip
+WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York')
+  AND L.Safety_Rating >= 7;
+
+## Streamline moving logistics:
+SELECT A.Name AS Airport, H.Name AS Hospital
+FROM Airport A
+JOIN Hospital H ON A.City_ID = H.City_ID
+WHERE A.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
+
+## Plan an effective budget:
+SELECT Avg_Cost_Of_Living, Avg_Rent
+FROM City
+WHERE Name = 'New York';
+
+## Connect with local communities:
+SELECT U.name, U.email
+FROM User U
+WHERE U.Current_City_ID = (SELECT City_ID FROM City WHERE Name = 'New York')
+  AND U.CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student');
+
+## Set up an emergency contact network:
+SELECT H.Name AS Hospital, A.Name AS Airport
+FROM Hospital H
+JOIN Airport A ON H.City_ID = A.City_ID
+WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
