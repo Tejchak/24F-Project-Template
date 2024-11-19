@@ -152,68 +152,6 @@ Create table if not exists JobPosting (
         foreign key (User_ID) references User (UserID)
 );
 
-#Category data
-INSERT INTO Category (CategoryName) VALUES
-('Student'),
-('Employer');
-
-#City data
-INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers) VALUES
-(3000, 1500, 3500, 'Boston', 700000, 0.2500),
-(2000, 1000, 2500, 'Chicago', 2700000, 0.1500),
-(4000, 2500, 4500, 'New York', 8000000, 0.4000);
-
-#Location data
-INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
-(02115, 1, 50000, 8),
-(60616, 2, 30000, 7),
-(10001, (SELECT City_ID FROM City WHERE Name = 'New York'), 200000, 9);
-
-#User data
-INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID) VALUES
-(1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1),
-(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2),
-(1, 'Alice Walker', 'alice.walker@example.com', '555-123-4567', (SELECT City_ID FROM City WHERE Name = 'New York'));
-
-#Housing data
-INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) VALUES
-(1, 02115, '123 Main St, Boston', 1500, 750),
-(2, 60616, '456 Oak St, Chicago', 1200, 850),
-((SELECT City_ID FROM City WHERE Name = 'New York'), 10001, '789 Broadway, New York', 3000, 600);
-
-#Sublet data
-INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date) VALUES
-(1, 1, '2024-01-01', '2024-06-01'),
-(2, 2, '2024-02-01', '2024-07-01');
-
-#Job data
-INSERT INTO Job (Wage, User_ID, Employment_Status, start_date) VALUES
-(20, 1, 'Part-Time', '2023-09-01'),
-(50, 2, 'Full-Time', '2023-07-01');
-
-#Performance data
-INSERT INTO Performance (Avg_Speed, Median_Speed, Top_Speed, Low_Speed) VALUES
-(60, 55, 80, 40),
-(70, 65, 90, 50);
-
-
-#Insert into Airport
-INSERT INTO Airport (Name, City_ID, Zip) VALUES
-('Logan International', 1, 02115),
-('O\'Hare International', 2, 60616),
-('JFK International', (SELECT City_ID FROM City WHERE Name = 'New York'), 10001);
-
-#Insert into Hospital
-INSERT INTO Hospital (Name, City_ID, Zip) VALUES
-('Boston Medical Center', 1, 02115),
-('Rush University Medical Center', 2, 60616),
-('New York General Hospital', (SELECT City_ID FROM City WHERE Name = 'New York'), 10001);
-
-INSERT INTO JobPosting (Post_ID, Compensation, Location_ID, User_ID) Values
-(1, 80000, 02115, 2),
-(2, 95000, 60616, 2),
-(3, 75000, 02115, 2);
-
 #We set the delimiter to be a double // here since when we looked up how to do trigger statements
 #we found that they each contain a begin and end statement, but inside the trigger statement there are
 #semicolons, so if the delimiter was still a semicolon mysql would try end the trigger definition early
@@ -331,6 +269,69 @@ BEGIN
 END;//
 
 DELIMITER ;
+
+#Category data
+INSERT INTO Category (CategoryName) VALUES
+('Student'),
+('Employer');
+
+#City data
+INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers) VALUES
+(3000, 1500, 3500, 'Boston', 700000, 0.2500),
+(2000, 1000, 2500, 'Chicago', 2700000, 0.1500),
+(4000, 2500, 4500, 'New York', 8000000, 0.4000);
+
+#Location data
+INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
+(02115, 1, 50000, 8),
+(60616, 2, 30000, 7),
+(10001, (SELECT City_ID FROM City WHERE Name = 'New York'), 200000, 9);
+
+#User data
+INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID) VALUES
+(1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1),
+(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2),
+(1, 'Alice Walker', 'alice.walker@example.com', '555-123-4567', (SELECT City_ID FROM City WHERE Name = 'New York'));
+
+#Housing data
+INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) VALUES
+(1, 02115, '123 Main St, Boston', 1500, 750),
+(2, 60616, '456 Oak St, Chicago', 1200, 850),
+(3, 10001, '789 Broadway, New York', 3000, 600);
+
+#Sublet data
+INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date) VALUES
+(1, 1, '2024-01-01', '2024-06-01'),
+(2, 2, '2024-02-01', '2024-07-01');
+
+#Job data
+INSERT INTO Job (Wage, User_ID, Employment_Status, start_date) VALUES
+(20, 1, 'Part-Time', '2023-09-01'),
+(50, 2, 'Full-Time', '2023-07-01');
+
+#Performance data
+INSERT INTO Performance (Avg_Speed, Median_Speed, Top_Speed, Low_Speed) VALUES
+(60, 55, 80, 40),
+(70, 65, 90, 50);
+
+
+#Insert into Airport
+INSERT INTO Airport (Name, City_ID, Zip) VALUES
+('Logan International', 1, 02115),
+('O\'Hare International', 2, 60616),
+('JFK International', (SELECT City_ID FROM City WHERE Name = 'New York'), 10001);
+
+#Insert into Hospital
+INSERT INTO Hospital (Name, City_ID, Zip) VALUES
+('Boston Medical Center', 1, 02115),
+('Rush University Medical Center', 2, 60616),
+('New York General Hospital', (SELECT City_ID FROM City WHERE Name = 'New York'), 10001);
+
+INSERT INTO JobPosting (Post_ID, Compensation, Location_ID, User_ID) Values
+(1, 80000, 02115, 2),
+(2, 95000, 60616, 2),
+(3, 75000, 02115, 2);
+
 
 
 ## Persona 1: Timothy (Northeastern Student)**
