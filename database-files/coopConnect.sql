@@ -57,7 +57,10 @@ CREATE table if not exists Location
     City_ID int not null,
     Student_pop int,
     Safety_Rating int,
-    PRIMARY KEY(Zip)
+    PRIMARY KEY(Zip),
+    constraint loc_city
+        FOREIGN KEY (City_ID) references City (City_ID)
+
 );
 
 Create table if not exists Housing
@@ -83,7 +86,7 @@ CREATE table if not exists Sublet
     Subleter_ID int,
     Start_Date datetime,
     End_Date datetime,
-    PRIMARY KEY(Sublet_ID),
+    PRIMARY KEY(Sublet_ID, Subleter_ID),
     CONSTRAINT fk_05
         foreign key (Housing_ID) references Housing (Housing_ID),
     CONSTRAINT fk_06
@@ -138,7 +141,7 @@ Create table if not exists Hospital (
 );
 
 Create table if not exists JobPosting (
-    Post_ID int,
+    Post_ID int auto_increment not null,
     Compensation int,
     Location_ID int not null,
     User_ID int not null,
@@ -194,16 +197,21 @@ INSERT INTO Performance (Avg_Speed, Median_Speed, Top_Speed, Low_Speed) VALUES
 (60, 55, 80, 40),
 (70, 65, 90, 50);
 
-## Insert into Airport
+
+#Insert into Airport
 INSERT INTO Airport (Name, City_ID, Zip) VALUES
 ('Logan International', 1, 02115),
 ('O\'Hare International', 2, 60616);
 
-## Insert into Hospital
+#Insert into Hospital
 INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 ('Boston Medical Center', 1, 02115),
 ('Rush University Medical Center', 2, 60616);
 
+INSERT INTO JobPosting (Post_ID, Compensation, Location_ID, User_ID) Values
+(1, 80000, 02115, 2),
+(2, 95000, 60616, 2),
+(3, 75000, 02115, 2);
 
 UPDATE City
 SET Avg_Rent = (
@@ -309,9 +317,8 @@ FROM Location L
 WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 
 ## Post job details:
-INSERT INTO JobPosting (Post_ID, Compensation, Location_ID, User_ID)
+INSERT INTO JobPosting (Compensation, Location_ID, User_ID)
 VALUES (
-    1,
     5000,
     (SELECT Zip FROM Location WHERE City_ID = (SELECT City_ID FROM City WHERE Name = 'Boston') LIMIT 1),
     (SELECT UserID FROM User WHERE email = 'jane.smith@example.com')
