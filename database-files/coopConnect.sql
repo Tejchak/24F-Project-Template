@@ -152,11 +152,6 @@ Create table if not exists JobPosting (
         foreign key (User_ID) references User (UserID)
 );
 
-
-#sample data for each table
-
-#sample data for each table
-
 #Category data
 INSERT INTO Category (CategoryName) VALUES
 ('Student'),
@@ -165,22 +160,26 @@ INSERT INTO Category (CategoryName) VALUES
 #City data
 INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers) VALUES
 (3000, 1500, 3500, 'Boston', 700000, 0.2500),
-(2000, 1000, 2500, 'Chicago', 2700000, 0.1500);
+(2000, 1000, 2500, 'Chicago', 2700000, 0.1500),
+(4000, 2500, 4500, 'New York', 8000000, 0.4000);
 
 #Location data
 INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
 (02115, 1, 50000, 8),
-(60616, 2, 30000, 7);
+(60616, 2, 30000, 7),
+(10001, (SELECT City_ID FROM City WHERE Name = 'New York'), 200000, 9);
 
 #User data
 INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID) VALUES
 (1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1),
-(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2);
+(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2),
+(1, 'Alice Walker', 'alice.walker@example.com', '555-123-4567', (SELECT City_ID FROM City WHERE Name = 'New York'));
 
 #Housing data
 INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) VALUES
 (1, 02115, '123 Main St, Boston', 1500, 750),
-(2, 60616, '456 Oak St, Chicago', 1200, 850);
+(2, 60616, '456 Oak St, Chicago', 1200, 850),
+((SELECT City_ID FROM City WHERE Name = 'New York'), 10001, '789 Broadway, New York', 3000, 600);
 
 #Sublet data
 INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date) VALUES
@@ -201,34 +200,137 @@ INSERT INTO Performance (Avg_Speed, Median_Speed, Top_Speed, Low_Speed) VALUES
 #Insert into Airport
 INSERT INTO Airport (Name, City_ID, Zip) VALUES
 ('Logan International', 1, 02115),
-('O\'Hare International', 2, 60616);
+('O\'Hare International', 2, 60616),
+('JFK International', (SELECT City_ID FROM City WHERE Name = 'New York'), 10001);
 
 #Insert into Hospital
 INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 ('Boston Medical Center', 1, 02115),
-('Rush University Medical Center', 2, 60616);
+('Rush University Medical Center', 2, 60616),
+('New York General Hospital', (SELECT City_ID FROM City WHERE Name = 'New York'), 10001);
 
 INSERT INTO JobPosting (Post_ID, Compensation, Location_ID, User_ID) Values
 (1, 80000, 02115, 2),
 (2, 95000, 60616, 2),
 (3, 75000, 02115, 2);
 
-UPDATE City
-SET Avg_Rent = (
-    SELECT avg(Rent)
-    FROM Housing
-    WHERE Housing.City_ID = City.City_ID
-    GROUP BY City_ID
-);
+#We set the delimiter to be a double // here since when we looked up how to do trigger statements
+#we found that they each contain a begin and end statement, but inside the trigger statement there are
+#semicolons, so if the delimiter was still a semicolon mysql would try end the trigger definition early
+#we change the delimiter back to semicolons after we define all our triggers
+DELIMITER //
+DROP TRIGGER IF EXISTS update_city_avg_rent_insert;
+CREATE TRIGGER update_city_avg_rent_insert
+AFTER INSERT ON Housing
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Avg_Rent = (
+        SELECT AVG(Rent)
+        FROM Housing
+        WHERE City_ID = NEW.City_ID
+    )
+    WHERE City_ID = NEW.City_ID;
+END;//
 
-Update City
-SET Avg_Wage = (
-    SELECT avg(Job.Wage)
-    From User join Job
-on User.UserID = Job.User_ID
-    where Current_City_ID = City.City_ID
-    GROUP BY User.Current_City_ID
+DROP TRIGGER IF EXISTS update_city_avg_rent_update;
+CREATE TRIGGER update_city_avg_rent_update
+AFTER UPDATE ON Housing
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Avg_Rent = (
+        SELECT AVG(Rent)
+        FROM Housing
+        WHERE City_ID = NEW.City_ID
+    )
+    WHERE City_ID = NEW.City_ID;
+END;//
+
+DROP TRIGGER IF EXISTS update_city_avg_rent_delete;
+CREATE TRIGGER update_city_avg_rent_delete
+AFTER DELETE ON Housing
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Avg_Rent = (
+        SELECT AVG(Rent)
+        FROM Housing
+        WHERE City_ID = OLD.City_ID
+    )
+    WHERE City_ID = OLD.City_ID;
+END;//
+
+DROP TRIGGER IF EXISTS update_city_avg_wage_insert;
+CREATE TRIGGER update_city_avg_wage_insert
+AFTER INSERT ON Job
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Avg_Wage = (
+        SELECT AVG(j.Wage)
+        FROM Job j
+        JOIN User u ON j.User_ID = u.UserID
+        WHERE u.Current_City_ID = (
+            SELECT Current_City_ID
+            FROM User
+            WHERE UserID = NEW.User_ID
+        )
+    )
+    WHERE City_ID = (
+        SELECT Current_City_ID
+        FROM User
+        WHERE UserID = NEW.User_ID
     );
+END;//
+
+DROP TRIGGER IF EXISTS update_city_avg_wage_update;
+CREATE TRIGGER update_city_avg_wage_update
+AFTER UPDATE ON Job
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Avg_Wage = (
+        SELECT AVG(j.Wage)
+        FROM Job j
+        JOIN User u ON j.User_ID = u.UserID
+        WHERE u.Current_City_ID = (
+            SELECT Current_City_ID
+            FROM User
+            WHERE UserID = NEW.User_ID
+        )
+    )
+    WHERE City_ID = (
+        SELECT Current_City_ID
+        FROM User
+        WHERE UserID = NEW.User_ID
+    );
+END;//
+
+DROP TRIGGER IF EXISTS update_city_avg_wage_delete;
+CREATE TRIGGER update_city_avg_wage_delete
+AFTER DELETE ON Job
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Avg_Wage = (
+        SELECT AVG(j.Wage)
+        FROM Job j
+        JOIN User u ON j.User_ID = u.UserID
+        WHERE u.Current_City_ID = (
+            SELECT Current_City_ID
+            FROM User
+            WHERE UserID = OLD.User_ID
+        )
+    )
+    WHERE City_ID = (
+        SELECT Current_City_ID
+        FROM User
+        WHERE UserID = OLD.User_ID
+    );
+END;//
+
+DELIMITER ;
 
 
 ## Persona 1: Timothy (Northeastern Student)**
