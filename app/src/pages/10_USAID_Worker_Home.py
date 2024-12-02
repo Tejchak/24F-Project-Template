@@ -27,4 +27,4 @@ if st.button('View the Simple API Demo',
 if st.button("View Classification Demo",
              type='primary',
              use_container_width=True):
-  st.switch_page('pages/13_Classification.py')
+  st.switch_page('pages/hw_05.py')
