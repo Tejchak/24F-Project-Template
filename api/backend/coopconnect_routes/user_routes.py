@@ -29,12 +29,15 @@ def get_users():
 @users.route('/user/<UserID>', methods=['PUT'])
 def update_user(UserID):
 
+    query = '''
+    UPDATE 
+    User SET CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student') 
+    WHERE UserID = {0}'''.format(UserID)
+    '''
+    '''
+
     cursor = db.get_db().cursor()
-    cursor.execute('UPD')
+    cursor.execute(query)
+    db.get_db.commit
                    
-    
-    theData = cursor.fetchall()
-    
-    the_response = make_response(jsonify(theData))
-    the_response.status_code = 200
-    return the_response
+    return 'user updated!'
