@@ -41,3 +41,25 @@ def update_user(UserID):
     db.get_db.commit
                    
     return 'user updated!'
+
+
+#Returns information about students in a specific city
+@users.route('/user/<CityID>/<Category_ID>', methods=['GET'])
+def get_users(CityID,Category_ID):
+
+    query = '''
+        SELECT * FROM User
+        Where {0}'''.format(CityID)
+    ''' AND '''.format(Category_ID)
+    '''(SELECT CategoryID FROM Category WHERE CategoryName = 'Student')
+        '''
+
+    cursor = db.get_db().cursor()
+    cursor.execute('SELECT * FROM User')
+                   
+    
+    theData = cursor.fetchall()
+    
+    the_response = make_response(jsonify(theData))
+    the_response.status_code = 200
+    return the_response
