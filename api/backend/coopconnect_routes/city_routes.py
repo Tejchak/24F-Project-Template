@@ -35,16 +35,16 @@ def get_all_cities():
         return jsonify({'error': str(e)}), 500
 
 #returns the details of a specific city
-@cities.route('/city/<city_name>', methods=['GET'])
-def get_city_details(city_name):
+@cities.route('/city/<CityID>', methods=['GET'])
+def get_city_details(CityID):
     try:
         cursor = db.cursor()
         cursor.execute("""
             SELECT City_ID, Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, 
                    Name, Population, Prop_Hybrid_Workers 
             FROM City 
-            WHERE Name = %s
-        """, (city_name,))
+            WHERE Name = (Select Name FROM City WHERE City_ID = %s)
+        """, (CityID,))
         city_data = cursor.fetchall()
         cursor.close()
 
@@ -68,8 +68,8 @@ def get_city_details(city_name):
 
 
 #returns the cost analysis of a specific city
-@cities.route('/city/<city_ID>/<Avg_Cost_Of_Living>', methods=['GET'])
-def get_city_cost_analysis(city_name):
+@cities.route('/city/<CityID>/<Avg_Cost_Of_Living>', methods=['GET'])
+def get_city_cost_analysis(CityID):
     try:
         cursor = db.cursor()
         
@@ -85,8 +85,8 @@ def get_city_cost_analysis(city_name):
                    (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
                    (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
             FROM City c1
-            WHERE c1.Name = %s
-        """, (city_name,))
+            WHERE c1.Name = (Select Name FROM City WHERE City_ID = %s)
+        """, (CityID,))
         
         city_data = cursor.fetchone()
         cursor.close()
