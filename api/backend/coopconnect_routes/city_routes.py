@@ -67,3 +67,53 @@ def get_city_details(city_name):
         return jsonify({'error': str(e)}), 500
 
 
+#returns the cost analysis of a specific city
+@cities.route('/cities/<city_name>/<Avg_Cost_Of_Living>', methods=['GET'])
+def get_city_cost_analysis(city_name):
+    try:
+        cursor = db.cursor()
+        
+        # Get city data and calculate relative metrics
+        cursor.execute("""
+            SELECT c1.Name, 
+                   c1.Avg_Cost_Of_Living,
+                   c1.Avg_Rent,
+                   c1.Avg_Wage,
+                   c1.Avg_Cost_Of_Living / c1.Avg_Wage as cost_to_wage_ratio,
+                   c1.Avg_Rent / c1.Avg_Wage as rent_to_wage_ratio,
+                   (SELECT AVG(Avg_Cost_Of_Living) FROM City) as avg_national_col,
+                   (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
+                   (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
+            FROM City c1
+            WHERE c1.Name = %s
+        """, (city_name,))
+        
+        city_data = cursor.fetchone()
+        cursor.close()
+
+        if not city_data:
+            return jsonify({'error': 'City not found'}), 404
+
+        # Calculate percentages relative to national averages
+        cost_analysis = {
+            'name': city_data[0],
+            'cost_of_living': city_data[1],
+            'avg_rent': city_data[2],
+            'avg_wage': city_data[3],
+            'cost_metrics': {
+                'cost_to_wage_ratio': float(city_data[4]),
+                'rent_to_wage_ratio': float(city_data[5]),
+                'cost_vs_national_avg': {
+                    'cost_of_living_percent': (city_data[1] / city_data[6] * 100) - 100,
+                    'rent_percent': (city_data[2] / city_data[7] * 100) - 100,
+                    'wage_percent': (city_data[3] / city_data[8] * 100) - 100
+                }
+            }
+        }
+
+        return jsonify(cost_analysis), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
