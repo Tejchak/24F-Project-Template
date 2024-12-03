@@ -1,65 +1,33 @@
-from flask import Blueprint
-from flask import request
-from flask import jsonify
-from flask import make_response
-from flask import current_app
+from flask import Blueprint, request, jsonify
 from backend.db_connection import db
 
+# Create a new blueprint for housing-related routes
+housing = Blueprint('Housing', __name__)
 
-#Creates a new blueprint to collect the routes
-users = Blueprint('Users', __name__)
-
-
-
-#Return a list of all users with their respective information
-@users.route('/user', methods=['GET'])
-def get_users():
-
+@housing.route('/housing', methods=['GET'])
+def get_housing():
     cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM User')
-                   
-    
-    theData = cursor.fetchall()
-    
-    the_response = make_response(jsonify(theData))
-    the_response.status_code = 200
-    return the_response
+    cursor.execute('SELECT * FROM Housing')
+    housing_data = cursor.fetchall()
+    return jsonify(housing_data), 200
 
-#Update the information of a specific user.
-@users.route('/user/<UserID>', methods=['PUT'])
-def update_user(UserID):
-
+@housing.route('/housing', methods=['POST'])
+def add_housing():
+    data = request.get_json()
+    if not all(key in data for key in ['City_ID', 'zipID', 'Address', 'Rent', 'Sq_Ft']):
+        return jsonify({"error": "Missing data"}), 400
+    
     query = '''
-    UPDATE 
-    User SET CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student') 
-    WHERE UserID = {0}'''.format(UserID)
+    INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) 
+    VALUES (%s, %s, %s, %s, %s)
     '''
-    '''
-
-    cursor = db.get_db().cursor()
-    cursor.execute(query)
-    db.get_db.commit
-                   
-    return 'user updated!'
-
-
-#Returns information about students in a specific city
-@users.route('/user/<CityID>/<Category_ID>', methods=['GET'])
-def get_users(CityID,Category_ID):
-
-    query = '''
-        SELECT * FROM User
-        Where {0}'''.format(CityID)
-    ''' AND '''.format(Category_ID)
-    '''(SELECT CategoryID FROM Category WHERE CategoryName = 'Student')
-        '''
-
-    cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM User')
-                   
+    args = (data['City_ID'], data['zipID'], data['Address'], data['Rent'], data['Sq_Ft'])
     
-    theData = cursor.fetchall()
-    
-    the_response = make_response(jsonify(theData))
-    the_response.status_code = 200
-    return the_response
+    cursor = db.get_db().cursor()
+    try:
+        cursor.execute(query, args)
+        db.get_db().commit()
+        return jsonify({"success": True, "message": "Housing added successfully"}), 201
+    except Exception as e:
+        db.get_db().rollback()
+        return jsonify({"error": "Database error", "message": str(e)}), 500

@@ -1,65 +1,52 @@
-from flask import Blueprint
 from flask import request
 from flask import jsonify
 from flask import make_response
 from flask import current_app
 from backend.db_connection import db
+from flask import Blueprint, request, jsonify, abort
+from datetime import datetime
+from backend.db_connection import db
 
+# Create a blueprint for housing-related routes
+housing = Blueprint('housing', __name__)
 
-#Creates a new blueprint to collect the routes
-users = Blueprint('Users', __name__)
+@housing.route('/sublets/dates', methods=['GET'])
+def get_sublets_by_date():
+    # Retrieve dates from query parameters
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
 
+    # Validate the date format and existence
+    if not start_date or not end_date:
+        abort(400, description="Missing start_date or end_date parameters")
 
+    try:
+        # Convert string dates to datetime objects to ensure valid formats
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-#Return a list of all users with their respective information
-@users.route('/user', methods=['GET'])
-def get_users():
+        # Ensure start_date is before end_date
+        if start_datetime > end_datetime:
+            abort(400, description="start_date must be before end_date")
 
-    cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM User')
-                   
-    
-    theData = cursor.fetchall()
-    
-    the_response = make_response(jsonify(theData))
-    the_response.status_code = 200
-    return the_response
+    except ValueError:
+        abort(400, description="Invalid date format. Please use YYYY-MM-DD format.")
 
-#Update the information of a specific user.
-@users.route('/user/<UserID>', methods=['PUT'])
-def update_user(UserID):
+    try:
+        # Execute database query
+        cursor = db.get_db().cursor()
+        cursor.execute('''
+            SELECT * FROM Sublet
+            WHERE Start_Date >= %s AND End_Date <= %s
+        ''', (start_date, end_date))
+        sublets = cursor.fetchall()
 
-    query = '''
-    UPDATE 
-    User SET CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student') 
-    WHERE UserID = {0}'''.format(UserID)
-    '''
-    '''
+        # Check if sublets are found
+        if not sublets:
+            return jsonify({'message': 'No sublets found for the given date range'}), 404
 
-    cursor = db.get_db().cursor()
-    cursor.execute(query)
-    db.get_db.commit
-                   
-    return 'user updated!'
+        return jsonify(sublets), 200
 
-
-#Returns information about students in a specific city
-@users.route('/user/<CityID>/<Category_ID>', methods=['GET'])
-def get_users(CityID,Category_ID):
-
-    query = '''
-        SELECT * FROM User
-        Where {0}'''.format(CityID)
-    ''' AND '''.format(Category_ID)
-    '''(SELECT CategoryID FROM Category WHERE CategoryName = 'Student')
-        '''
-
-    cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM User')
-                   
-    
-    theData = cursor.fetchall()
-    
-    the_response = make_response(jsonify(theData))
-    the_response.status_code = 200
-    return the_response
+    except Exception as e:
+        # Handle unexpected database errors
+        abort(500, description=str(e))
