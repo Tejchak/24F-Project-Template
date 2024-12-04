@@ -87,3 +87,35 @@ def get_students_in_city(CityID):
         return make_response(jsonify(theData), 200)
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+
+#Retrieves specific user using UserID
+@users.route('/user/<int:UserID>', methods=['GET'])
+def get_user_by_id(UserID):
+    try:
+        query = 'SELECT * FROM User WHERE UserID = %s'
+        cursor = db.get_db().cursor()
+        cursor.execute(query, (UserID,))
+        theData = cursor.fetchone()
+
+        if not theData:
+            return make_response(jsonify({"error": "User not found"}), 404)
+
+        return make_response(jsonify(theData), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+#Delete a user by ID
+@users.route('/user/<int:UserID>', methods=['DELETE'])
+def delete_user(UserID):
+    try:
+        query = 'DELETE FROM User WHERE UserID = %s'
+        cursor = db.get_db().cursor()
+        cursor.execute(query, (UserID,))
+        db.get_db().commit()
+
+        if cursor.rowcount == 0:
+            return make_response(jsonify({"error": "User not found"}), 404)
+
+        return make_response(jsonify({"message": "User deleted successfully!"}), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
