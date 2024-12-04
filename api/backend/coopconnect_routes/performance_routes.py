@@ -24,14 +24,14 @@ def get_performance(Date):
     formatted_data = []
     for record in performance_data:
         formatted_data.append({
-            'PID': record['Date'],
-            'CPU_Usage': float(record['CPU_Usage']),
-            'Memory_Usage': float(record['Memory_Usage']),
-            'Network_Usage': float(record['Network_Usage']),
-            'Disk_Usage': float(record['Disk_Usage'])
+            'PID': record['PID'],
+            'CPU_Usage': float(record['Avg_Speed']) if record['Avg_Speed'] is not None else 0,
+            'Memory_Usage': float(record['Median_Speed']) if record['Median_Speed'] is not None else 0,
+            'Network_Usage': float(record['Top_Speed']) if record['Top_Speed'] is not None else 0,
+            'Disk_Usage': float(record['Low_Speed']) if record['Low_Speed'] is not None else 0
         })
 
-    return jsonify(performance_data), 200
+    return jsonify(formatted_data), 200
 
 
 #Get the available dates from the system
