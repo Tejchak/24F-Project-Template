@@ -25,22 +25,29 @@ def get_users():
     the_response.status_code = 200
     return the_response
 
-#Update the information of a specific user.
-@users.route('/user/<UserID>', methods=['PUT'])
+@users.route('/user/<int:UserID>', methods=['PUT'])
 def update_user(UserID):
+    try:
+        # Extract data from the request body
+        data = request.json
+        category_id = data.get('CategoryID')
+        name = data.get('name')
+        email = data.get('email')
+        phone_number = data.get('Phone_Number')
 
-    query = '''
-    UPDATE 
-    User SET CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student') 
-    WHERE UserID = {0}'''.format(UserID)
-    '''
-    '''
+        query = '''
+        UPDATE User 
+        SET CategoryID = %s, name = %s, email = %s, Phone_Number = %s
+        WHERE UserID = %s
+        '''
+        cursor = db.get_db().cursor()
+        cursor.execute(query, (category_id, name, email, phone_number, UserID))
+        db.get_db().commit()
 
-    cursor = db.get_db().cursor()
-    cursor.execute(query)
-    db.get_db.commit
-                   
-    return 'user updated!'
+        return make_response(jsonify({"message": "User updated successfully!"}), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
 
 
 #Returns information about students in a specific city
@@ -63,3 +70,20 @@ def get_users(CityID,Category_ID):
     the_response = make_response(jsonify(theData))
     the_response.status_code = 200
     return the_response
+
+@users.route('/users/<int:CityID>/students', methods=['GET'])
+def get_students_in_city(CityID):
+    try:
+        query = '''
+        SELECT U.UserID, U.name, U.email 
+        FROM User U
+        WHERE U.Current_City_ID = %s 
+          AND U.CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student')
+        '''
+        cursor = db.get_db().cursor()
+        cursor.execute(query, (CityID,))
+        theData = cursor.fetchall()
+
+        return make_response(jsonify(theData), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
