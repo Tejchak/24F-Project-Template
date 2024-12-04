@@ -72,11 +72,21 @@ def get_city_details(CityID):
 def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
     try:
         cursor = db.cursor()
-        
-        # Convert Avg_Cost_Of_Living to integer
         target_cost = int(Avg_Cost_Of_Living)
         
-        # Get city data and calculate relative metrics
+        # Debug: Print available costs
+        cursor.execute("SELECT Name, Avg_Cost_Of_Living FROM City")
+        all_cities = cursor.fetchall()
+        print(f"Available cities and costs: {all_cities}")
+        print(f"Target cost: {target_cost}")
+        
+        # Modified query with wider range and debug
+        margin = target_cost * 0.2  # Increased to 20% range
+        min_cost = target_cost - margin
+        max_cost = target_cost + margin
+        
+        print(f"Looking for cities with cost between {min_cost} and {max_cost}")
+        
         cursor.execute("""
             SELECT c1.Name, 
                    c1.Avg_Cost_Of_Living,
@@ -88,20 +98,27 @@ def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
                    (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
                    (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
             FROM City c1
-            WHERE c1.Avg_Cost_Of_Living BETWEEN %s - (%s * 0.1) AND %s + (%s * 0.1)
+            WHERE c1.Avg_Cost_Of_Living BETWEEN %s AND %s
+            ORDER BY ABS(c1.Avg_Cost_Of_Living - %s)
             LIMIT 1
-        """, (target_cost, target_cost, target_cost, target_cost))
+        """, (min_cost, max_cost, target_cost))
         
         city_data = cursor.fetchone()
         cursor.close()
 
         if not city_data:
-            return jsonify({'error': 'No cities found matching the specified cost of living'}), 404
+            return jsonify({
+                'error': 'No cities found matching the specified cost of living',
+                'debug': {
+                    'target_cost': target_cost,
+                    'min_cost': min_cost,
+                    'max_cost': max_cost
+                }
+            }), 404
 
-        # Calculate percentages relative to national averages
         cost_analysis = {
             'name': city_data[0],
-            'cost_of_living': float(city_data[1]),  # Convert to float for JSON serialization
+            'cost_of_living': float(city_data[1]),
             'avg_rent': float(city_data[2]),
             'avg_wage': float(city_data[3]),
             'cost_metrics': {
@@ -118,6 +135,7 @@ def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
         return jsonify(cost_analysis), 200
 
     except Exception as e:
+        print(f"Error in get_city_cost_analysis: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 #Finds cities with a similar proportion of hybrid workers
