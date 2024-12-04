@@ -4,6 +4,7 @@ from flask import jsonify
 from flask import make_response
 from flask import current_app
 from backend.db_connection import db
+from datetime import datetime
 
 
 #Creates a new blueprint to collect the routes
@@ -45,11 +46,19 @@ def get_available_dates():
         # Format dates as YYYY-MM-DD strings
         date_list = []
         for date_record in dates:
-            date_obj = date_record[0]
+            if isinstance(date_record, dict):
+                date_str = date_record['Date']
+            else:
+                date_str = date_record[0]
+                
+            # Parse the date string and reformat it
+            date_obj = datetime.strptime(str(date_str), '%Y-%m-%d %H:%M:%S')
             formatted_date = date_obj.strftime('%Y-%m-%d')
             date_list.append(formatted_date)
             
         return jsonify(date_list), 200
         
     except Exception as e:
+        print(f"Error in get_available_dates: {str(e)}")  # Debug print
         return jsonify({'error': str(e)}), 500
+    
