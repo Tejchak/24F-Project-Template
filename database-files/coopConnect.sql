@@ -27,6 +27,19 @@ Create table if not exists City
     PRIMARY KEY(City_ID)
 );
 
+DELIMITER //
+
+CREATE TRIGGER update_city_population AFTER INSERT ON User
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Population = Population + 1
+    WHERE City_ID = NEW.Current_City_ID;
+END //
+
+DELIMITER ;
+
+
 Create table if not exists User
 (
     UserID int auto_increment not null,
@@ -50,6 +63,14 @@ Create table if not exists User
             on update cascade
             on delete restrict
 );
+
+ALTER TABLE User 
+ADD CONSTRAINT chk_email_format 
+CHECK (email LIKE '%_@__%.__%');
+
+ALTER TABLE User
+ADD CONSTRAINT chk_phone_format
+CHECK (Phone_Number REGEXP '^[0-9]{3}-[0-9]{3}-[0-9]{4}$');
 
 CREATE table if not exists Location
 (
