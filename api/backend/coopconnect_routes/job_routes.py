@@ -1,65 +1,33 @@
-from flask import Blueprint
-from flask import request
-from flask import jsonify
-from flask import make_response
-from flask import current_app
-from backend.db_connection import db
+from flask import Blueprint  # To define the blueprint for organizing your routes.
+from flask import request    # To handle incoming request data (useful for POST/PUT routes).
+from flask import jsonify    # To convert Python dictionaries/lists to JSON responses.
+from flask import make_response  # To structure the HTTP response with status codes.
+from flask import current_app  # To access the Flask application context if needed.
+from backend.db_connection import db  # To interact with your database connection object.
 
 
-#Creates a new blueprint to collect the routes
-users = Blueprint('Users', __name__)
-
-
-
-#Return a list of all users with their respective information
-@users.route('/user', methods=['GET'])
-def get_users():
-
+@performance.route('/jobs', methods=['GET'])
+def get_all_jobs():
     cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM User')
-                   
-    
+    query = "SELECT * FROM Job"
+    cursor.execute(query)
     theData = cursor.fetchall()
-    
+
     the_response = make_response(jsonify(theData))
     the_response.status_code = 200
     return the_response
 
-#Update the information of a specific user.
-@users.route('/user/<UserID>', methods=['PUT'])
-def update_user(UserID):
-
-    query = '''
-    UPDATE 
-    User SET CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student') 
-    WHERE UserID = {0}'''.format(UserID)
-    '''
-    '''
-
+@performance.route('/job_postings/location/<Location_ID>', methods=['GET'])
+def get_job_postings_by_location(Location_ID):
     cursor = db.get_db().cursor()
-    cursor.execute(query)
-    db.get_db.commit
-                   
-    return 'user updated!'
-
-
-#Returns information about students in a specific city
-@users.route('/user/<CityID>/<Category_ID>', methods=['GET'])
-def get_users(CityID,Category_ID):
-
-    query = '''
-        SELECT * FROM User
-        Where {0}'''.format(CityID)
-    ''' AND '''.format(Category_ID)
-    '''(SELECT CategoryID FROM Category WHERE CategoryName = 'Student')
-        '''
-
-    cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM User')
-                   
-    
+    query = """
+    SELECT Post_ID, Compensation, User_ID
+    FROM JobPosting
+    WHERE Location_ID = %s
+    """
+    cursor.execute(query, (Location_ID,))
     theData = cursor.fetchall()
-    
+
     the_response = make_response(jsonify(theData))
     the_response.status_code = 200
     return the_response
