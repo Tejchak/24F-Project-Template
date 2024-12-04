@@ -74,4 +74,7 @@ if st.button('Act as System Administrator',
     st.switch_page('pages/20_Admin_Home.py')
 
 
-
+if st.button('Cost of Living Analysis', 
+            type = 'primary', 
+            use_container_width=True):
+    st.switch_page('pages/31_cost_of_living.py')

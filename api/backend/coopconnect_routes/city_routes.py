@@ -69,9 +69,12 @@ def get_city_details(CityID):
 
 #returns the cost analysis of a specific city
 @cities.route('/city/<CityID>/<Avg_Cost_Of_Living>', methods=['GET'])
-def get_city_cost_analysis(CityID):
+def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
     try:
         cursor = db.cursor()
+        
+        # Convert Avg_Cost_Of_Living to integer
+        target_cost = int(Avg_Cost_Of_Living)
         
         # Get city data and calculate relative metrics
         cursor.execute("""
@@ -85,21 +88,22 @@ def get_city_cost_analysis(CityID):
                    (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
                    (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
             FROM City c1
-            WHERE c1.Name = (Select Name FROM City WHERE City_ID = %s)
-        """, (CityID,))
+            WHERE c1.Avg_Cost_Of_Living BETWEEN %s - (%s * 0.1) AND %s + (%s * 0.1)
+            LIMIT 1
+        """, (target_cost, target_cost, target_cost, target_cost))
         
         city_data = cursor.fetchone()
         cursor.close()
 
         if not city_data:
-            return jsonify({'error': 'City not found'}), 404
+            return jsonify({'error': 'No cities found matching the specified cost of living'}), 404
 
         # Calculate percentages relative to national averages
         cost_analysis = {
             'name': city_data[0],
-            'cost_of_living': city_data[1],
-            'avg_rent': city_data[2],
-            'avg_wage': city_data[3],
+            'cost_of_living': float(city_data[1]),  # Convert to float for JSON serialization
+            'avg_rent': float(city_data[2]),
+            'avg_wage': float(city_data[3]),
             'cost_metrics': {
                 'cost_to_wage_ratio': float(city_data[4]),
                 'rent_to_wage_ratio': float(city_data[5]),
@@ -116,7 +120,7 @@ def get_city_cost_analysis(CityID):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
+#Finds cities with a similar proportion of hybrid workers
 @cities.route('/city/<CityID>/<Prop_Hybrid_Workers>', methods=['GET'])
 def get_cities_by_hybrid_proportion(Prop_Hybrid_Workers):
     try:
