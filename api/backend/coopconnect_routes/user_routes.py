@@ -70,3 +70,20 @@ def get_users(CityID,Category_ID):
     the_response = make_response(jsonify(theData))
     the_response.status_code = 200
     return the_response
+
+@users.route('/users/<int:CityID>/students', methods=['GET'])
+def get_students_in_city(CityID):
+    try:
+        query = '''
+        SELECT U.UserID, U.name, U.email 
+        FROM User U
+        WHERE U.Current_City_ID = %s 
+          AND U.CategoryID = (SELECT CategoryID FROM Category WHERE CategoryName = 'Student')
+        '''
+        cursor = db.get_db().cursor()
+        cursor.execute(query, (CityID,))
+        theData = cursor.fetchall()
+
+        return make_response(jsonify(theData), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
