@@ -20,11 +20,9 @@ def display_cost_analysis():
             st.write(f"Attempting to connect to: {api_url}")
             
             response = requests.get(api_url)
-            st.write(f"Response status code: {response.status_code}")
             
             if response.status_code == 200:
-                data = response.json()
-                st.write("Received data:", data)  # Debug line
+                data = response.json() 
                 
                 # Create two columns for layout
                 col1, col2 = st.columns(2)
@@ -41,14 +39,14 @@ def display_cost_analysis():
                     metrics = data['cost_metrics']
                     
                     st.write("Cost Ratios:")
-                    st.write(f"- Cost to Wage: {metrics['cost_to_wage_ratio']:.2f}")
-                    st.write(f"- Rent to Wage: {metrics['rent_to_wage_ratio']:.2f}")
+                    st.write(f"- Cost to Wage: {metrics['cost_to_wage_ratio']*100:.1f}%")
+                    st.write(f"- Rent to Wage: {metrics['rent_to_wage_ratio']*100:.1f}%")
                     
                     st.write("\nComparison to National Average:")
                     national_comp = metrics['cost_vs_national_avg']
-                    st.write(f"- Cost of Living: {national_comp['cost_of_living_percent']:+.1f}%")
-                    st.write(f"- Rent: {national_comp['rent_percent']:+.1f}%")
-                    st.write(f"- Wage: {national_comp['wage_percent']:+.1f}%")
+                    st.write(f"- Cost of Living: {float(national_comp['cost_of_living_percent']):.1f}%")
+                    st.write(f"- Rent: {float(national_comp['rent_percent']):.1f}%")
+                    st.write(f"- Wage: {float(national_comp['wage_percent']):.1f}%")
                 
             else:
                 st.error("No cities found matching the specified cost of living.")
