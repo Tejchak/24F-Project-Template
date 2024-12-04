@@ -28,7 +28,8 @@ def get_performance(Date):
             'CPU_Usage': float(record['Avg_Speed']) if record['Avg_Speed'] is not None else 0,
             'Memory_Usage': float(record['Median_Speed']) if record['Median_Speed'] is not None else 0,
             'Network_Usage': float(record['Top_Speed']) if record['Top_Speed'] is not None else 0,
-            'Disk_Usage': float(record['Low_Speed']) if record['Low_Speed'] is not None else 0
+            'Disk_Usage': float(record['Low_Speed']) if record['Low_Speed'] is not None else 0,
+            'Date': record['Date']
         })
 
     return jsonify(formatted_data), 200

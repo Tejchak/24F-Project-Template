@@ -39,28 +39,43 @@ with tab1:
                     performance_data = response.json()
                     
                     if performance_data:
-                        # Convert to DataFrame with explicit column names
+                        
+                        # Convert to DataFrame
                         df_performance = pd.DataFrame(performance_data)
                         
-                        # Debug information
-                        st.write("Raw Data Shape:", df_performance.shape)
-                        st.write("Columns:", df_performance.columns.tolist())
-                        
                         if not df_performance.empty:
-                            # Rest of your existing visualization code...
-                            fig = px.line(df_performance, 
-                                        x='PID',
-                                        y=['CPU_Usage', 'Memory_Usage', 'Network_Usage', 'Disk_Usage'],
-                                        title='System Resource Usage Over Time',
-                                        labels={'value': 'Usage %', 'PID': 'Date'})
+                            # Get the latest metrics for the bar chart
+                            latest_metrics = df_performance.iloc[-1]
+                            
+                            # Create a bar chart for all metrics
+                            metrics_data = {
+                                'Metric': ['CPU', 'Memory', 'Network', 'Disk'],
+                                'Usage': [
+                                    latest_metrics['CPU_Usage'],
+                                    latest_metrics['Memory_Usage'],
+                                    latest_metrics['Network_Usage'],
+                                    latest_metrics['Disk_Usage']
+                                ]
+                            }
+                            df_metrics = pd.DataFrame(metrics_data)
+                            
+                            fig = px.bar(df_metrics,
+                                       x='Metric',
+                                       y='Usage',
+                                       title='System Resource Usage',
+                                       labels={'Usage': 'Usage %'},
+                                       color='Metric')
+                            
+                            # Update layout to make it more readable
+                            fig.update_layout(
+                                showlegend=False,
+                                yaxis_range=[0, 100]  # Set y-axis from 0 to 100%
+                            )
                             
                             st.plotly_chart(fig, use_container_width=True)
                             
                             # Display current metrics in columns
                             col1, col2, col3, col4 = st.columns(4)
-                            
-                            # Get the most recent metrics
-                            latest_metrics = df_performance.iloc[-1]
                             
                             with col1:
                                 st.metric("CPU Usage", f"{latest_metrics['CPU_Usage']}%")
