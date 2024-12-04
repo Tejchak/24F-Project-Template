@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import json
+import os
 
 def display_cost_analysis():
     st.title("Cost of Living Analysis")
@@ -19,9 +20,11 @@ def display_cost_analysis():
             st.write(f"Attempting to connect to: {api_url}")
             
             response = requests.get(api_url)
+            st.write(f"Response status code: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
+                st.write("Received data:", data)  # Debug line
                 
                 # Create two columns for layout
                 col1, col2 = st.columns(2)
@@ -49,6 +52,13 @@ def display_cost_analysis():
                 
             else:
                 st.error("No cities found matching the specified cost of living.")
+                st.write("Debug info:")
+                st.write(f"Target URL: {api_url}")
+                st.write(f"Response status: {response.status_code}")
+                try:
+                    st.write(f"Response JSON: {response.json()}")
+                except:
+                    st.write(f"Response text: {response.text}")
                 
         except Exception as e:
             st.error(f"Error occurred: {str(e)}")

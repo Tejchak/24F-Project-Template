@@ -71,68 +71,75 @@ def get_city_details(CityID):
 @cities.route('/city/<CityID>/<Avg_Cost_Of_Living>', methods=['GET'])
 def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
     try:
-        cursor = db.cursor()
-        target_cost = int(Avg_Cost_Of_Living)
-        
-        # Debug: Print available costs
-        cursor.execute("SELECT Name, Avg_Cost_Of_Living FROM City")
-        all_cities = cursor.fetchall()
-        print(f"Available cities and costs: {all_cities}")
-        print(f"Target cost: {target_cost}")
-        
-        # Modified query with wider range and debug
-        margin = target_cost * 0.2  # Increased to 20% range
-        min_cost = target_cost - margin
-        max_cost = target_cost + margin
-        
-        print(f"Looking for cities with cost between {min_cost} and {max_cost}")
-        
-        cursor.execute("""
-            SELECT c1.Name, 
-                   c1.Avg_Cost_Of_Living,
-                   c1.Avg_Rent,
-                   c1.Avg_Wage,
-                   c1.Avg_Cost_Of_Living / c1.Avg_Wage as cost_to_wage_ratio,
-                   c1.Avg_Rent / c1.Avg_Wage as rent_to_wage_ratio,
-                   (SELECT AVG(Avg_Cost_Of_Living) FROM City) as avg_national_col,
-                   (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
-                   (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
-            FROM City c1
-            WHERE c1.Avg_Cost_Of_Living BETWEEN %s AND %s
-            ORDER BY ABS(c1.Avg_Cost_Of_Living - %s)
-            LIMIT 1
-        """, (min_cost, max_cost, target_cost))
-        
-        city_data = cursor.fetchone()
-        cursor.close()
+        # Get a cursor within an app context
+        with current_app.app_context():
+            cursor = db.get_db().cursor()
+            target_cost = int(Avg_Cost_Of_Living)
+            
+            # Debug: Print available costs
+            cursor.execute("SELECT Name, Avg_Cost_Of_Living FROM City")
+            all_cities = cursor.fetchall()
+            print(f"Available cities and costs: {all_cities}")
+            print(f"Target cost: {target_cost}")
+            
+            # Modified query with wider range and debug
+            margin = target_cost * 0.2  # Increased to 20% range
+            min_cost = target_cost - margin
+            max_cost = target_cost + margin
+            
+            print(f"Looking for cities with cost between {min_cost} and {max_cost}")
+            
+            query = """
+                SELECT c1.Name, 
+                       c1.Avg_Cost_Of_Living,
+                       c1.Avg_Rent,
+                       c1.Avg_Wage,
+                       c1.Avg_Cost_Of_Living / c1.Avg_Wage as cost_to_wage_ratio,
+                       c1.Avg_Rent / c1.Avg_Wage as rent_to_wage_ratio,
+                       (SELECT AVG(Avg_Cost_Of_Living) FROM City) as avg_national_col,
+                       (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
+                       (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
+                FROM City c1
+                WHERE c1.Avg_Cost_Of_Living BETWEEN %s AND %s
+                ORDER BY ABS(c1.Avg_Cost_Of_Living - %s)
+                LIMIT 1
+            """
+            print(f"Executing query: {query}")
+            print(f"With parameters: {(min_cost, max_cost, target_cost)}")
+            
+            cursor.execute(query, (min_cost, max_cost, target_cost))
+            city_data = cursor.fetchone()
+            print(f"Query result: {city_data}")
+            cursor.close()
 
-        if not city_data:
-            return jsonify({
-                'error': 'No cities found matching the specified cost of living',
-                'debug': {
-                    'target_cost': target_cost,
-                    'min_cost': min_cost,
-                    'max_cost': max_cost
-                }
-            }), 404
+            if not city_data:
+                return jsonify({
+                    'error': 'No cities found matching the specified cost of living',
+                    'debug': {
+                        'target_cost': target_cost,
+                        'min_cost': min_cost,
+                        'max_cost': max_cost,
+                        'available_cities': all_cities
+                    }
+                }), 404
 
-        cost_analysis = {
-            'name': city_data[0],
-            'cost_of_living': float(city_data[1]),
-            'avg_rent': float(city_data[2]),
-            'avg_wage': float(city_data[3]),
-            'cost_metrics': {
-                'cost_to_wage_ratio': float(city_data[4]),
-                'rent_to_wage_ratio': float(city_data[5]),
-                'cost_vs_national_avg': {
-                    'cost_of_living_percent': (city_data[1] / city_data[6] * 100) - 100,
-                    'rent_percent': (city_data[2] / city_data[7] * 100) - 100,
-                    'wage_percent': (city_data[3] / city_data[8] * 100) - 100
+            cost_analysis = {
+                'name': city_data[0],
+                'cost_of_living': float(city_data[1]),
+                'avg_rent': float(city_data[2]),
+                'avg_wage': float(city_data[3]),
+                'cost_metrics': {
+                    'cost_to_wage_ratio': float(city_data[4]),
+                    'rent_to_wage_ratio': float(city_data[5]),
+                    'cost_vs_national_avg': {
+                        'cost_of_living_percent': (city_data[1] / city_data[6] * 100) - 100,
+                        'rent_percent': (city_data[2] / city_data[7] * 100) - 100,
+                        'wage_percent': (city_data[3] / city_data[8] * 100) - 100
+                    }
                 }
             }
-        }
 
-        return jsonify(cost_analysis), 200
+            return jsonify(cost_analysis), 200
 
     except Exception as e:
         print(f"Error in get_city_cost_analysis: {str(e)}")
@@ -192,5 +199,10 @@ def get_cities_by_hybrid_proportion(Prop_Hybrid_Workers):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@cities.route('/city/test', methods=['GET'])
+def test_route():
+    return jsonify({"message": "City routes are working"}), 200
+
 
 
