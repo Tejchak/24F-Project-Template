@@ -26,18 +26,18 @@ Create table if not exists City
     check (Prop_Hybrid_Workers >= 0 and Prop_Hybrid_Workers <=1),
     PRIMARY KEY(City_ID)
 );
-
-DELIMITER //
-
-CREATE TRIGGER update_city_population AFTER INSERT ON User
-FOR EACH ROW
-BEGIN
-    UPDATE City
-    SET Population = Population + 1
-    WHERE City_ID = NEW.Current_City_ID;
-END //
-
-DELIMITER ;
+#
+# DELIMITER //
+#
+# CREATE TRIGGER update_city_population AFTER INSERT ON User
+# FOR EACH ROW
+# BEGIN
+#     UPDATE City
+#     SET Population = Population + 1
+#     WHERE City_ID = NEW.Current_City_ID;
+# END //
+#
+# DELIMITER ;
 
 
 Create table if not exists User
