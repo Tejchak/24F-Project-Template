@@ -5,6 +5,11 @@ from backend.customers.customer_routes import customers
 from backend.products.products_routes import products
 from backend.simple.simple_routes import simple_routes
 from backend.coopconnect_routes.city_routes import cities
+from backend.coopconnect_routes.performance_routes import performance
+from backend.coopconnect_routes.user_routes import users
+from backend.coopconnect_routes.job_routes import jobs
+from backend.coopconnect_routes.employer import employer
+
 import os
 from dotenv import load_dotenv
 
@@ -30,7 +35,7 @@ def create_app():
     app.config['MYSQL_DATABASE_PASSWORD'] = os.getenv('MYSQL_ROOT_PASSWORD').strip()
     app.config['MYSQL_DATABASE_HOST'] = os.getenv('DB_HOST').strip()
     app.config['MYSQL_DATABASE_PORT'] = int(os.getenv('DB_PORT').strip())
-    app.config['MYSQL_DATABASE_DB'] = os.getenv('coopConnect').strip()  # Change this to your DB name
+    app.config['MYSQL_DATABASE_DB'] = 'coopConnect'  # Change this to your DB name
 
     # Initialize the database object with the settings above. 
     app.logger.info('current_app(): starting the database connection')
@@ -44,6 +49,11 @@ def create_app():
     app.register_blueprint(customers,   url_prefix='/c')
     app.register_blueprint(products,    url_prefix='/p')
     app.register_blueprint(cities)
+    app.register_blueprint(performance)
+    app.register_blueprint(users)
+    app.register_blueprint(jobs)
+    app.register_blueprint(employer)
+
     # Don't forget to return the app object
     return app
 

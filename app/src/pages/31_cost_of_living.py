@@ -3,10 +3,33 @@ import requests
 import json
 import os
 
+def display_city_card(city_data):
+    with st.container():
+        st.subheader(f"📍 {city_data['name']}")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("Basic Information")
+            st.write(f"Cost of Living: ${city_data['cost_of_living']:,.2f}")
+            st.write(f"Average Rent: ${city_data['avg_rent']:,.2f}")
+            st.write(f"Average Wage: ${city_data['avg_wage']:,.2f}")
+        
+        with col2:
+            metrics = city_data['cost_metrics']
+            st.write("Cost Metrics")
+            st.write(f"Cost to Wage: {metrics['cost_to_wage_ratio']*100:.1f}%")
+            st.write(f"Rent to Wage: {metrics['rent_to_wage_ratio']*100:.1f}%")
+            
+            national_comp = metrics['cost_vs_national_avg']
+            st.write("vs National Average:")
+            st.write(f"CoL: {float(national_comp['cost_of_living_percent']):+.1f}%")
+            st.write(f"Rent: {float(national_comp['rent_percent']):+.1f}%")
+            st.write(f"Wage: {float(national_comp['wage_percent']):+.1f}%")
+        st.divider()
+
 def display_cost_analysis():
     st.title("Cost of Living Analysis")
     
-    # Input field for cost of living
     target_cost = st.number_input(
         "Enter target monthly cost of living ($):",
         min_value=0,
@@ -17,38 +40,14 @@ def display_cost_analysis():
     if st.button("Analyze"):
         try:
             api_url = f"http://api:4000/city/1/{target_cost}"
-            st.write(f"Attempting to connect to: {api_url}")
-            
             response = requests.get(api_url)
-            st.write(f"Response status code: {response.status_code}")
             
             if response.status_code == 200:
-                data = response.json()
-                st.write("Received data:", data)  # Debug line
+                cities_data = response.json()
+                st.subheader(f"Found {len(cities_data)} cities closest to ${target_cost:,}")
                 
-                # Create two columns for layout
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.subheader("Basic Information")
-                    st.write(f"City: {data['name']}")
-                    st.write(f"Cost of Living: ${data['cost_of_living']:,.2f}")
-                    st.write(f"Average Rent: ${data['avg_rent']:,.2f}")
-                    st.write(f"Average Wage: ${data['avg_wage']:,.2f}")
-                
-                with col2:
-                    st.subheader("Cost Metrics")
-                    metrics = data['cost_metrics']
-                    
-                    st.write("Cost Ratios:")
-                    st.write(f"- Cost to Wage: {metrics['cost_to_wage_ratio']:.2f}")
-                    st.write(f"- Rent to Wage: {metrics['rent_to_wage_ratio']:.2f}")
-                    
-                    st.write("\nComparison to National Average:")
-                    national_comp = metrics['cost_vs_national_avg']
-                    st.write(f"- Cost of Living: {national_comp['cost_of_living_percent']:+.1f}%")
-                    st.write(f"- Rent: {national_comp['rent_percent']:+.1f}%")
-                    st.write(f"- Wage: {national_comp['wage_percent']:+.1f}%")
+                for city_data in cities_data:
+                    display_city_card(city_data)
                 
             else:
                 st.error("No cities found matching the specified cost of living.")
