@@ -913,3 +913,17 @@ SELECT H.Name AS Hospital, A.Name AS Airport
 FROM Hospital H
 JOIN Airport A ON H.City_ID = A.City_ID
 WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
+
+SELECT c1.Name,
+                       c1.Avg_Cost_Of_Living,
+                       c1.Avg_Rent,
+                       c1.Avg_Wage,
+                       c1.Avg_Cost_Of_Living / c1.Avg_Wage as cost_to_wage_ratio,
+                       c1.Avg_Rent / c1.Avg_Wage as rent_to_wage_ratio,
+                       (SELECT AVG(Avg_Cost_Of_Living) FROM City) as avg_national_col,
+                       (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
+                       (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
+                FROM City c1
+                WHERE c1.Avg_Cost_Of_Living BETWEEN 2000 AND 2500
+                ORDER BY ABS(c1.Avg_Cost_Of_Living - 2500)
+                LIMIT 1;

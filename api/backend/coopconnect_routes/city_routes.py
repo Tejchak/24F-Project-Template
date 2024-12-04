@@ -73,7 +73,7 @@ def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
     try:
         # Get a cursor within an app context
         with current_app.app_context():
-            cursor = db.get_db().cursor()
+            cursor = db.get_db.cursor()
             target_cost = int(Avg_Cost_Of_Living)
             
             # Debug: Print available costs
