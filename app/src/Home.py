@@ -78,3 +78,9 @@ if st.button('Cost of Living Analysis',
             type = 'primary', 
             use_container_width=True):
     st.switch_page('pages/31_cost_of_living.py')
+
+
+if st.button('Login as System Admin', 
+            type = 'primary', 
+            use_container_width=True):
+    st.switch_page('pages/32_Login_System_Admin.py')
