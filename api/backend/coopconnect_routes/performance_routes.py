@@ -16,7 +16,7 @@ performance = Blueprint('Performance', __name__)
 @performance.route('/performance/<Date>', methods=['GET'])
 def get_performance(Date):
     cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM Performance WHERE Date = %s', (Date,))
+    cursor.execute('SELECT * FROM Performance WHERE date(Date) = %s', (Date,))
     performance_data = cursor.fetchall()
     cursor.close()
 
@@ -24,14 +24,14 @@ def get_performance(Date):
     formatted_data = []
     for record in performance_data:
         formatted_data.append({
-            'PID': record[0],
-            'CPU_Usage': float(record[1]) if record[1] else 0,
-            'Memory_Usage': float(record[2]) if record[2] else 0,
-            'Network_Usage': float(record[3]) if record[3] else 0,
-            'Disk_Usage': float(record[4]) if record[4] else 0
+            'PID': record['Date'],
+            'CPU_Usage': float(record['CPU_Usage']),
+            'Memory_Usage': float(record['Memory_Usage']),
+            'Network_Usage': float(record['Network_Usage']),
+            'Disk_Usage': float(record['Disk_Usage'])
         })
 
-    return jsonify(formatted_data), 200
+    return jsonify(performance_data), 200
 
 
 #Get the available dates from the system

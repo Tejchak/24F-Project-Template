@@ -931,3 +931,4 @@ SELECT c1.Name,
 
 select distinct Date
 FROM Performance
+Where (date(Date) = '2024-01-20')
