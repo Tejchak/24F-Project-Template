@@ -14,7 +14,8 @@ services:
     volumes: ['./api:/apicode']
     ports:
       - 4000:4000
-    
+    environment:
+      - coopConnect=coopConnect
 
   db:
     env_file:
