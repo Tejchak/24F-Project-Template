@@ -51,6 +51,14 @@ Create table if not exists User
             on delete restrict
 );
 
+ALTER TABLE User 
+ADD CONSTRAINT chk_email_format 
+CHECK (email LIKE '%_@__%.__%');
+
+ALTER TABLE User
+ADD CONSTRAINT chk_phone_format
+CHECK (Phone_Number REGEXP '^[0-9]{3}-[0-9]{3}-[0-9]{4}$');
+
 CREATE table if not exists Location
 (
     Zip int not null,
