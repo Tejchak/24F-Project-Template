@@ -31,3 +31,25 @@ def get_performance(Date):
         })
 
     return jsonify(formatted_data), 200
+
+
+#Get the available dates from the system
+@performance.route('/performance/dates', methods=['GET'])
+def get_available_dates():
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute('SELECT DISTINCT Date FROM Performance ORDER BY Date DESC')
+        dates = cursor.fetchall()
+        cursor.close()
+        
+        # Format dates as YYYY-MM-DD strings
+        date_list = []
+        for date_record in dates:
+            date_obj = date_record[0]
+            formatted_date = date_obj.strftime('%Y-%m-%d')
+            date_list.append(formatted_date)
+            
+        return jsonify(date_list), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

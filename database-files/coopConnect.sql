@@ -927,3 +927,7 @@ SELECT c1.Name,
                 WHERE c1.Avg_Cost_Of_Living BETWEEN 2000 AND 2500
                 ORDER BY ABS(c1.Avg_Cost_Of_Living - 2500)
                 LIMIT 1;
+
+
+select distinct Date
+FROM Performance
