@@ -32,6 +32,17 @@ def get_jobs_by_user(UserID):
     the_response.status_code = 200
     return the_response
 
+@performance.route('/job_postings', methods=['GET'])
+def get_all_job_postings():
+    cursor = db.get_db().cursor()
+    query = "SELECT * FROM JobPosting"
+    cursor.execute(query)
+    theData = cursor.fetchall()
+
+    the_response = make_response(jsonify(theData))
+    the_response.status_code = 200
+    return the_response
+
 @performance.route('/job_postings/location/<Location_ID>', methods=['GET'])
 def get_job_postings_by_location(Location_ID):
     cursor = db.get_db().cursor()
