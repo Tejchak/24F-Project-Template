@@ -14,6 +14,7 @@ services:
     volumes: ['./api:/apicode']
     ports:
       - 4000:4000
+    
 
   db:
     env_file:
