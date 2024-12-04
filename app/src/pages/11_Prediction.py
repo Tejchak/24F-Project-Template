@@ -5,34 +5,29 @@ import streamlit as st
 from modules.nav import SideBarLinks
 import requests
 
-st.set_page_config(layout = 'wide')
+st.set_page_config(layout='wide')
 
 # Display the appropriate sidebar links for the role of the logged in user
 SideBarLinks()
 
-st.title('Prediction with Regression')
+st.title('City Zip Codes and Student Population')
 
-# create a 2 column layout
-col1, col2 = st.columns(2)
+# Create a dropdown for city selection
+city_name = st.selectbox('Select a City:', ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'])  # Add more cities as needed
 
-# add one number input for variable 1 into column 1
-with col1:
-  var_01 = st.number_input('Variable 01:',
-                           step=1)
+# Add a button to fetch zip codes and student population
+if st.button('Get Zip Codes and Student Population'):
+    response = requests.get(f'http://api:4000/cities/{city_name}/zipcodes')
+    
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            # Display the results in a dataframe
+            st.dataframe(data)
+        else:
+            st.error('No data found for the selected city.')
+    else:
+        st.error('Error fetching data from the server.')
 
-# add another number input for variable 2 into column 2
-with col2:
-  var_02 = st.number_input('Variable 02:',
-                           step=1)
-
-logger.info(f'var_01 = {var_01}')
-logger.info(f'var_02 = {var_02}')
-
-# add a button to use the values entered into the number field to send to the 
-# prediction function via the REST API
-if st.button('Calculate Prediction',
-             type='primary',
-             use_container_width=True):
-  results = requests.get(f'http://api:4000/c/prediction/{var_01}/{var_02}').json()
-  st.dataframe(results)
+logger.info(f'User selected city: {city_name}')
   

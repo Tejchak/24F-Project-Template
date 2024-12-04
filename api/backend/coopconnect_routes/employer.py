@@ -149,6 +149,25 @@ def update_job_posting(post_id):
     else:
         return make_response(jsonify({'error': 'Job posting not found'}), 404)
 
+# Get student population for each zipcode in a specified city
+@employer.route('/cities/<string:city_name>/student_population', methods=['GET'])
+def get_student_population_by_zip(city_name):
+    cursor = db.get_db().cursor()
+    cursor.execute('''
+        SELECT L.Zip, L.Student_pop
+        FROM Location L
+        WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = %s)
+    ''', (city_name,))
+    
+    student_population_data = cursor.fetchall()  # Fetch all results
+    
+    if student_population_data:
+        # Correctly format the result as a list of dictionaries
+        result = [{'Zip': row[0], 'Student_Population': row[1]} for row in student_population_data]
+        return make_response(jsonify(result), 200)
+    else:
+        return make_response(jsonify({'error': 'City not found or no zip code data available'}), 404)
+
 
 
 
