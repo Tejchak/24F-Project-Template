@@ -57,3 +57,18 @@ def get_job_postings_by_location(Location_ID):
     the_response = make_response(jsonify(theData))
     the_response.status_code = 200
     return the_response
+
+@performance.route('/job_postings/details', methods=['GET'])
+def get_job_postings_with_employer():
+    cursor = db.get_db().cursor()
+    query = """
+    SELECT JP.Post_ID, JP.Compensation, U.name AS Employer_Name, U.email AS Employer_Email
+    FROM JobPosting JP
+    JOIN User U ON JP.User_ID = U.UserID
+    """
+    cursor.execute(query)
+    theData = cursor.fetchall()
+
+    the_response = make_response(jsonify(theData))
+    the_response.status_code = 200
+    return the_response
