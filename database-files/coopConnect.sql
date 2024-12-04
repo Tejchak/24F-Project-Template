@@ -27,6 +27,19 @@ Create table if not exists City
     PRIMARY KEY(City_ID)
 );
 
+DELIMITER //
+
+CREATE TRIGGER update_city_population AFTER INSERT ON User
+FOR EACH ROW
+BEGIN
+    UPDATE City
+    SET Population = Population + 1
+    WHERE City_ID = NEW.Current_City_ID;
+END //
+
+DELIMITER ;
+
+
 Create table if not exists User
 (
     UserID int auto_increment not null,
