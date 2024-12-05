@@ -27,4 +27,4 @@ if st.button('Create a new job posting',
 if st.button("Job Postings Management",
              type='primary',
              use_container_width=True):
-  st.switch_page('pages/13_Job_Postings_Management.py')
+  st.switch_page('pages/36_Email_Verification.py')
