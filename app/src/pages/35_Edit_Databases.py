@@ -17,7 +17,7 @@ with st.sidebar:
     if st.button("🚪 Logout", use_container_width=True):
         for key in st.session_state.keys():
             del st.session_state[key]
-        st.switch_page("app/src/Home.py")
+        st.switch_page("Home.py")
 
 st.title('Performance Database Management')
 

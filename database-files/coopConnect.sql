@@ -913,3 +913,7 @@ SELECT H.Name AS Hospital, A.Name AS Airport
 FROM Hospital H
 JOIN Airport A ON H.City_ID = A.City_ID
 WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
+
+Select Performance.Date, Avg_Speed, Top_Speed
+From Performance
+where date(Date) = '2025-03-12'
