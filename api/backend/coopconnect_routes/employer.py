@@ -51,50 +51,37 @@ def get_student_population(City_ID):
     
     return the_response
 
-# Create a new job posting
-@employer.route('/job_postings', methods=['POST'])
-def create_job_posting():
-    data = request.get_json()  
-    compensation = data.get('compensation')
-    location_id = data.get('location_id')
-    user_id = data.get('user_id')
-
-    if not compensation or not location_id or not user_id:
-        return make_response(jsonify({'error': 'Missing required fields'}), 400)
-
-    cursor = db.get_db().cursor()
-    cursor.execute('''
-        INSERT INTO JobPosting (Compensation, Location_ID, User_ID)
-        VALUES (%s, %s, %s)
-    ''', (compensation, location_id, user_id))
-
-    db.get_db().commit()  
-    return make_response(jsonify({'message': 'Job posting created successfully'}), 201)
-
-# Get all job postings for a specific user
+# Get all job postings for a specific user by user ID
 @employer.route('/users/<int:user_id>/job_postings', methods=['GET'])
 def get_user_job_postings(user_id):
     cursor = db.get_db().cursor()
-    cursor.execute('''
-        SELECT Post_ID, Compensation, Location_ID, User_ID
-        FROM JobPosting
-        WHERE User_ID = %s
-    ''', (user_id,))
     
-    job_postings = cursor.fetchall()  # Fetch all job postings for the user
-    
-    if job_postings:
-        postings_list = []
-        for posting in job_postings:
-            postings_list.append({
-                'Post_ID': posting[0],
-                'Compensation': posting[1],
-                'Location_ID': posting[2],
-                'User_ID': posting[3]
-            })
-        return make_response(jsonify(postings_list), 200)
-    else:
-        return make_response(jsonify({'error': 'No job postings found for this user'}), 404)
+    try:
+        cursor.execute('''
+            SELECT Post_ID, Title, Bio, Compensation, Location_ID, User_ID
+            FROM JobPosting
+            WHERE User_ID = %s
+        ''', (user_id,))
+        
+        job_postings = cursor.fetchall()  # Fetch all job postings for the user
+        
+        if job_postings:
+            postings_list = []
+            for posting in job_postings:
+                postings_list.append({
+                    'Post_ID': posting['Post_ID'],
+                    'Title': posting['Title'],
+                    'Bio': posting['Bio'],
+                    'Compensation': posting['Compensation'],
+                    'Location_ID': posting['Location_ID'],
+                    'User_ID': posting['User_ID']
+                })
+            return make_response(jsonify(postings_list), 200)
+        else:
+            return make_response(jsonify({'error': 'No job postings found for this user'}), 404)
+
+    except Exception as e:
+        return make_response(jsonify({'error': f'Database error: {str(e)}'}), 500)
 
 # Delete a job posting
 @employer.route('/job_postings/<int:post_id>', methods=['DELETE'])
@@ -115,17 +102,29 @@ def delete_job_posting(post_id):
 @employer.route('/job_postings/<int:post_id>', methods=['PUT'])
 def update_job_posting(post_id):
     data = request.get_json()  # Get the JSON data from the request
+    title = data.get('title')
+    bio = data.get('bio')
     compensation = data.get('compensation')
     location_id = data.get('location_id')
 
-    if compensation is None and location_id is None:
-        return make_response(jsonify({'error': 'No fields to update'}), 400)
-
     updates = []
+    params = []
+
+    if title is not None:
+        updates.append("Title = %s")
+        params.append(title)
+    if bio is not None:
+        updates.append("Bio = %s")
+        params.append(bio)
     if compensation is not None:
-        updates.append(f"Compensation = %s")
+        updates.append("Compensation = %s")
+        params.append(compensation)
     if location_id is not None:
-        updates.append(f"Location_ID = %s")
+        updates.append("Location_ID = %s")
+        params.append(location_id)
+
+    if not updates:
+        return make_response(jsonify({'error': 'No fields to update'}), 400)
 
     update_query = f'''
         UPDATE JobPosting
@@ -133,11 +132,6 @@ def update_job_posting(post_id):
         WHERE Post_ID = %s
     '''
     
-    params = []
-    if compensation is not None:
-        params.append(compensation)
-    if location_id is not None:
-        params.append(location_id)
     params.append(post_id)
 
     cursor = db.get_db().cursor()
@@ -149,6 +143,120 @@ def update_job_posting(post_id):
     else:
         return make_response(jsonify({'error': 'Job posting not found'}), 404)
 
+# Get student population for each zipcode in a specified city
+@employer.route('/cities/<string:city_name>/student_population', methods=['GET'])
+def get_student_population_by_zip(city_name):
+    cursor = db.get_db().cursor()
+    cursor.execute('''
+        SELECT L.Zip, L.Student_pop
+        FROM Location L
+        WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = %s)
+    ''', (city_name,))
+    
+    student_population_data = cursor.fetchall()  # Fetch all results
+    print(student_population_data)
+    if student_population_data:
+        result = [{'Zip': row['Zip'], 'Student_Population': row['Student_pop']} for row in student_population_data]
+        return make_response(jsonify(result), 200)
+    else:
+        return "No zipcodes for selected city"
+
+# Get all zip codes
+@employer.route('/zipcodes', methods=['GET'])
+def get_all_zipcodes():
+    cursor = db.get_db().cursor()
+    cursor.execute('SELECT Zip FROM Location')
+    
+    zipcodes = cursor.fetchall()  # Fetch all zip codes
+    
+    if zipcodes:
+        # Convert the list of tuples to a list of zip codes
+        zip_list = [zipcode['Zip'] for zipcode in zipcodes]
+        return make_response(jsonify(zip_list), 200)
+    else:
+        return make_response(jsonify({'error': 'No zip codes found'}), 404)
+    
 
 
+# Get all job postings for a specific user by email
+@employer.route('/users/email/<string:user_email>/job_postings', methods=['GET'])
+def get_user_job_postings_by_email(user_email):
+    cursor = db.get_db().cursor()
+    
+    try:
+        # Fetch user ID using the provided email
+        cursor.execute('''
+            SELECT UserID 
+            FROM User 
+            WHERE email = %s
+        ''', (user_email,))
+        
+        user_id = cursor.fetchone()  # Fetch the user ID
+        
+        if not user_id:
+            return make_response(jsonify({'error': 'Email not found in the database'}), 404)
 
+        user_id = user_id['UserID']  # Get the actual UserID from the tuple
+
+        # Fetch job postings for the user
+        cursor.execute('''
+            SELECT Post_ID, Compensation, Location_ID, User_ID
+            FROM JobPosting
+            WHERE User_ID = %s
+        ''', (user_id,))
+        
+        job_postings = cursor.fetchall()  # Fetch all job postings for the user
+        
+        if job_postings:
+            postings_list = []
+            for posting in job_postings:
+                postings_list.append({
+                    'Post_ID': posting['Post_ID'],
+                    'Compensation': posting["Compensation"],
+                    'Location_ID': posting['Location_ID'],
+                    'User_ID': posting['User_ID']
+                })
+            return make_response(jsonify(postings_list), 200)
+        else:
+            return make_response(jsonify({'error': 'No job postings found for this user'}), 404)
+
+    except Exception as e:
+        return make_response(jsonify({'error': f'Database error: {str(e)}'}), 500)
+
+# Create a new job posting
+@employer.route('/job_postings', methods=['POST'])
+def create_job_posting():
+    data = request.get_json()  # Get the JSON data from the request
+    title = data.get('title')
+    bio = data.get('bio')
+    compensation = data.get('compensation')
+    user_email = data.get('user_email')
+    location_id = data.get('location_id')
+
+    # Validate required fields
+    if not title or not bio or compensation is None or not user_email:
+        return make_response(jsonify({'error': 'Missing required fields'}), 400)
+
+    # Fetch user ID using the provided email
+    cursor = db.get_db().cursor()
+    cursor.execute('''
+        SELECT UserID 
+        FROM User 
+        WHERE email = %s
+    ''', (user_email,))
+    
+    user_id = cursor.fetchone()  # Fetch the user ID
+
+    if not user_id:
+        return make_response(jsonify({'error': 'User not found'}), 404)
+
+    user_id = user_id['UserID']  # Get the actual UserID from the tuple
+
+    # Insert the new job posting into the database
+    cursor.execute('''
+        INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (title, bio, compensation, location_id, user_id))  # Assuming Location_ID is optional or can be set later
+
+    db.get_db().commit()  # Commit the transaction
+    return make_response(jsonify({'message': 'Job posting created successfully'}), 201)

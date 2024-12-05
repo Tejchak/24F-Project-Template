@@ -26,18 +26,6 @@ Create table if not exists City
     check (Prop_Hybrid_Workers >= 0 and Prop_Hybrid_Workers <=1),
     PRIMARY KEY(City_ID)
 );
-#
-# DELIMITER //
-#
-# CREATE TRIGGER update_city_population AFTER INSERT ON User
-# FOR EACH ROW
-# BEGIN
-#     UPDATE City
-#     SET Population = Population + 1
-#     WHERE City_ID = NEW.Current_City_ID;
-# END //
-#
-# DELIMITER ;
 
 
 Create table if not exists User
@@ -162,13 +150,16 @@ Create table if not exists Hospital (
 );
 
 Create table if not exists JobPosting (
+    Title varchar(75) not null, 
     Post_ID int auto_increment not null,
     Compensation int,
     Location_ID int not null,
     User_ID int not null,
+    Bio Text not null,
+
     Primary Key (Post_ID),
     Constraint jp_loc
-        foreign key (Location_ID) references Location (zip),
+        foreign key (Location_ID) references Location (Zip),
     Constraint jp_user
         foreign key (User_ID) references User (UserID)
 );
@@ -295,7 +286,10 @@ DELIMITER ;
 INSERT INTO Category (CategoryName) VALUES
 ('Student'),
 ('Employer'),
-('Administrator');
+('Administrator'),
+('Financial Advisor'),
+('Parent'),
+('System Administrator');
 
 #City data
 INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers) VALUES
@@ -333,98 +327,107 @@ INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop
 
 #Location data
 INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
-(02115, 1, 50000, 8),
-(60616, 2, 30000, 7),
-(10001, (SELECT City_ID FROM City WHERE Name = 'New York'), 200000, 9),
-(94103, 4, 150000, 8),
-(98101, 5, 100000, 9),
-(33101, 6, 80000, 7),
-(48201, 7, 60000, 6),
-(02130, 1, 70000, 8),
-(60614, 2, 50000, 7),
-(10002, 3, 30000, 9),
-(94105, 4, 40000, 8),
-(98102, 5, 20000, 9),
-(33102, 6, 15000, 7),
-(48202, 7, 12000, 6),
-(02131, 1, 90000, 8),
-(60615, 2, 110000, 7),
-(10003, 3, 130000, 9),
-(94104, 4, 140000, 8),
-(98103, 5, 150000, 9),
-(33103, 6, 160000, 7),
-(48203, 7, 170000, 6),
-(02132, 1, 180000, 8),
-(60617, 2, 190000, 7),
-(10004, 3, 200000, 9),
-(94106, 4, 210000, 8),
-(98104, 5, 220000, 9),
-(33104, 6, 230000, 7),
-(48204, 7, 240000, 6),
-(02133, 1, 250000, 8),
-(60618, 2, 260000, 7),
-(10005, 3, 270000, 9),
-(94107, 4, 280000, 8),
-(98105, 5, 290000, 9),
-(33105, 6, 300000, 7),
-(48205, 7, 310000, 6),
-(02134, 1, 320000, 8),
-(60619, 2, 330000, 7),
-(10006, 3, 340000, 9),
-(94108, 4, 350000, 8),
-(98106, 5, 360000, 9),
-(33106, 6, 370000, 7),
-(48206, 7, 380000, 6),
-(02135, 1, 390000, 8),
-(60620, 2, 400000, 7),
-(10007, 3, 410000, 9),
-(94109, 4, 420000, 8),
-(98107, 5, 430000, 9),
-(33107, 6, 440000, 7),
-(48207, 7, 450000, 6);
+(02115, 1, 500, 8),
+(60616, 2, 300, 7),
+(10001, (SELECT City_ID FROM City WHERE Name = 'New York'), 200, 6),
+(94103, 4, 150, 8),
+(98101, 5, 800, 9),
+(33101, 6, 600, 7),
+(48201, 7, 400, 6),
+(02130, 1, 700, 8),
+(60614, 2, 900, 7),
+(10002, 3, 350, 9),
+(94105, 4, 250, 8),
+(98102, 5, 950, 9),
+(33102, 6, 100, 7),
+(48202, 7, 120, 6),
+(02131, 1, 180, 8),
+(60615, 2, 110, 7),
+(10003, 3, 130, 9),
+(94104, 4, 140, 8),
+(98103, 5, 150, 9),
+(33103, 6, 160, 7),
+(48203, 7, 170, 6),
+(02132, 1, 190, 8),
+(60617, 2, 200, 7),
+(10004, 3, 220, 9),
+(94106, 4, 210, 8),
+(98104, 5, 230, 9),
+(33104, 6, 240, 7),
+(48204, 7, 250, 6),
+(02133, 1, 260, 8),
+(60618, 2, 270, 7),
+(10005, 3, 280, 9),
+(94107, 4, 290, 8),
+(98105, 5, 300, 6),
+(33105, 6, 310, 1),
+(48205, 7, 320, 2),
+(02134, 1, 330, 8),
+(60619, 2, 340, 2),
+(10006, 3, 350, 1),
+(94108, 4, 360, 2),
+(98106, 5, 370, 4),
+(33106, 6, 380, 1),
+(48206, 7, 390, 3),
+(02135, 1, 400, 2),
+(60620, 2, 410, 4),
+(10007, 3, 420, 4),
+(94109, 4, 430, 2),
+(98107, 5, 440, 3),
+(33107, 6, 450, 1),
+(48207, 7, 460, 5);
 
 #User data
-INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID) VALUES
-(1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1),
-(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2),
-(1, 'Alice Walker', 'alice.walker@example.com', '555-123-4561', 3),
-(2, 'Bob Brown', 'bob.brown@example.com', '555-123-4562', 4),
-(1, 'Charlie Johnson', 'charlie.johnson@example.com', '555-123-4563', 5),
-(2, 'Diana Prince', 'diana.prince@example.com', '555-123-4564', 6),
-(1, 'Edward Elric', 'edward.elric@example.com', '555-123-4565', 7),
-(2, 'Fiona Gallagher', 'fiona.gallagher@example.com', '555-123-4566', 8),
-(1, 'George Washington', 'george.washington@example.com', '555-123-4567', 9),
-(2, 'Hannah Montana', 'hannah.montana@example.com', '555-123-4568', 10),
-(1, 'Ivy League', 'ivy.league@example.com', '555-123-4569', 11),
-(2, 'Jack Sparrow', 'jack.sparrow@example.com', '555-123-4570', 12),
-(1, 'Katherine Johnson', 'katherine.johnson@example.com', '555-123-4571', 13),
-(2, 'Liam Neeson', 'liam.neeson@example.com', '555-123-4572', 14),
-(1, 'Mia Wallace', 'mia.wallace@example.com', '555-123-4573', 15),
-(2, 'Nina Simone', 'nina.simone@example.com', '555-123-4574', 16),
-(1, 'Oscar Wilde', 'oscar.wilde@example.com', '555-123-4575', 17),
-(2, 'Peter Parker', 'peter.parker@example.com', '555-123-4576', 18),
-(1, 'Quinn Fabray', 'quinn.fabray@example.com', '555-123-4577', 19),
-(2, 'Ron Weasley', 'ron.weasley@example.com', '555-123-4578', 20),
-(1, 'Steve Rogers', 'steve.rogers@example.com', '555-123-4579', 21),
-(2, 'Tony Stark', 'tony.stark@example.com', '555-123-4580', 22),
-(1, 'Uma Thurman', 'uma.thurman@example.com', '555-123-4581', 23),
-(2, 'Vince Vaughn', 'vince.vaughn@example.com', '555-123-4582', 24),
-(1, 'Will Smith', 'will.smith@example.com', '555-123-4583', 25),
-(2, 'Xena Warrior', 'xena.warrior@example.com', '555-123-4584', 26),
-(1, 'Yoda Jedi', 'yoda.jedi@example.com', '555-123-4585', 27),
-(2, 'Zoe Saldana', 'zoe.saldana@example.com', '555-123-4586', 28),
-(1, 'Albus Dumbledore', 'albus.dumbledore@example.com', '555-123-4587', 29),
-(2, 'Bella Swan', 'bella.swan@example.com', '555-123-4588', 30),
-(1, 'Cinderella', 'cinderella@example.com', '555-123-4589', 27),
-(2, 'Darth Vader', 'darth.vader@example.com', '555-123-4590', 6),
-(1, 'Eleanor Rigby', 'eleanor.rigby@example.com', '555-123-4591', 8),
-(2, 'Frodo Baggins', 'frodo.baggins@example.com', '555-123-4592', 2),
-(1, 'Gandalf Grey', 'gandalf.grey@example.com', '555-123-4593', 3),
-(2, 'Hermione Granger', 'hermione.granger@example.com', '555-123-4594', 3),
-(1, 'Icarus Flight', 'icarus.flight@example.com', '555-123-4595', 3),
-(2, 'Jasmine Aladdin', 'jasmine.aladdin@example.com', '555-123-4596', 8),
-(1, 'Klaus Mikaelson', 'klaus.mikaelson@example.com', '555-123-4597', 21),
-(2, 'Luna Lovegood', 'luna.lovegood@example.com', '555-123-4598', 2);
+INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID, Date_Created, Date_Last_Login) VALUES
+(1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1, '2024-07-01', '2024-12-04'),
+(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2, '2024-07-05', '2024-12-03'),
+(1, 'Alice Walker', 'alice.walker@example.com', '555-123-4561', 3, '2024-07-10', '2024-12-02'),
+(2, 'Bob Brown', 'bob.brown@example.com', '555-123-4562', 4, '2024-07-15', '2024-12-01'),
+(1, 'Charlie Johnson', 'charlie.johnson@example.com', '555-123-4563', 5, '2024-07-20', '2024-11-30'),
+(2, 'Diana Prince', 'diana.prince@example.com', '555-123-4564', 6, '2024-07-25', '2024-11-29'),
+(1, 'Edward Elric', 'edward.elric@example.com', '555-123-4565', 7, '2024-08-01', '2024-11-28'),
+(2, 'Fiona Gallagher', 'fiona.gallagher@example.com', '555-123-4566', 8, '2024-08-05', '2024-11-27'),
+(1, 'George Washington', 'george.washington@example.com', '555-123-4567', 9, '2024-08-10', '2024-11-26'),
+(2, 'Hannah Montana', 'hannah.montana@example.com', '555-123-4568', 10, '2024-08-15', '2024-11-25'),
+(1, 'Ivy League', 'ivy.league@example.com', '555-123-4569', 11, '2024-08-20', '2024-11-24'),
+(2, 'Jack Sparrow', 'jack.sparrow@example.com', '555-123-4570', 12, '2024-08-25', '2024-11-23'),
+(1, 'Katherine Johnson', 'katherine.johnson@example.com', '555-123-4571', 13, '2024-09-01', '2024-11-22'),
+(2, 'Liam Neeson', 'liam.neeson@example.com', '555-123-4572', 14, '2024-09-05', '2024-11-21'),
+(1, 'Mia Wallace', 'mia.wallace@example.com', '555-123-4573', 15, '2024-09-10', '2024-11-20'),
+(2, 'Nina Simone', 'nina.simone@example.com', '555-123-4574', 16, '2024-09-15', '2024-11-19'),
+(1, 'Oscar Wilde', 'oscar.wilde@example.com', '555-123-4575', 17, '2024-09-20', '2024-11-18'),
+(2, 'Peter Parker', 'peter.parker@example.com', '555-123-4576', 18, '2024-09-25', '2024-11-17'),
+(1, 'Quinn Fabray', 'quinn.fabray@example.com', '555-123-4577', 19, '2024-10-01', '2024-11-16'),
+(2, 'Ron Weasley', 'ron.weasley@example.com', '555-123-4578', 20, '2024-10-05', '2024-11-15'),
+(1, 'Steve Rogers', 'steve.rogers@example.com', '555-123-4579', 21, '2024-10-10', '2024-11-14'),
+(2, 'Tony Stark', 'tony.stark@example.com', '555-123-4580', 22, '2024-10-15', '2024-11-13'),
+(1, 'Uma Thurman', 'uma.thurman@example.com', '555-123-4581', 23, '2024-10-20', '2024-11-12'),
+(2, 'Vince Vaughn', 'vince.vaughn@example.com', '555-123-4582', 24, '2024-10-25', '2024-11-11'),
+(1, 'Will Smith', 'will.smith@example.com', '555-123-4583', 25, '2024-11-01', '2024-11-10'),
+(2, 'Xena Warrior', 'xena.warrior@example.com', '555-123-4584', 26, '2024-11-05', '2024-11-09'),
+(1, 'Yoda Jedi', 'yoda.jedi@example.com', '555-123-4585', 27, '2024-11-10', '2024-11-08'),
+(2, 'Zoe Saldana', 'zoe.saldana@example.com', '555-123-4586', 28, '2024-11-15', '2024-11-07'),
+(1, 'Albus Dumbledore', 'albus.dumbledore@example.com', '555-123-4587', 29, '2024-11-20', '2024-11-06'),
+(2, 'Bella Swan', 'bella.swan@example.com', '555-123-4588', 30, '2024-11-25', '2024-11-05'),
+(1, 'Cinderella', 'cinderella@example.com', '555-123-4589', 27, '2024-11-27', '2024-11-04'),
+(2, 'Darth Vader', 'darth.vader@example.com', '555-123-4590', 6, '2024-11-29', '2024-11-03'),
+(1, 'Eleanor Rigby', 'eleanor.rigby@example.com', '555-123-4591', 8, '2024-12-01', '2024-11-02'),
+(2, 'Frodo Baggins', 'frodo.baggins@example.com', '555-123-4592', 2, '2024-12-01', '2024-11-01'),
+(1, 'Gandalf Grey', 'gandalf.grey@example.com', '555-123-4593', 3, '2024-12-02', '2024-10-31'),
+(2, 'Hermione Granger', 'hermione.granger@example.com', '555-123-4594', 3, '2024-12-02', '2024-10-30'),
+(1, 'Icarus Flight', 'icarus.flight@example.com', '555-123-4595', 3, '2024-12-03', '2024-10-29'),
+(2, 'Jasmine Aladdin', 'jasmine.aladdin@example.com', '555-123-4596', 8, '2024-12-03', '2024-10-28'),
+(1, 'Klaus Mikaelson', 'klaus.mikaelson@example.com', '555-123-4597', 21, '2024-12-04', '2024-10-27'),
+(2, 'Luna Lovegood', 'luna.lovegood@example.com', '555-123-4598', 2, '2024-12-04', '2024-10-26'),
+(4, 'Michael Bloomberg', 'michael.bloomberg@finance.com', '555-123-4599', 3, '2024-11-15', '2024-12-04'),
+(4, 'Warren Buffett', 'warren.buffett@finance.com', '555-123-4600', 2, '2024-11-20', '2024-12-03'),
+(5, 'Sarah Connor', 'sarah.connor@family.com', '555-123-4601', 1, '2024-11-25', '2024-12-02'),
+(5, 'Molly Weasley', 'molly.weasley@family.com', '555-123-4602', 4, '2024-11-28', '2024-12-01'),
+(6, 'Neo Matrix', 'neo.matrix@sysadmin.com', '555-123-4603', 5, '2024-12-01', '2024-11-30'),
+(6, 'Barbara Gordon', 'barbara.gordon@sysadmin.com', '555-123-4604', 3, '2024-12-02', '2024-11-29'),
+(4, 'Peter Lynch', 'peter.lynch@finance.com', '555-123-4605', 1, '2024-12-03', '2024-11-28'),
+(5, 'Marge Simpson', 'marge.simpson@family.com', '555-123-4606', 2, '2024-12-03', '2024-11-27'),
+(6, 'Elliot Alderson', 'elliot.alderson@sysadmin.com', '555-123-4607', 4, '2024-12-04', '2024-11-26');
 
 
 #Housing data
@@ -721,57 +724,55 @@ INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 ('Emory University Hospital', 10, 10006);
 
 -- Sample data for JobPosting (50 rows)
--- Sample data for JobPosting (50 rows)
-INSERT INTO JobPosting (Compensation, Location_ID, User_ID) VALUES
-(80000, 02115, 1),  -- Boston
-(95000, 60616, 2),  -- Chicago
-(75000, 10001, 3),  -- New York
-(60000, 94103, 4),  -- San Francisco
-(70000, 98101, 5),  -- Seattle
-(85000, 33101, 6),  -- Miami
-(90000, 48201, 7),  -- Detroit
-(65000, 02130, 1),  -- Boston
-(72000, 60614, 2),  -- Chicago
-(68000, 10002, 3),  -- New York
-(62000, 94105, 4),  -- San Francisco
-(58000, 98102, 5),  -- Seattle
-(54000, 33102, 6),  -- Miami
-(50000, 48202, 7),  -- Detroit
-(64000, 02131, 1),  -- Boston
-(56000, 60615, 2),  -- Chicago
-(67000, 10003, 3),  -- New York
-(60000, 94104, 4),  -- San Francisco
-(58000, 98103, 5),  -- Seattle
-(62000, 33103, 6),  -- Miami
-(53000, 48203, 7),  -- Detroit
-(61000, 02132, 1),  -- Boston
-(57000, 60617, 2),  -- Chicago
-(64000, 10004, 3),  -- New York
-(53000, 94106, 4),  -- San Francisco
-(61000, 98104, 5),  -- Seattle
-(56000, 33104, 6),  -- Miami
-(59000, 48204, 7),  -- Detroit
-(65000, 02133, 1),  -- Boston
-(58000, 60618, 2),  -- Chicago
-(59000, 10005, 3),  -- New York
-(63000, 94107, 4),  -- San Francisco
-(54000, 98105, 5),  -- Seattle
-(61000, 33105, 6),  -- Miami
-(57000, 48205, 7),  -- Detroit
-(65000, 02134, 1),  -- Boston
-(58000, 60619, 2),  -- Chicago
-(64000, 10006, 3),  -- New York
-(53000, 94108, 4),  -- San Francisco
-(61000, 98106, 5),  -- Seattle
-(56000, 33106, 6),  -- Miami
-(59000, 48206, 7),  -- Detroit
-(65000, 02135, 1),  -- Boston
-(58000, 60620, 2),  -- Chicago
-(64000, 10007, 3),  -- New York
-(53000, 94109, 4),  -- San Francisco
-(61000, 98107, 5),  -- Seattle
-(56000, 33107, 6),  -- Miami
-(59000, 48207, 7);  -- Detroit
+INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID) VALUES
+('Software Engineer', 'Develop and maintain software applications.', 800, 02115, 1),  -- Boston
+('Data Scientist', 'Analyze data to drive business solutions.', 950, 60616, 2),  -- Chicago
+('Web Developer', 'Create and manage websites and web applications.', 750, 10001, 3),  -- New York
+('Product Manager', 'Lead product development and strategy.', 600, 94103, 4),  -- San Francisco
+('UX Designer', 'Design user-friendly interfaces and experiences.', 700, 98101, 5),  -- Seattle
+('Marketing Specialist', 'Develop marketing strategies and campaigns.', 850, 33101, 6),  -- Miami
+('Project Coordinator', 'Assist in project planning and execution.', 900, 48201, 7),  -- Detroit
+('Systems Analyst', 'Analyze and improve IT systems.', 650, 02130, 1),  -- Boston
+('Database Administrator', 'Manage and maintain database systems.', 720, 60614, 2),  -- Chicago
+('Network Engineer', 'Design and implement network solutions.', 680, 10002, 3),  -- New York
+('DevOps Engineer', 'Automate and streamline operations.', 620, 94105, 4),  -- San Francisco
+('Content Writer', 'Create engaging content for various platforms.', 580, 98102, 5),  -- Seattle
+('Sales Representative', 'Drive sales and build customer relationships.', 540, 33102, 6),  -- Miami
+('Quality Assurance Tester', 'Ensure software quality through testing.', 500, 48202, 7),  -- Detroit
+('Business Analyst', 'Analyze business needs and provide solutions.', 640, 02131, 1),  -- Boston
+('Graphic Designer', 'Create visual content for marketing materials.', 560, 60615, 2),  -- Chicago
+('SEO Specialist', 'Optimize website content for search engines.', 670, 10003, 3),  -- New York
+('Technical Writer', 'Document software and technical processes.', 600, 94104, 4),  -- San Francisco
+('Customer Support Specialist', 'Provide support to customers.', 580, 98103, 5),  -- Seattle
+('HR Manager', 'Manage human resources and employee relations.', 620, 33103, 6),  -- Miami
+('Financial Analyst', 'Analyze financial data and trends.', 530, 48203, 7),  -- Detroit
+('Operations Manager', 'Oversee daily operations and processes.', 610, 02132, 1),  -- Boston
+('IT Support Specialist', 'Provide technical support to users.', 570, 60617, 2),  -- Chicago
+('Network Administrator', 'Manage and maintain network infrastructure.', 640, 10004, 3),  -- New York
+('Web Designer', 'Design and create visually appealing websites.', 530, 94106, 4),  -- San Francisco
+('Mobile Developer', 'Develop applications for mobile devices.', 610, 98104, 5),  -- Seattle
+('Data Analyst', 'Analyze data to inform business decisions.', 560, 33104, 6),  -- Miami
+('Research Scientist', 'Conduct research and experiments.', 590, 48204, 7),  -- Detroit
+('Account Manager', 'Manage client accounts and relationships.', 650, 02133, 1),  -- Boston
+('Social Media Manager', 'Manage social media accounts and campaigns.', 580, 60618, 2),  -- Chicago
+('Event Coordinator', 'Plan and coordinate events.', 590, 10005, 3),  -- New York
+('Software Tester', 'Test software for bugs and issues.', 630, 94107, 4),  -- San Francisco
+('Business Development Manager', 'Identify and pursue new business opportunities.', 540, 98105, 5),  -- Seattle
+('Logistics Coordinator', 'Manage logistics and supply chain operations.', 610, 33105, 6),  -- Miami
+('Compliance Officer', 'Ensure compliance with regulations and policies.', 570, 48205, 7),  -- Detroit
+('Sales Manager', 'Lead the sales team and drive sales strategies.', 650, 02134, 1),  -- Boston
+('Product Designer', 'Design products that meet user needs.', 580, 60619, 2),  -- Chicago
+('Financial Consultant', 'Provide financial advice and planning.', 640, 10006, 3),  -- New York
+('IT Project Manager', 'Manage IT projects from start to finish.', 530, 94108, 4),  -- San Francisco
+('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 610, 98106, 5),  -- Seattle
+('E-commerce Specialist', 'Manage online sales and marketing.', 560, 33106, 6),  -- Miami
+('Content Strategist', 'Develop content strategies for brands.', 590, 48206, 7),  -- Detroit
+('Software Engineer', 'Develop and maintain software applications.', 800, 02115, 39),  -- Boston
+('Data Scientist', 'Analyze data to drive business solutions.', 950, 60616, 39),  -- Chicago
+('Web Developer', 'Create and manage websites and web applications.', 750, 10001, 39),  -- New York
+('Product Manager', 'Lead product development and strategy.', 600, 94103, 39),  -- San Francisco
+('UX Designer', 'Design user-friendly interfaces and experiences.', 700, 98101, 39),  -- Seattle
+('Marketing Specialist', 'Develop marketing strategies and campaigns.', 850, 33101, 39);  -- Miami
 
 
 ## Persona 1: Timothy (Northeastern Student)**
@@ -818,7 +819,7 @@ ORDER BY L.Safety_Rating DESC;
 
 ## Quickly add data to the database:
 INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers)
-VALUES (2500, 1200, 3000, 'Seattle', 800000, 0.3000);
+VALUES (2500, 1200, 3000, 'Vander', 800000, 0.3000);
 
 ## Efficiently delete unused data:
 DELETE FROM Performance
@@ -860,9 +861,11 @@ FROM Location L
 WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 
 ## Post job details:
-INSERT INTO JobPosting (Compensation, Location_ID, User_ID)
+INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
 VALUES (
-    5000,
+    'Junior Developer',
+    'Assist in the development of software applications.',
+    500,
     (SELECT Zip FROM Location WHERE City_ID = (SELECT City_ID FROM City WHERE Name = 'Boston') LIMIT 1),
     (SELECT UserID FROM User WHERE email = 'jane.smith@example.com')
 );
@@ -914,16 +917,6 @@ FROM Hospital H
 JOIN Airport A ON H.City_ID = A.City_ID
 WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 
-SELECT c1.Name,
-                       c1.Avg_Cost_Of_Living,
-                       c1.Avg_Rent,
-                       c1.Avg_Wage,
-                       c1.Avg_Cost_Of_Living / c1.Avg_Wage as cost_to_wage_ratio,
-                       c1.Avg_Rent / c1.Avg_Wage as rent_to_wage_ratio,
-                       (SELECT AVG(Avg_Cost_Of_Living) FROM City) as avg_national_col,
-                       (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
-                       (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
-                FROM City c1
-                WHERE c1.Avg_Cost_Of_Living BETWEEN 2000 AND 2500
-                ORDER BY ABS(c1.Avg_Cost_Of_Living - 2500)
-                LIMIT 1;
+Select Performance.Date, Avg_Speed, Top_Speed
+From Performance
+where date(Date) = '2025-03-12'

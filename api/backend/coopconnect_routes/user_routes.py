@@ -16,7 +16,7 @@ users = Blueprint('Users', __name__)
 def get_users():
 
     cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM User')
+    cursor.execute('SELECT * FROM User JOIN Category ON User.CategoryID = Category.CategoryID')
                    
     
     theData = cursor.fetchall()
