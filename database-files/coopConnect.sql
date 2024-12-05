@@ -725,48 +725,54 @@ INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 
 -- Sample data for JobPosting (50 rows)
 INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID) VALUES
-('Software Engineer', 'Develop and maintain software applications.', 80000, 02115, 1),  -- Boston
-('Data Scientist', 'Analyze data to drive business solutions.', 95000, 60616, 2),  -- Chicago
-('Web Developer', 'Create and manage websites and web applications.', 75000, 10001, 3),  -- New York
-('Product Manager', 'Lead product development and strategy.', 60000, 94103, 4),  -- San Francisco
-('UX Designer', 'Design user-friendly interfaces and experiences.', 70000, 98101, 5),  -- Seattle
-('Marketing Specialist', 'Develop marketing strategies and campaigns.', 85000, 33101, 6),  -- Miami
-('Project Coordinator', 'Assist in project planning and execution.', 90000, 48201, 7),  -- Detroit
-('Systems Analyst', 'Analyze and improve IT systems.', 65000, 02130, 1),  -- Boston
-('Database Administrator', 'Manage and maintain database systems.', 72000, 60614, 2),  -- Chicago
-('Network Engineer', 'Design and implement network solutions.', 68000, 10002, 3),  -- New York
-('DevOps Engineer', 'Automate and streamline operations.', 62000, 94105, 4),  -- San Francisco
-('Content Writer', 'Create engaging content for various platforms.', 58000, 98102, 5),  -- Seattle
-('Sales Representative', 'Drive sales and build customer relationships.', 54000, 33102, 6),  -- Miami
-('Quality Assurance Tester', 'Ensure software quality through testing.', 50000, 48202, 7),  -- Detroit
-('Business Analyst', 'Analyze business needs and provide solutions.', 64000, 02131, 1),  -- Boston
-('Graphic Designer', 'Create visual content for marketing materials.', 56000, 60615, 2),  -- Chicago
-('SEO Specialist', 'Optimize website content for search engines.', 67000, 10003, 3),  -- New York
-('Technical Writer', 'Document software and technical processes.', 60000, 94104, 4),  -- San Francisco
-('Customer Support Specialist', 'Provide support to customers.', 58000, 98103, 5),  -- Seattle
-('HR Manager', 'Manage human resources and employee relations.', 62000, 33103, 6),  -- Miami
-('Financial Analyst', 'Analyze financial data and trends.', 53000, 48203, 7),  -- Detroit
-('Operations Manager', 'Oversee daily operations and processes.', 61000, 02132, 1),  -- Boston
-('IT Support Specialist', 'Provide technical support to users.', 57000, 60617, 2),  -- Chicago
-('Network Administrator', 'Manage and maintain network infrastructure.', 64000, 10004, 3),  -- New York
-('Web Designer', 'Design and create visually appealing websites.', 53000, 94106, 4),  -- San Francisco
-('Mobile Developer', 'Develop applications for mobile devices.', 61000, 98104, 5),  -- Seattle
-('Data Analyst', 'Analyze data to inform business decisions.', 56000, 33104, 6),  -- Miami
-('Research Scientist', 'Conduct research and experiments.', 59000, 48204, 7),  -- Detroit
-('Account Manager', 'Manage client accounts and relationships.', 65000, 02133, 1),  -- Boston
-('Social Media Manager', 'Manage social media accounts and campaigns.', 58000, 60618, 2),  -- Chicago
-('Event Coordinator', 'Plan and coordinate events.', 59000, 10005, 3),  -- New York
-('Software Tester', 'Test software for bugs and issues.', 63000, 94107, 4),  -- San Francisco
-('Business Development Manager', 'Identify and pursue new business opportunities.', 54000, 98105, 5),  -- Seattle
-('Logistics Coordinator', 'Manage logistics and supply chain operations.', 61000, 33105, 6),  -- Miami
-('Compliance Officer', 'Ensure compliance with regulations and policies.', 57000, 48205, 7),  -- Detroit
-('Sales Manager', 'Lead the sales team and drive sales strategies.', 65000, 02134, 1),  -- Boston
-('Product Designer', 'Design products that meet user needs.', 58000, 60619, 2),  -- Chicago
-('Financial Consultant', 'Provide financial advice and planning.', 64000, 10006, 3),  -- New York
-('IT Project Manager', 'Manage IT projects from start to finish.', 53000, 94108, 4),  -- San Francisco
-('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 61000, 98106, 5),  -- Seattle
-('E-commerce Specialist', 'Manage online sales and marketing.', 56000, 33106, 6),  -- Miami
-('Content Strategist', 'Develop content strategies for brands.', 59000, 48206, 7);  -- Detroit
+('Software Engineer', 'Develop and maintain software applications.', 800, 02115, 1),  -- Boston
+('Data Scientist', 'Analyze data to drive business solutions.', 950, 60616, 2),  -- Chicago
+('Web Developer', 'Create and manage websites and web applications.', 750, 10001, 3),  -- New York
+('Product Manager', 'Lead product development and strategy.', 600, 94103, 4),  -- San Francisco
+('UX Designer', 'Design user-friendly interfaces and experiences.', 700, 98101, 5),  -- Seattle
+('Marketing Specialist', 'Develop marketing strategies and campaigns.', 850, 33101, 6),  -- Miami
+('Project Coordinator', 'Assist in project planning and execution.', 900, 48201, 7),  -- Detroit
+('Systems Analyst', 'Analyze and improve IT systems.', 650, 02130, 1),  -- Boston
+('Database Administrator', 'Manage and maintain database systems.', 720, 60614, 2),  -- Chicago
+('Network Engineer', 'Design and implement network solutions.', 680, 10002, 3),  -- New York
+('DevOps Engineer', 'Automate and streamline operations.', 620, 94105, 4),  -- San Francisco
+('Content Writer', 'Create engaging content for various platforms.', 580, 98102, 5),  -- Seattle
+('Sales Representative', 'Drive sales and build customer relationships.', 540, 33102, 6),  -- Miami
+('Quality Assurance Tester', 'Ensure software quality through testing.', 500, 48202, 7),  -- Detroit
+('Business Analyst', 'Analyze business needs and provide solutions.', 640, 02131, 1),  -- Boston
+('Graphic Designer', 'Create visual content for marketing materials.', 560, 60615, 2),  -- Chicago
+('SEO Specialist', 'Optimize website content for search engines.', 670, 10003, 3),  -- New York
+('Technical Writer', 'Document software and technical processes.', 600, 94104, 4),  -- San Francisco
+('Customer Support Specialist', 'Provide support to customers.', 580, 98103, 5),  -- Seattle
+('HR Manager', 'Manage human resources and employee relations.', 620, 33103, 6),  -- Miami
+('Financial Analyst', 'Analyze financial data and trends.', 530, 48203, 7),  -- Detroit
+('Operations Manager', 'Oversee daily operations and processes.', 610, 02132, 1),  -- Boston
+('IT Support Specialist', 'Provide technical support to users.', 570, 60617, 2),  -- Chicago
+('Network Administrator', 'Manage and maintain network infrastructure.', 640, 10004, 3),  -- New York
+('Web Designer', 'Design and create visually appealing websites.', 530, 94106, 4),  -- San Francisco
+('Mobile Developer', 'Develop applications for mobile devices.', 610, 98104, 5),  -- Seattle
+('Data Analyst', 'Analyze data to inform business decisions.', 560, 33104, 6),  -- Miami
+('Research Scientist', 'Conduct research and experiments.', 590, 48204, 7),  -- Detroit
+('Account Manager', 'Manage client accounts and relationships.', 650, 02133, 1),  -- Boston
+('Social Media Manager', 'Manage social media accounts and campaigns.', 580, 60618, 2),  -- Chicago
+('Event Coordinator', 'Plan and coordinate events.', 590, 10005, 3),  -- New York
+('Software Tester', 'Test software for bugs and issues.', 630, 94107, 4),  -- San Francisco
+('Business Development Manager', 'Identify and pursue new business opportunities.', 540, 98105, 5),  -- Seattle
+('Logistics Coordinator', 'Manage logistics and supply chain operations.', 610, 33105, 6),  -- Miami
+('Compliance Officer', 'Ensure compliance with regulations and policies.', 570, 48205, 7),  -- Detroit
+('Sales Manager', 'Lead the sales team and drive sales strategies.', 650, 02134, 1),  -- Boston
+('Product Designer', 'Design products that meet user needs.', 580, 60619, 2),  -- Chicago
+('Financial Consultant', 'Provide financial advice and planning.', 640, 10006, 3),  -- New York
+('IT Project Manager', 'Manage IT projects from start to finish.', 530, 94108, 4),  -- San Francisco
+('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 610, 98106, 5),  -- Seattle
+('E-commerce Specialist', 'Manage online sales and marketing.', 560, 33106, 6),  -- Miami
+('Content Strategist', 'Develop content strategies for brands.', 590, 48206, 7),  -- Detroit
+('Software Engineer', 'Develop and maintain software applications.', 800, 02115, 39),  -- Boston
+('Data Scientist', 'Analyze data to drive business solutions.', 950, 60616, 39),  -- Chicago
+('Web Developer', 'Create and manage websites and web applications.', 750, 10001, 39),  -- New York
+('Product Manager', 'Lead product development and strategy.', 600, 94103, 39),  -- San Francisco
+('UX Designer', 'Design user-friendly interfaces and experiences.', 700, 98101, 39),  -- Seattle
+('Marketing Specialist', 'Develop marketing strategies and campaigns.', 850, 33101, 39);  -- Miami
 
 
 ## Persona 1: Timothy (Northeastern Student)**
@@ -859,7 +865,7 @@ INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
 VALUES (
     'Junior Developer',
     'Assist in the development of software applications.',
-    5000,
+    500,
     (SELECT Zip FROM Location WHERE City_ID = (SELECT City_ID FROM City WHERE Name = 'Boston') LIMIT 1),
     (SELECT UserID FROM User WHERE email = 'jane.smith@example.com')
 );

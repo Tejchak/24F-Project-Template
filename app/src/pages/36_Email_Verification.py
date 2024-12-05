@@ -9,7 +9,7 @@ st.title("Email Verification")
 st.write("Please enter your email to verify your account.")
 
 # Input for email
-user_email = st.text_input("Enter your email", placeholder="user@example.com")
+user_email = st.text_input("Enter your email (E.x: klaus.mikaelson@example.com)", placeholder="klaus.mikaelson@example.com")
 
 if st.button("Verify Email"):
     if user_email:
