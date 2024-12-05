@@ -29,3 +29,11 @@ def get_hospitals_by_city(City_ID):
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
     
+
+
+@hospitals.route('/hospitals', methods=['GET'])
+def get_hospitals():
+    cursor = db.get_db().cursor()
+    cursor.execute('SELECT * FROM Hospital')
+    hospital_data = cursor.fetchall()
+    return jsonify(hospital_data), 200
