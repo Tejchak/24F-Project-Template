@@ -103,4 +103,4 @@ if st.button('Act as Sarah, a Northeastern University Student',
     st.session_state['role'] = 'student'
     st.session_state['first_name'] = 'Sarah'
     logger.info('Logging in as Student Persona')
-    st.switch_page('pages/37_Browse_Jobs.py')
+    st.switch_page('pages/29_Student_Home.py')
