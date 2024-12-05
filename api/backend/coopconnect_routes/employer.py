@@ -7,27 +7,6 @@ from backend.db_connection import db
 #Creates a new blueprint to collect the routes
 employer = Blueprint('Employer', __name__)
 
-# Get details for a certain city
-@employer.route('/cities/<int:City_ID>', methods=['GET'])
-def get_city_details(City_ID):
-    cursor = db.get_db().cursor()
-    cursor.execute('SELECT Name, Avg_Cost_Of_Living, Avg_Rent, Prop_Hybrid_Workers FROM City WHERE City_ID = %s', (City_ID,))
-    
-    city_details = cursor.fetchone()
-    
-    if city_details:
-        the_response = make_response(jsonify({
-            'City_Name': city_details[0],
-            'Avg_Cost_Of_Living': city_details[1],
-            'Avg_Rent': city_details[2],
-            'Prop_Hybrid_Workers': city_details[3]
-        }))
-        the_response.status_code = 200
-    else:
-        the_response = make_response(jsonify({'error': 'City not found'}), 404)
-    
-    return the_response
-
 # Get student population for a certain city
 @employer.route('/cities/<int:City_ID>/student_population', methods=['GET'])
 def get_student_population(City_ID):
@@ -260,3 +239,28 @@ def create_job_posting():
 
     db.get_db().commit()  # Commit the transaction
     return make_response(jsonify({'message': 'Job posting created successfully'}), 201)
+
+# Get average wage and proportion of hybrid workers for a specific city
+@employer.route('/cities/<string:city_name>/wage_hybrid', methods=['GET'])
+def get_average_wage_and_hybrid(city_name):
+    cursor = db.get_db().cursor()
+    
+    # Query to get average wage and proportion of hybrid workers
+    cursor.execute('''
+        SELECT Avg_Wage, Prop_Hybrid_Workers
+        FROM City
+        WHERE Name = %s
+    ''', (city_name,))
+    
+    result = cursor.fetchone()  # Fetch the result
+    
+    if result:
+        avg_wage = result['Avg_Wage']
+        prop_hybrid_workers = result['Prop_Hybrid_Workers']
+        return make_response(jsonify({
+            'City': city_name,
+            'Average_Wage': avg_wage,
+            'Proportion_Hybrid_Workers': prop_hybrid_workers
+        }), 200)
+    else:
+        return make_response(jsonify({'error': 'City not found'}), 404)
