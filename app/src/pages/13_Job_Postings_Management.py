@@ -27,83 +27,88 @@ if 'user_id' in st.session_state:
         response = requests.get(f'http://api:4000/users/{user_id}/job_postings')
         response.raise_for_status()
         job_postings = response.json()
-        st.success("Job postings retrieved successfully!")
 
-        # Convert job postings to a DataFrame for better display
-        df = pd.DataFrame(job_postings)
-
-        # Sort the DataFrame by Compensation in descending order
-        df_sorted = df.sort_values(by='Compensation', ascending=False)
-
-        # Display the DataFrame without the Bio column
-        st.subheader("Job Postings")
-        st.dataframe(df_sorted[['Title', 'Compensation', 'Location_ID', 'Post_ID', 'User_ID']])  # Display relevant columns
-
-        # Create a collapsible section for each job posting
-        for posting in job_postings:
-            with st.expander(f"Job Posting ID: {posting['Post_ID']}"):
-                st.markdown(f"**Title:** {posting['Title']}")
-                st.markdown(f"**Compensation:** ${posting['Compensation']}")
-                st.markdown(f"**Location (ZIP Code):** {posting['Location_ID']}")
-                st.markdown(f"**User ID:** {posting['User_ID']}")
-                st.markdown(f"**Description:** {posting['Bio']}")
-
-    except requests.exceptions.HTTPError as e:
-        st.error(f"Error fetching job postings: {e}")
-
-    # Fetch all available ZIP codes
-    try:
-        response = requests.get('http://api:4000/zipcodes')
-        response.raise_for_status()
-        all_zipcodes = response.json()  # Get all ZIP codes
-    except requests.exceptions.HTTPError as e:
-        st.error(f"Error fetching zip codes: {e}")
-        all_zipcodes = []
-
-    # Section for updating job postings
-    st.header("Update Job Posting")
-    post_id = st.selectbox("Select Job Posting ID to Update", options=[posting['Post_ID'] for posting in job_postings])
-    
-    # Fetch the selected posting details
-    selected_posting = next((posting for posting in job_postings if posting['Post_ID'] == post_id), None)
-
-    if selected_posting:
-        new_title = st.text_input("New Title", value="Intern")
-        new_bio = st.text_area("New Description", value="Collaborate")
-        new_compensation = st.number_input("New Compensation", min_value=0, value=0)
-        new_location_id = st.selectbox("Select New Location (ZIP Code)", options=df['Location_ID'].unique())  # Use all ZIP codes
-
-        if st.button("Update Job Posting"):
-            if post_id and (new_title or new_bio or new_compensation or new_location_id):
-                update_data = {
-                    "title": new_title,
-                    "bio": new_bio,
-                    "compensation": new_compensation if new_compensation else None,
-                    "location_id": new_location_id if new_location_id else None  # Use the selected ZIP code
-                }
-                try:
-                    response = requests.put(f'http://api:4000/job_postings/{post_id}', json=update_data)
-                    response.raise_for_status()
-                    st.success("Job posting updated successfully!")
-                except requests.exceptions.HTTPError as e:
-                    st.error(f"Error updating job posting: {e}")
-            else:
-                st.warning("Please provide a valid Job Posting ID and at least one field to update.")
-
-    # Section for deleting job postings
-    st.header("Delete Job Posting")
-    delete_post_id = st.selectbox("Select Job Posting ID to Delete", options=[posting['Post_ID'] for posting in job_postings])
-
-    if st.button("Delete Job Posting"):
-        if delete_post_id:
-            try:
-                response = requests.delete(f'http://api:4000/job_postings/{delete_post_id}')
-                response.raise_for_status()
-                st.success("Job posting deleted successfully!")
-            except requests.exceptions.HTTPError as e:
-                st.error(f"Error deleting job posting: {e}")
+        # Check if there are any job postings
+        if not job_postings:
+            st.write("You have no postings for this ID.")
         else:
-            st.warning("Please select a valid Job Posting ID.")
+            st.success("Job postings retrieved successfully!")
+
+            # Convert job postings to a DataFrame for better display
+            df = pd.DataFrame(job_postings)
+
+            # Sort the DataFrame by Compensation in descending order
+            df_sorted = df.sort_values(by='Compensation', ascending=False)
+
+            # Display the DataFrame without the Bio column
+            st.subheader("Job Postings")
+            st.dataframe(df_sorted[['Title', 'Compensation', 'Location_ID', 'Post_ID', 'User_ID']])  # Display relevant columns
+
+            # Create a collapsible section for each job posting
+            for posting in job_postings:
+                with st.expander(f"Job Posting ID: {posting['Post_ID']}"):
+                    st.markdown(f"**Title:** {posting['Title']}")
+                    st.markdown(f"**Compensation:** ${posting['Compensation']}")
+                    st.markdown(f"**Location (ZIP Code):** {posting['Location_ID']}")
+                    st.markdown(f"**User ID:** {posting['User_ID']}")
+                    st.markdown(f"**Description:** {posting['Bio']}")  # Include Bio in the dropdown
+
+            # Fetch all available ZIP codes from the database
+            try:
+                zip_response = requests.get('http://api:4000/zipcodes')  # Adjust the endpoint as necessary
+                zip_response.raise_for_status()
+                zip_codes = zip_response.json()
+            except requests.exceptions.HTTPError:
+                st.error("Error fetching ZIP codes.")
+                zip_codes = []  # Fallback to an empty list if there's an error
+
+            # Section for updating job postings
+            st.header("Update Job Posting")
+            post_id = st.selectbox("Select Job Posting ID to Update", options=[posting['Post_ID'] for posting in job_postings])
+            
+            # Fetch the selected posting details
+            selected_posting = next((posting for posting in job_postings if posting['Post_ID'] == post_id), None)
+
+            if selected_posting:
+                new_title = st.text_input("New Title", value="Inter")  # Default title
+                new_bio = st.text_area("New Description", value="Collaborate")  # Default description
+                new_compensation = st.number_input("New Compensation", min_value=0, value=selected_posting['Compensation'])  # Default compensation
+                new_location_id = st.selectbox("Select New Location (ZIP Code)", options=zip_codes)  # Use all ZIP codes
+
+                if st.button("Update Job Posting"):
+                    if post_id and (new_title or new_bio or new_compensation or new_location_id):
+                        update_data = {
+                            "title": new_title,
+                            "bio": new_bio,
+                            "compensation": new_compensation if new_compensation else None,
+                            "location_id": new_location_id if new_location_id else None  # Use the selected ZIP code
+                        }
+                        try:
+                            response = requests.put(f'http://api:4000/job_postings/{post_id}', json=update_data)
+                            response.raise_for_status()
+                            st.success("Job posting updated successfully!")
+                        except requests.exceptions.HTTPError as e:
+                            st.error(f"Error updating job posting: {e}")
+                    else:
+                        st.warning("Please provide a valid Job Posting ID and at least one field to update.")
+
+            # Section for deleting job postings
+            st.header("Delete Job Posting")
+            delete_post_id = st.selectbox("Select Job Posting ID to Delete", options=[posting['Post_ID'] for posting in job_postings])
+
+            if st.button("Delete Job Posting"):
+                if delete_post_id:
+                    try:
+                        response = requests.delete(f'http://api:4000/job_postings/{delete_post_id}')
+                        response.raise_for_status()
+                        st.success("Job posting deleted successfully!")
+                    except requests.exceptions.HTTPError as e:
+                        st.error(f"Error deleting job posting: {e}")
+                else:
+                    st.warning("Please select a valid Job Posting ID.")
+
+    except requests.exceptions.HTTPError:
+        st.write("You have no postings for this ID.")
 
 else:
     st.error("You need to verify your email first.")

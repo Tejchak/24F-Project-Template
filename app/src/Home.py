@@ -84,9 +84,14 @@ if st.button('Login as System Admin',
             type = 'primary', 
             use_container_width=True):
     st.switch_page('pages/33_Login_System_Admin.py')
-
-
-if st.button('Student Map', 
-            type = 'primary', 
-            use_container_width=True):
-    st.switch_page('pages/34_student_map.py')
+    
+#Persona 4: Helen
+if st.button('Act as Helen, a mother of a Northeastern University Student',
+             type = 'primary',
+             use_container_width=True):
+        st.session_state['authenticated'] = True
+        st.session_state['role'] = 'parent'
+        st.session_state['first_name'] = 'Helen'
+        logger.info('Logging in as Parent Persona')
+        st.swtich_page('pages/40_Parent_Home.py')
+        

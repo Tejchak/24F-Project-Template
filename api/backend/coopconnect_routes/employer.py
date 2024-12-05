@@ -7,27 +7,6 @@ from backend.db_connection import db
 #Creates a new blueprint to collect the routes
 employer = Blueprint('Employer', __name__)
 
-# Get details for a certain city
-@employer.route('/cities/<int:City_ID>', methods=['GET'])
-def get_city_details(City_ID):
-    cursor = db.get_db().cursor()
-    cursor.execute('SELECT Name, Avg_Cost_Of_Living, Avg_Rent, Prop_Hybrid_Workers FROM City WHERE City_ID = %s', (City_ID,))
-    
-    city_details = cursor.fetchone()
-    
-    if city_details:
-        the_response = make_response(jsonify({
-            'City_Name': city_details[0],
-            'Avg_Cost_Of_Living': city_details[1],
-            'Avg_Rent': city_details[2],
-            'Prop_Hybrid_Workers': city_details[3]
-        }))
-        the_response.status_code = 200
-    else:
-        the_response = make_response(jsonify({'error': 'City not found'}), 404)
-    
-    return the_response
-
 # Get student population for a certain city
 @employer.route('/cities/<int:City_ID>/student_population', methods=['GET'])
 def get_student_population(City_ID):
@@ -176,40 +155,7 @@ def get_all_zipcodes():
     else:
         return make_response(jsonify({'error': 'No zip codes found'}), 404)
     
-# Create a new job posting
-@employer.route('/job_postings', methods=['POST'])
-def create_job_posting():
-    data = request.get_json()  
-    title = data.get('title')
-    bio = data.get('bio')
-    compensation = data.get('compensation')
-    location_id = data.get('location_id')
-    user_email = data.get('user_email')
 
-    if not title or not bio or not compensation or not location_id or not user_email:
-        return make_response(jsonify({'error': 'Missing required fields'}), 400)
-
-    # Fetch user ID using the provided email
-    cursor = db.get_db().cursor()
-    cursor.execute('''
-        SELECT UserID 
-        FROM User 
-        WHERE email = %s
-    ''', (user_email,))
-    
-    user_id = cursor.fetchone()  
-    if not user_id:
-        return make_response(jsonify({'error': 'User not found'}), 404)
-
-    user_id = user_id['UserID']
-
-    cursor.execute('''
-        INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
-        VALUES (%s, %s, %s, %s, %s)
-    ''', (title, bio, compensation, location_id, user_id))
-
-    db.get_db().commit()  
-    return make_response(jsonify({'message': 'Job posting created successfully'}), 201)
 
 # Get all job postings for a specific user by email
 @employer.route('/users/email/<string:user_email>/job_postings', methods=['GET'])
@@ -255,3 +201,66 @@ def get_user_job_postings_by_email(user_email):
 
     except Exception as e:
         return make_response(jsonify({'error': f'Database error: {str(e)}'}), 500)
+
+# Create a new job posting
+@employer.route('/job_postings', methods=['POST'])
+def create_job_posting():
+    data = request.get_json()  # Get the JSON data from the request
+    title = data.get('title')
+    bio = data.get('bio')
+    compensation = data.get('compensation')
+    user_email = data.get('user_email')
+    location_id = data.get('location_id')
+
+    # Validate required fields
+    if not title or not bio or compensation is None or not user_email:
+        return make_response(jsonify({'error': 'Missing required fields'}), 400)
+
+    # Fetch user ID using the provided email
+    cursor = db.get_db().cursor()
+    cursor.execute('''
+        SELECT UserID 
+        FROM User 
+        WHERE email = %s
+    ''', (user_email,))
+    
+    user_id = cursor.fetchone()  # Fetch the user ID
+
+    if not user_id:
+        return make_response(jsonify({'error': 'User not found'}), 404)
+
+    user_id = user_id['UserID']  # Get the actual UserID from the tuple
+
+    # Insert the new job posting into the database
+    cursor.execute('''
+        INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (title, bio, compensation, location_id, user_id))  # Assuming Location_ID is optional or can be set later
+
+    db.get_db().commit()  # Commit the transaction
+    return make_response(jsonify({'message': 'Job posting created successfully'}), 201)
+
+# Get average wage and proportion of hybrid workers for a specific city
+@employer.route('/cities/<string:city_name>/wage_hybrid', methods=['GET'])
+def get_average_wage_and_hybrid(city_name):
+    cursor = db.get_db().cursor()
+    
+    # Query to get average wage and proportion of hybrid workers
+    cursor.execute('''
+        SELECT Avg_Wage, Prop_Hybrid_Workers
+        FROM City
+        WHERE Name = %s
+    ''', (city_name,))
+    
+    result = cursor.fetchone()  # Fetch the result
+    
+    if result:
+        avg_wage = result['Avg_Wage']
+        prop_hybrid_workers = result['Prop_Hybrid_Workers']
+        return make_response(jsonify({
+            'City': city_name,
+            'Average_Wage': avg_wage,
+            'Proportion_Hybrid_Workers': prop_hybrid_workers
+        }), 200)
+    else:
+        return make_response(jsonify({'error': 'City not found'}), 404)
