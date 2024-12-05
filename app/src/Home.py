@@ -99,3 +99,13 @@ if st.button('Student Map',
             type = 'primary', 
             use_container_width=True):
     st.switch_page('pages/34_student_map.py')
+        
+# Persona 5: Student
+if st.button('Act as Sarah, a Northeastern University Student',
+             type='primary',
+             use_container_width=True):
+    st.session_state['authenticated'] = True
+    st.session_state['role'] = 'student'
+    st.session_state['first_name'] = 'Sarah'
+    logger.info('Logging in as Student Persona')
+    st.switch_page('pages/37_Browse_Jobs.py')

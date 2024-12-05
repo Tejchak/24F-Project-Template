@@ -56,6 +56,7 @@ def create_app():
     app.register_blueprint(housing)
     app.register_blueprint(airports)
     app.register_blueprint(hospitals)
+    
     # Don't forget to return the app object
     return app
 
