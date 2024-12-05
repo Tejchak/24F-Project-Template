@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 
+
 st.title("Apply for a Job")
 st.write("Submit an application for a job posting.")
 
