@@ -13,6 +13,16 @@ st.set_page_config(layout='wide')
 # Show appropriate sidebar links
 SideBarLinks()
 
+# Add logout button to sidebar
+with st.sidebar:
+    st.divider()  # Add a visual separator
+    if st.button("🚪 Logout", use_container_width=True):
+        # Clear any session state if you're using it
+        for key in st.session_state.keys():
+            del st.session_state[key]
+        # Redirect to home page
+        st.switch_page("Home.py")
+
 st.title('System Performance Dashboard')
 
 # Create tabs for different metrics
