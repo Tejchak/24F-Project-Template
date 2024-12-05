@@ -15,91 +15,98 @@ SideBarLinks()
 
 # Title and description
 st.title("Employer Job Postings Management")
-st.write("Manage job postings by searching for a user, updating postings, or deleting them.")
+st.write("Manage job postings by browsing through your postings, updating postings, or deleting them.")
 
-# Section for searching job postings
-st.header("Search Job Postings")
-user_email = st.text_input("Enter User Email", placeholder="user@example.com")
+# Check if user ID is in session state
+if 'user_id' in st.session_state:
+    user_id = st.session_state.user_id
+    st.write(f"Welcome! Your User ID is: {user_id}")
 
-if st.button("Search"):
-    if user_email:
-        try:
-            response = requests.get(f'http://api:4000/users/email/{user_email}/job_postings')
-            response.raise_for_status()
-            job_postings = response.json()
-            st.success("Job postings retrieved successfully!")
+    # Fetch job postings for the user
+    try:
+        response = requests.get(f'http://api:4000/users/{user_id}/job_postings')
+        response.raise_for_status()
+        job_postings = response.json()
+        st.success("Job postings retrieved successfully!")
 
-            # Convert job postings to a DataFrame for better display
-            df = pd.DataFrame(job_postings)
+        # Convert job postings to a DataFrame for better display
+        df = pd.DataFrame(job_postings)
 
-            # Convert Location_ID to string and remove commas
-            df['Location_ID'] = df['Location_ID'].astype(str).str.replace(',', '')
+        # Sort the DataFrame by Compensation in descending order
+        df_sorted = df.sort_values(by='Compensation', ascending=False)
 
-            # Sort the DataFrame by Compensation in descending order
-            df_sorted = df.sort_values(by='Compensation', ascending=False)
+        # Display the DataFrame without the Bio column
+        st.subheader("Job Postings")
+        st.dataframe(df_sorted[['Title', 'Compensation', 'Location_ID', 'Post_ID', 'User_ID']])  # Display relevant columns
 
-            # Display the DataFrame without highlighting
-            st.subheader("Job Postings")
-            st.dataframe(df_sorted)  # Display sorted DataFrame
+        # Create a collapsible section for each job posting
+        for posting in job_postings:
+            with st.expander(f"Job Posting ID: {posting['Post_ID']}"):
+                st.markdown(f"**Title:** {posting['Title']}")
+                st.markdown(f"**Compensation:** ${posting['Compensation']}")
+                st.markdown(f"**Location (ZIP Code):** {posting['Location_ID']}")
+                st.markdown(f"**User ID:** {posting['User_ID']}")
+                st.markdown(f"**Description:** {posting['Bio']}")
 
-            # Create a collapsible section for each job posting
-            for posting in job_postings:
-                with st.expander(f"Job Posting ID: {posting['Post_ID']}"):
-                    st.markdown(f"**Compensation:** ${posting['Compensation']}")
-                    st.markdown(f"**Location (ZIP Code):** {str(posting['Location_ID']).replace(',', '')}")  # Remove commas
-                    st.markdown(f"**User ID:** {posting['User_ID']}")
+    except requests.exceptions.HTTPError as e:
+        st.error(f"Error fetching job postings: {e}")
 
-        except requests.exceptions.HTTPError as e:
-            st.error(f"Error fetching job postings: {e}")
-    else:
-        st.warning("Please enter a valid email.")
+    # Fetch all available ZIP codes
+    try:
+        response = requests.get('http://api:4000/zipcodes')
+        response.raise_for_status()
+        all_zipcodes = response.json()  # Get all ZIP codes
+    except requests.exceptions.HTTPError as e:
+        st.error(f"Error fetching zip codes: {e}")
+        all_zipcodes = []
 
-# Section for updating job postings
-st.header("Update Job Posting")
-post_id = st.number_input("Enter Job Posting ID to Update", min_value=1)
-new_compensation = st.number_input("New Compensation", min_value=0)
+    # Section for updating job postings
+    st.header("Update Job Posting")
+    post_id = st.selectbox("Select Job Posting ID to Update", options=[posting['Post_ID'] for posting in job_postings])
+    
+    # Fetch the selected posting details
+    selected_posting = next((posting for posting in job_postings if posting['Post_ID'] == post_id), None)
 
-# Fetch available ZIP codes
-try:
-    response = requests.get('http://api:4000/zipcodes')
-    response.raise_for_status()
-    zipcodes = response.json()
-except requests.exceptions.HTTPError as e:
-    st.error(f"Error fetching zip codes: {e}")
-    zipcodes = []
+    if selected_posting:
+        new_title = st.text_input("New Title", value="Intern")
+        new_bio = st.text_area("New Description", value="Collaborate")
+        new_compensation = st.number_input("New Compensation", min_value=0, value=0)
+        new_location_id = st.selectbox("Select New Location (ZIP Code)", options=df['Location_ID'].unique())  # Use all ZIP codes
 
-# Use selectbox for ZIP code selection
-new_location_id = st.selectbox("Select New Location (ZIP Code)", options=zipcodes)
+        if st.button("Update Job Posting"):
+            if post_id and (new_title or new_bio or new_compensation or new_location_id):
+                update_data = {
+                    "title": new_title,
+                    "bio": new_bio,
+                    "compensation": new_compensation if new_compensation else None,
+                    "location_id": new_location_id if new_location_id else None  # Use the selected ZIP code
+                }
+                try:
+                    response = requests.put(f'http://api:4000/job_postings/{post_id}', json=update_data)
+                    response.raise_for_status()
+                    st.success("Job posting updated successfully!")
+                except requests.exceptions.HTTPError as e:
+                    st.error(f"Error updating job posting: {e}")
+            else:
+                st.warning("Please provide a valid Job Posting ID and at least one field to update.")
 
-if st.button("Update Job Posting"):
-    if post_id and (new_compensation or new_location_id):
-        update_data = {
-            "compensation": new_compensation if new_compensation else None,
-            "location_id": new_location_id if new_location_id else None  # Use the selected ZIP code
-        }
-        try:
-            response = requests.put(f'http://api:4000/job_postings/{post_id}', json=update_data)
-            response.raise_for_status()
-            st.success("Job posting updated successfully!")
-        except requests.exceptions.HTTPError as e:
-            st.error(f"Error updating job posting: {e}")
-    else:
-        st.warning("Please provide a valid Job Posting ID and at least one field to update.")
+    # Section for deleting job postings
+    st.header("Delete Job Posting")
+    delete_post_id = st.selectbox("Select Job Posting ID to Delete", options=[posting['Post_ID'] for posting in job_postings])
 
-# Section for deleting job postings
-st.header("Delete Job Posting")
-delete_post_id = st.number_input("Enter Job Posting ID to Delete", min_value=1)
+    if st.button("Delete Job Posting"):
+        if delete_post_id:
+            try:
+                response = requests.delete(f'http://api:4000/job_postings/{delete_post_id}')
+                response.raise_for_status()
+                st.success("Job posting deleted successfully!")
+            except requests.exceptions.HTTPError as e:
+                st.error(f"Error deleting job posting: {e}")
+        else:
+            st.warning("Please select a valid Job Posting ID.")
 
-if st.button("Delete Job Posting"):
-    if delete_post_id:
-        try:
-            response = requests.delete(f'http://api:4000/job_postings/{delete_post_id}')
-            response.raise_for_status()
-            st.success("Job posting deleted successfully!")
-        except requests.exceptions.HTTPError as e:
-            st.error(f"Error deleting job posting: {e}")
-    else:
-        st.warning("Please enter a valid Job Posting ID.")
+else:
+    st.error("You need to verify your email first.")
 
 # Optional: Add styling or additional features to enhance the visual appeal
 st.markdown("""

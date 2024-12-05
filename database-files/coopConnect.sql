@@ -150,13 +150,16 @@ Create table if not exists Hospital (
 );
 
 Create table if not exists JobPosting (
+    Title varchar(75) not null, 
     Post_ID int auto_increment not null,
     Compensation int,
     Location_ID int not null,
     User_ID int not null,
+    Bio Text not null,
+
     Primary Key (Post_ID),
     Constraint jp_loc
-        foreign key (Location_ID) references Location (zip),
+        foreign key (Location_ID) references Location (Zip),
     Constraint jp_user
         foreign key (User_ID) references User (UserID)
 );
@@ -324,55 +327,55 @@ INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop
 
 #Location data
 INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
-(02115, 1, 50000, 8),
-(60616, 2, 30000, 7),
-(10001, (SELECT City_ID FROM City WHERE Name = 'New York'), 200000, 9),
-(94103, 4, 150000, 8),
-(98101, 5, 100000, 9),
-(33101, 6, 80000, 7),
-(48201, 7, 60000, 6),
-(02130, 1, 70000, 8),
-(60614, 2, 50000, 7),
-(10002, 3, 30000, 9),
-(94105, 4, 40000, 8),
-(98102, 5, 20000, 9),
-(33102, 6, 15000, 7),
-(48202, 7, 12000, 6),
-(02131, 1, 90000, 8),
-(60615, 2, 110000, 7),
-(10003, 3, 130000, 9),
-(94104, 4, 140000, 8),
-(98103, 5, 150000, 9),
-(33103, 6, 160000, 7),
-(48203, 7, 170000, 6),
-(02132, 1, 180000, 8),
-(60617, 2, 190000, 7),
-(10004, 3, 200000, 9),
-(94106, 4, 210000, 8),
-(98104, 5, 220000, 9),
-(33104, 6, 230000, 7),
-(48204, 7, 240000, 6),
-(02133, 1, 250000, 8),
-(60618, 2, 260000, 7),
-(10005, 3, 270000, 9),
-(94107, 4, 280000, 8),
-(98105, 5, 290000, 6),
-(33105, 6, 300000, 1),
-(48205, 7, 310000, 2),
-(02134, 1, 320000, 8),
-(60619, 2, 330000, 2),
-(10006, 3, 340000, 1),
-(94108, 4, 350000, 2),
-(98106, 5, 360000, 4),
-(33106, 6, 370000, 1),
-(48206, 7, 380000, 3),
-(02135, 1, 390000, 2),
-(60620, 2, 400000, 4),
-(10007, 3, 410000, 4),
-(94109, 4, 420000, 2),
-(98107, 5, 430000, 3),
-(33107, 6, 440000, 1),
-(48207, 7, 450000, 5);
+(02115, 1, 500, 8),
+(60616, 2, 300, 7),
+(10001, (SELECT City_ID FROM City WHERE Name = 'New York'), 200, 6),
+(94103, 4, 150, 8),
+(98101, 5, 800, 9),
+(33101, 6, 600, 7),
+(48201, 7, 400, 6),
+(02130, 1, 700, 8),
+(60614, 2, 900, 7),
+(10002, 3, 350, 9),
+(94105, 4, 250, 8),
+(98102, 5, 950, 9),
+(33102, 6, 100, 7),
+(48202, 7, 120, 6),
+(02131, 1, 180, 8),
+(60615, 2, 110, 7),
+(10003, 3, 130, 9),
+(94104, 4, 140, 8),
+(98103, 5, 150, 9),
+(33103, 6, 160, 7),
+(48203, 7, 170, 6),
+(02132, 1, 190, 8),
+(60617, 2, 200, 7),
+(10004, 3, 220, 9),
+(94106, 4, 210, 8),
+(98104, 5, 230, 9),
+(33104, 6, 240, 7),
+(48204, 7, 250, 6),
+(02133, 1, 260, 8),
+(60618, 2, 270, 7),
+(10005, 3, 280, 9),
+(94107, 4, 290, 8),
+(98105, 5, 300, 6),
+(33105, 6, 310, 1),
+(48205, 7, 320, 2),
+(02134, 1, 330, 8),
+(60619, 2, 340, 2),
+(10006, 3, 350, 1),
+(94108, 4, 360, 2),
+(98106, 5, 370, 4),
+(33106, 6, 380, 1),
+(48206, 7, 390, 3),
+(02135, 1, 400, 2),
+(60620, 2, 410, 4),
+(10007, 3, 420, 4),
+(94109, 4, 430, 2),
+(98107, 5, 440, 3),
+(33107, 6, 450, 1),
+(48207, 7, 460, 5);
 
 #User data
 INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID, Date_Created, Date_Last_Login) VALUES
@@ -721,57 +724,49 @@ INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 ('Emory University Hospital', 10, 10006);
 
 -- Sample data for JobPosting (50 rows)
--- Sample data for JobPosting (50 rows)
-INSERT INTO JobPosting (Compensation, Location_ID, User_ID) VALUES
-(80000, 02115, 1),  -- Boston
-(95000, 60616, 2),  -- Chicago
-(75000, 10001, 3),  -- New York
-(60000, 94103, 4),  -- San Francisco
-(70000, 98101, 5),  -- Seattle
-(85000, 33101, 6),  -- Miami
-(90000, 48201, 7),  -- Detroit
-(65000, 02130, 1),  -- Boston
-(72000, 60614, 2),  -- Chicago
-(68000, 10002, 3),  -- New York
-(62000, 94105, 4),  -- San Francisco
-(58000, 98102, 5),  -- Seattle
-(54000, 33102, 6),  -- Miami
-(50000, 48202, 7),  -- Detroit
-(64000, 02131, 1),  -- Boston
-(56000, 60615, 2),  -- Chicago
-(67000, 10003, 3),  -- New York
-(60000, 94104, 4),  -- San Francisco
-(58000, 98103, 5),  -- Seattle
-(62000, 33103, 6),  -- Miami
-(53000, 48203, 7),  -- Detroit
-(61000, 02132, 1),  -- Boston
-(57000, 60617, 2),  -- Chicago
-(64000, 10004, 3),  -- New York
-(53000, 94106, 4),  -- San Francisco
-(61000, 98104, 5),  -- Seattle
-(56000, 33104, 6),  -- Miami
-(59000, 48204, 7),  -- Detroit
-(65000, 02133, 1),  -- Boston
-(58000, 60618, 2),  -- Chicago
-(59000, 10005, 3),  -- New York
-(63000, 94107, 4),  -- San Francisco
-(54000, 98105, 5),  -- Seattle
-(61000, 33105, 6),  -- Miami
-(57000, 48205, 7),  -- Detroit
-(65000, 02134, 1),  -- Boston
-(58000, 60619, 2),  -- Chicago
-(64000, 10006, 3),  -- New York
-(53000, 94108, 4),  -- San Francisco
-(61000, 98106, 5),  -- Seattle
-(56000, 33106, 6),  -- Miami
-(59000, 48206, 7),  -- Detroit
-(65000, 02135, 1),  -- Boston
-(58000, 60620, 2),  -- Chicago
-(64000, 10007, 3),  -- New York
-(53000, 94109, 4),  -- San Francisco
-(61000, 98107, 5),  -- Seattle
-(56000, 33107, 6),  -- Miami
-(59000, 48207, 7);  -- Detroit
+INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID) VALUES
+('Software Engineer', 'Develop and maintain software applications.', 80000, 02115, 1),  -- Boston
+('Data Scientist', 'Analyze data to drive business solutions.', 95000, 60616, 2),  -- Chicago
+('Web Developer', 'Create and manage websites and web applications.', 75000, 10001, 3),  -- New York
+('Product Manager', 'Lead product development and strategy.', 60000, 94103, 4),  -- San Francisco
+('UX Designer', 'Design user-friendly interfaces and experiences.', 70000, 98101, 5),  -- Seattle
+('Marketing Specialist', 'Develop marketing strategies and campaigns.', 85000, 33101, 6),  -- Miami
+('Project Coordinator', 'Assist in project planning and execution.', 90000, 48201, 7),  -- Detroit
+('Systems Analyst', 'Analyze and improve IT systems.', 65000, 02130, 1),  -- Boston
+('Database Administrator', 'Manage and maintain database systems.', 72000, 60614, 2),  -- Chicago
+('Network Engineer', 'Design and implement network solutions.', 68000, 10002, 3),  -- New York
+('DevOps Engineer', 'Automate and streamline operations.', 62000, 94105, 4),  -- San Francisco
+('Content Writer', 'Create engaging content for various platforms.', 58000, 98102, 5),  -- Seattle
+('Sales Representative', 'Drive sales and build customer relationships.', 54000, 33102, 6),  -- Miami
+('Quality Assurance Tester', 'Ensure software quality through testing.', 50000, 48202, 7),  -- Detroit
+('Business Analyst', 'Analyze business needs and provide solutions.', 64000, 02131, 1),  -- Boston
+('Graphic Designer', 'Create visual content for marketing materials.', 56000, 60615, 2),  -- Chicago
+('SEO Specialist', 'Optimize website content for search engines.', 67000, 10003, 3),  -- New York
+('Technical Writer', 'Document software and technical processes.', 60000, 94104, 4),  -- San Francisco
+('Customer Support Specialist', 'Provide support to customers.', 58000, 98103, 5),  -- Seattle
+('HR Manager', 'Manage human resources and employee relations.', 62000, 33103, 6),  -- Miami
+('Financial Analyst', 'Analyze financial data and trends.', 53000, 48203, 7),  -- Detroit
+('Operations Manager', 'Oversee daily operations and processes.', 61000, 02132, 1),  -- Boston
+('IT Support Specialist', 'Provide technical support to users.', 57000, 60617, 2),  -- Chicago
+('Network Administrator', 'Manage and maintain network infrastructure.', 64000, 10004, 3),  -- New York
+('Web Designer', 'Design and create visually appealing websites.', 53000, 94106, 4),  -- San Francisco
+('Mobile Developer', 'Develop applications for mobile devices.', 61000, 98104, 5),  -- Seattle
+('Data Analyst', 'Analyze data to inform business decisions.', 56000, 33104, 6),  -- Miami
+('Research Scientist', 'Conduct research and experiments.', 59000, 48204, 7),  -- Detroit
+('Account Manager', 'Manage client accounts and relationships.', 65000, 02133, 1),  -- Boston
+('Social Media Manager', 'Manage social media accounts and campaigns.', 58000, 60618, 2),  -- Chicago
+('Event Coordinator', 'Plan and coordinate events.', 59000, 10005, 3),  -- New York
+('Software Tester', 'Test software for bugs and issues.', 63000, 94107, 4),  -- San Francisco
+('Business Development Manager', 'Identify and pursue new business opportunities.', 54000, 98105, 5),  -- Seattle
+('Logistics Coordinator', 'Manage logistics and supply chain operations.', 61000, 33105, 6),  -- Miami
+('Compliance Officer', 'Ensure compliance with regulations and policies.', 57000, 48205, 7),  -- Detroit
+('Sales Manager', 'Lead the sales team and drive sales strategies.', 65000, 02134, 1),  -- Boston
+('Product Designer', 'Design products that meet user needs.', 58000, 60619, 2),  -- Chicago
+('Financial Consultant', 'Provide financial advice and planning.', 64000, 10006, 3),  -- New York
+('IT Project Manager', 'Manage IT projects from start to finish.', 53000, 94108, 4),  -- San Francisco
+('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 61000, 98106, 5),  -- Seattle
+('E-commerce Specialist', 'Manage online sales and marketing.', 56000, 33106, 6),  -- Miami
+('Content Strategist', 'Develop content strategies for brands.', 59000, 48206, 7);  -- Detroit
 
 
 ## Persona 1: Timothy (Northeastern Student)**
@@ -860,8 +855,10 @@ FROM Location L
 WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 
 ## Post job details:
-INSERT INTO JobPosting (Compensation, Location_ID, User_ID)
+INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
 VALUES (
+    'Junior Developer',
+    'Assist in the development of software applications.',
     5000,
     (SELECT Zip FROM Location WHERE City_ID = (SELECT City_ID FROM City WHERE Name = 'Boston') LIMIT 1),
     (SELECT UserID FROM User WHERE email = 'jane.smith@example.com')
