@@ -13,9 +13,12 @@ st.set_page_config(layout='wide')
 # Show appropriate sidebar links
 SideBarLinks()
 
-# Add logout button to sidebar
+# Add management buttons to sidebar
 with st.sidebar:
     st.divider()  # Add a visual separator
+    if st.button("️ Edit Databases", use_container_width=True):
+        st.switch_page("pages/34_Edit_Databases.py")
+    st.divider()  # Add another separator
     if st.button("🚪 Logout", use_container_width=True):
         # Clear any session state if you're using it
         for key in st.session_state.keys():
