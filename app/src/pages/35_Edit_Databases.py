@@ -11,12 +11,17 @@ st.set_page_config(layout='wide')
 # Show appropriate sidebar links
 SideBarLinks()
 
-# Add logout button to sidebar
+# Add management buttons to sidebar
 with st.sidebar:
-    st.divider()
+    st.divider()  # Add a visual separator
+    if st.button("️⬅️ Back to Performance", use_container_width=True):
+        st.switch_page("pages/33_Login_System_Admin.py")
+    st.divider()  # Add another separator
     if st.button("🚪 Logout", use_container_width=True):
+        # Clear any session state if you're using it
         for key in st.session_state.keys():
             del st.session_state[key]
+        # Redirect to home page
         st.switch_page("Home.py")
 
 st.title('Performance Database Management')
