@@ -11,7 +11,7 @@ airports = Blueprint('Airport', __name__)
 #Returns a list of all airports and details about each airport
 @airports.route('/airports', methods=['GET'])
 def get_airports():
-    cursor = db.get_db().cursor
+    cursor = db.get_db().cursor()
     cursor.execute('SELECT * FROM Airport')
     
     theData = cursor.fetchall()

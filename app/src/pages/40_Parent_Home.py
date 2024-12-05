@@ -14,7 +14,7 @@ st.title('Parent Home Page')
 if st.button('Learn about cost of living',
              type='primary',
              use_container_width=True):
-    st.swtich_page('pages/31_cost_of_living.py')
+    st.switch_page('pages/31_cost_of_living.py')
     
 #Access moving information
 if st.button('Moving Information',
@@ -27,5 +27,5 @@ if st.button('Moving Information',
 if st.button('Safety Information',
              type='primary',
              use_container_width=True):
-    st.swtich_page('page/42_Safety_Info.py')
+    st.switch_page('pages/42_Safety_Info.py')
 
