@@ -176,40 +176,7 @@ def get_all_zipcodes():
     else:
         return make_response(jsonify({'error': 'No zip codes found'}), 404)
     
-# Create a new job posting
-@employer.route('/job_postings', methods=['POST'])
-def create_job_posting():
-    data = request.get_json()  
-    title = data.get('title')
-    bio = data.get('bio')
-    compensation = data.get('compensation')
-    location_id = data.get('location_id')
-    user_email = data.get('user_email')
 
-    if not title or not bio or not compensation or not location_id or not user_email:
-        return make_response(jsonify({'error': 'Missing required fields'}), 400)
-
-    # Fetch user ID using the provided email
-    cursor = db.get_db().cursor()
-    cursor.execute('''
-        SELECT UserID 
-        FROM User 
-        WHERE email = %s
-    ''', (user_email,))
-    
-    user_id = cursor.fetchone()  
-    if not user_id:
-        return make_response(jsonify({'error': 'User not found'}), 404)
-
-    user_id = user_id['UserID']
-
-    cursor.execute('''
-        INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
-        VALUES (%s, %s, %s, %s, %s)
-    ''', (title, bio, compensation, location_id, user_id))
-
-    db.get_db().commit()  
-    return make_response(jsonify({'message': 'Job posting created successfully'}), 201)
 
 # Get all job postings for a specific user by email
 @employer.route('/users/email/<string:user_email>/job_postings', methods=['GET'])
@@ -255,3 +222,41 @@ def get_user_job_postings_by_email(user_email):
 
     except Exception as e:
         return make_response(jsonify({'error': f'Database error: {str(e)}'}), 500)
+
+# Create a new job posting
+@employer.route('/job_postings', methods=['POST'])
+def create_job_posting():
+    data = request.get_json()  # Get the JSON data from the request
+    title = data.get('title')
+    bio = data.get('bio')
+    compensation = data.get('compensation')
+    user_email = data.get('user_email')
+    location_id = data.get('location_id')
+
+    # Validate required fields
+    if not title or not bio or compensation is None or not user_email:
+        return make_response(jsonify({'error': 'Missing required fields'}), 400)
+
+    # Fetch user ID using the provided email
+    cursor = db.get_db().cursor()
+    cursor.execute('''
+        SELECT UserID 
+        FROM User 
+        WHERE email = %s
+    ''', (user_email,))
+    
+    user_id = cursor.fetchone()  # Fetch the user ID
+
+    if not user_id:
+        return make_response(jsonify({'error': 'User not found'}), 404)
+
+    user_id = user_id['UserID']  # Get the actual UserID from the tuple
+
+    # Insert the new job posting into the database
+    cursor.execute('''
+        INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (title, bio, compensation, location_id, user_id))  # Assuming Location_ID is optional or can be set later
+
+    db.get_db().commit()  # Commit the transaction
+    return make_response(jsonify({'message': 'Job posting created successfully'}), 201)
