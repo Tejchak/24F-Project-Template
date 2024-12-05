@@ -49,26 +49,36 @@ def fetch_cities():
 def get_location_data(selected_city):
     try:
         # Get city data
-        cities_response = requests.get('http://api:4000/city').json()
+        cities_response = requests.get('http://api:4000/city')
+        cities_data = cities_response.json()
         
         # Get housing data
-        housing_response = requests.get('http://api:4000/housing').json()
+        housing_response = requests.get('http://api:4000/housing')
+        housing_data = housing_response.json()
+        
+        # Get airport data
+        airports_response = requests.get('http://api:4000/airports')
+        airports_data = airports_response.json()
+        
+        # Get hospital data
+        hospitals_response = requests.get('http://api:4000/hospitals')
+        hospitals_data = hospitals_response.json()
         
         # Find the city_id for the selected city
         city_id = None
         city_data = None
-        for city in cities_response:
+        for city in cities_data:
             if city['name'] == selected_city:
                 city_id = city['city_id']
                 city_data = city
                 break
         
         if not city_id:
-            return pd.DataFrame()
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
         
-        # Filter housing data for the selected city
+        # Process housing data
         locations_data = []
-        city_housing = [h for h in housing_response if h['City_ID'] == city_id]
+        city_housing = [h for h in housing_data if h['City_ID'] == city_id]
         
         for house in city_housing:
             base_coords = CITY_COORDINATES.get(selected_city, {'lat': 0, 'lon': 0})
@@ -82,11 +92,56 @@ def get_location_data(selected_city):
                 'lon': base_coords['lon'] + (hash(str(house['Address'])) % 10) / 1000
             })
         
-        return pd.DataFrame(locations_data)
+        # Process airport data
+        airports_data_processed = []
+        city_airports = [a for a in airports_data if a['City_ID'] == city_id]
+        base_coords = CITY_COORDINATES.get(selected_city, {'lat': 0, 'lon': 0})
+        
+        for airport in city_airports:
+            airports_data_processed.append({
+                'name': airport['Name'],
+                'zip': airport['Zip'],
+                'lat': base_coords['lat'] + abs((hash(str(airport['Zip'])) % 5) / 1000),
+                'lon': base_coords['lon'] + ((hash(str(airport['Name'])) % 7) - 3) / 1000
+            })
+        
+        # Process hospital data
+        hospitals_data_processed = []
+        city_hospitals = [h for h in hospitals_data if h['City_ID'] == city_id]
+        
+        for hospital in city_hospitals:
+            hospitals_data_processed.append({
+                'name': hospital['Name'],
+                'zip': hospital.get('Zip', ''),
+                'lat': base_coords['lat'] + abs((hash(str(hospital['Name'])) % 6) / 1000),
+                'lon': base_coords['lon'] + ((hash(str(hospital.get('Name', ''))) % 5) - 2) / 1000
+            })
+        
+        # Create DataFrames
+        df_housing = pd.DataFrame(locations_data)
+        df_airports = pd.DataFrame(airports_data_processed)
+        df_hospitals = pd.DataFrame(hospitals_data_processed)
+        
+        # Add tooltips for airports and hospitals
+        if not df_airports.empty:
+            df_airports['tooltip'] = df_airports['name'].astype(str) + ' (Airport)'
+        if not df_hospitals.empty:
+            df_hospitals['tooltip'] = df_hospitals['name'].astype(str) + ' (Hospital)'
+        
+        # Debug logging
+        print("Airports Response:", airports_response.text)
+        print("Hospitals Response:", hospitals_response.text)
+        
+        # Get airport data
+        airports_response = requests.get('http://api:4000/airports')
+        airports_data = airports_response.json()
+        
+        return df_housing, df_airports, df_hospitals
+                
     except Exception as e:
         st.error(f"Error fetching data: {str(e)}")
         logger.error(f"Data fetch error: {str(e)}")
-        return pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
 # Get list of cities and create selector
 cities = fetch_cities()
@@ -94,30 +149,45 @@ selected_city = st.sidebar.selectbox("Select a City", cities)
 
 # Get the data for selected city
 try:
-    df = get_location_data(selected_city)
+    df_housing, df_airports, df_hospitals = get_location_data(selected_city)
     
-    if not df.empty:
-        # Create layers for the map with adjusted parameters
+    if not df_housing.empty:
         ALL_LAYERS = {
             "Housing Locations": pdk.Layer(
                 "ScatterplotLayer",
-                data=df,
+                data=df_housing,
                 get_position=["lon", "lat"],
                 get_color=[200, 30, 0, 160],
-                get_radius=50,  # Smaller radius for more precise markers
+                get_radius=50,
                 pickable=True,
             ),
             "Rent Heatmap": pdk.Layer(
                 "HexagonLayer",
-                data=df,
+                data=df_housing,
                 get_position=["lon", "lat"],
-                radius=100,  # Smaller radius for more detailed heatmap
-                elevation_scale=2,  # Adjust elevation scale for better visualization
-                elevation_range=[0, 500],  # Adjust elevation range
+                radius=100,
+                elevation_scale=2,
+                elevation_range=[0, 500],
                 get_elevation="rent",
                 pickable=True,
                 extruded=True,
             ),
+            "Airports": pdk.Layer(
+                "ScatterplotLayer",
+                data=df_airports,
+                get_position=["lon", "lat"],
+                get_color=[66, 135, 245, 160],  # Blue color for airports
+                get_radius=75,
+                pickable=True,
+            ),
+            "Hospitals": pdk.Layer(
+                "ScatterplotLayer",
+                data=df_hospitals,
+                get_position=["lon", "lat"],
+                get_color=[245, 66, 66, 160],  # Red color for hospitals
+                get_radius=75,
+                pickable=True,
+            )
         }
 
         # Create layer selector in sidebar
@@ -134,8 +204,8 @@ try:
                 pdk.Deck(
                     map_style="mapbox://styles/mapbox/light-v9",
                     initial_view_state={
-                        "latitude": df['lat'].mean(),
-                        "longitude": df['lon'].mean(),
+                        "latitude": df_housing['lat'].mean(),
+                        "longitude": df_housing['lon'].mean(),
                         "zoom": 12,  # Adjust zoom level for better focus
                         "pitch": 50,
                     },
@@ -156,7 +226,7 @@ try:
             # Display data table below map
             st.subheader(f"Location Details for {selected_city}")
             st.dataframe(
-                df[['city', 'zipcode', 'address', 'rent', 'sqft']],
+                df_housing[['city', 'zipcode', 'address', 'rent', 'sqft']],
                 hide_index=True
             )
         else:

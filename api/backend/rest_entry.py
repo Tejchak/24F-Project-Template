@@ -9,7 +9,7 @@ from backend.coopconnect_routes.performance_routes import performance
 from backend.coopconnect_routes.user_routes import users
 from backend.coopconnect_routes.employer import employer
 from backend.coopconnect_routes.housing_routes import housing
-
+from backend.coopconnect_routes.airport_routes import airports
 import os
 from dotenv import load_dotenv
 
@@ -53,7 +53,7 @@ def create_app():
     app.register_blueprint(users)
     app.register_blueprint(employer)
     app.register_blueprint(housing)
-
+    app.register_blueprint(airports)
     # Don't forget to return the app object
     return app
 
