@@ -94,4 +94,8 @@ if st.button('Act as Helen, a mother of a Northeastern University Student',
         st.session_state['first_name'] = 'Helen'
         logger.info('Logging in as Parent Persona')
         st.switch_page('pages/40_Parent_Home.py')
-        
+
+if st.button('Student Map', 
+            type = 'primary', 
+            use_container_width=True):
+    st.switch_page('pages/34_student_map.py')

@@ -74,14 +74,19 @@ def get_location_data(selected_city):
                 break
         
         if not city_id:
+            st.warning(f"No data found for city: {selected_city}")
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
         
         # Process housing data
         locations_data = []
         city_housing = [h for h in housing_data if h['City_ID'] == city_id]
         
+        base_coords = CITY_COORDINATES.get(selected_city)
+        if not base_coords:
+            st.error(f"No coordinates found for city: {selected_city}")
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+            
         for house in city_housing:
-            base_coords = CITY_COORDINATES.get(selected_city, {'lat': 0, 'lon': 0})
             locations_data.append({
                 'city': selected_city,
                 'zipcode': house['zipID'],
@@ -95,7 +100,6 @@ def get_location_data(selected_city):
         # Process airport data
         airports_data_processed = []
         city_airports = [a for a in airports_data if a['City_ID'] == city_id]
-        base_coords = CITY_COORDINATES.get(selected_city, {'lat': 0, 'lon': 0})
         
         for airport in city_airports:
             airports_data_processed.append({
@@ -128,14 +132,6 @@ def get_location_data(selected_city):
         if not df_hospitals.empty:
             df_hospitals['tooltip'] = df_hospitals['name'].astype(str) + ' (Hospital)'
         
-        # Debug logging
-        print("Airports Response:", airports_response.text)
-        print("Hospitals Response:", hospitals_response.text)
-        
-        # Get airport data
-        airports_response = requests.get('http://api:4000/airports')
-        airports_data = airports_response.json()
-        
         return df_housing, df_airports, df_hospitals
                 
     except Exception as e:
@@ -160,13 +156,7 @@ try:
                 get_position=["lon", "lat"],
                 get_color=[200, 30, 0, 160],
                 get_radius=50,
-                pickable=True,
-                auto_highlight=True,
-                tooltip={
-                    "html": "<b>Housing Location</b><br/>" +
-                           "Address: {address}<br/>" +
-                           "Rent: ${rent}"
-                }
+                pickable=False  # Disabled hover interaction
             ),
             "Rent Heatmap": pdk.Layer(
                 "HexagonLayer",
@@ -177,13 +167,7 @@ try:
                 elevation_range=[0, 500],
                 get_elevation="rent",
                 extruded=True,
-                pickable=True,
-                auto_highlight=True,
-                tooltip={
-                    "html": "<b>Rent Heatmap Area</b><br/>" +
-                           "Average Rent: ${elevationValue}<br/>" +
-                           "Properties: {points.length}"
-                }
+                pickable=False  # Disabled hover interaction
             ),
             "Airports": pdk.Layer(
                 "ScatterplotLayer",
@@ -191,11 +175,7 @@ try:
                 get_position=["lon", "lat"],
                 get_color=[0, 255, 0, 200],
                 get_radius=100,
-                pickable=True,
-                auto_highlight=True,
-                tooltip={
-                    "html": "✈️ <b>{name}</b>"
-                }
+                pickable=False  # Disabled hover interaction
             ),
             "Hospitals": pdk.Layer(
                 "ScatterplotLayer",
@@ -203,11 +183,7 @@ try:
                 get_position=["lon", "lat"],
                 get_color=[255, 0, 0, 200],
                 get_radius=100,
-                pickable=True,
-                auto_highlight=True,
-                tooltip={
-                    "html": "🏥 <b>{name}</b>"
-                }
+                pickable=False  # Disabled hover interaction
             )
         }
 
@@ -228,7 +204,7 @@ try:
         🔴 **Hospitals** - Large red circles
         """)
 
-        # Create the map with tooltip configuration
+        # Create the map without tooltip configuration
         st.pydeck_chart(
             pdk.Deck(
                 map_style="mapbox://styles/mapbox/light-v9",
@@ -238,8 +214,7 @@ try:
                     "zoom": 12,
                     "pitch": 50,
                 },
-                layers=selected_layers,
-                tooltip={"html": True}
+                layers=selected_layers
             )
         )
 
