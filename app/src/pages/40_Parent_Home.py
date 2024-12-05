@@ -24,5 +24,8 @@ if st.button('Moving Information',
     
 
 #Access safety information for a specific city
-
+if st.button('Safety Information',
+             type='primary',
+             use_container_width=True):
+    st.swtich_page('page/42_Safety_Info.py')
 
