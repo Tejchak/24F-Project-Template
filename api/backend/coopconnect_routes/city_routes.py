@@ -7,7 +7,7 @@ from backend.db_connection import db
 
 
 #returns a list of all cities
-cities = Blueprint('City', __name__)
+cities = Blueprint('city', __name__)
 
 @cities.route('/city', methods=['GET'])
 def get_all_cities():
@@ -33,7 +33,6 @@ def get_all_cities():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 #returns the details of a specific city
 @cities.route('/city/<CityID>', methods=['GET'])
 def get_city_details(CityID):

@@ -26,18 +26,6 @@ Create table if not exists City
     check (Prop_Hybrid_Workers >= 0 and Prop_Hybrid_Workers <=1),
     PRIMARY KEY(City_ID)
 );
-#
-# DELIMITER //
-#
-# CREATE TRIGGER update_city_population AFTER INSERT ON User
-# FOR EACH ROW
-# BEGIN
-#     UPDATE City
-#     SET Population = Population + 1
-#     WHERE City_ID = NEW.Current_City_ID;
-# END //
-#
-# DELIMITER ;
 
 
 Create table if not exists User
@@ -295,7 +283,10 @@ DELIMITER ;
 INSERT INTO Category (CategoryName) VALUES
 ('Student'),
 ('Employer'),
-('Administrator');
+('Administrator'),
+('Financial Advisor'),
+('Parent'),
+('System Administrator');
 
 #City data
 INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers) VALUES
@@ -384,47 +375,58 @@ INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
 (48207, 7, 450000, 5);
 
 #User data
-INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID) VALUES
-(1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1),
-(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2),
-(1, 'Alice Walker', 'alice.walker@example.com', '555-123-4561', 3),
-(2, 'Bob Brown', 'bob.brown@example.com', '555-123-4562', 4),
-(1, 'Charlie Johnson', 'charlie.johnson@example.com', '555-123-4563', 5),
-(2, 'Diana Prince', 'diana.prince@example.com', '555-123-4564', 6),
-(1, 'Edward Elric', 'edward.elric@example.com', '555-123-4565', 7),
-(2, 'Fiona Gallagher', 'fiona.gallagher@example.com', '555-123-4566', 8),
-(1, 'George Washington', 'george.washington@example.com', '555-123-4567', 9),
-(2, 'Hannah Montana', 'hannah.montana@example.com', '555-123-4568', 10),
-(1, 'Ivy League', 'ivy.league@example.com', '555-123-4569', 11),
-(2, 'Jack Sparrow', 'jack.sparrow@example.com', '555-123-4570', 12),
-(1, 'Katherine Johnson', 'katherine.johnson@example.com', '555-123-4571', 13),
-(2, 'Liam Neeson', 'liam.neeson@example.com', '555-123-4572', 14),
-(1, 'Mia Wallace', 'mia.wallace@example.com', '555-123-4573', 15),
-(2, 'Nina Simone', 'nina.simone@example.com', '555-123-4574', 16),
-(1, 'Oscar Wilde', 'oscar.wilde@example.com', '555-123-4575', 17),
-(2, 'Peter Parker', 'peter.parker@example.com', '555-123-4576', 18),
-(1, 'Quinn Fabray', 'quinn.fabray@example.com', '555-123-4577', 19),
-(2, 'Ron Weasley', 'ron.weasley@example.com', '555-123-4578', 20),
-(1, 'Steve Rogers', 'steve.rogers@example.com', '555-123-4579', 21),
-(2, 'Tony Stark', 'tony.stark@example.com', '555-123-4580', 22),
-(1, 'Uma Thurman', 'uma.thurman@example.com', '555-123-4581', 23),
-(2, 'Vince Vaughn', 'vince.vaughn@example.com', '555-123-4582', 24),
-(1, 'Will Smith', 'will.smith@example.com', '555-123-4583', 25),
-(2, 'Xena Warrior', 'xena.warrior@example.com', '555-123-4584', 26),
-(1, 'Yoda Jedi', 'yoda.jedi@example.com', '555-123-4585', 27),
-(2, 'Zoe Saldana', 'zoe.saldana@example.com', '555-123-4586', 28),
-(1, 'Albus Dumbledore', 'albus.dumbledore@example.com', '555-123-4587', 29),
-(2, 'Bella Swan', 'bella.swan@example.com', '555-123-4588', 30),
-(1, 'Cinderella', 'cinderella@example.com', '555-123-4589', 27),
-(2, 'Darth Vader', 'darth.vader@example.com', '555-123-4590', 6),
-(1, 'Eleanor Rigby', 'eleanor.rigby@example.com', '555-123-4591', 8),
-(2, 'Frodo Baggins', 'frodo.baggins@example.com', '555-123-4592', 2),
-(1, 'Gandalf Grey', 'gandalf.grey@example.com', '555-123-4593', 3),
-(2, 'Hermione Granger', 'hermione.granger@example.com', '555-123-4594', 3),
-(1, 'Icarus Flight', 'icarus.flight@example.com', '555-123-4595', 3),
-(2, 'Jasmine Aladdin', 'jasmine.aladdin@example.com', '555-123-4596', 8),
-(1, 'Klaus Mikaelson', 'klaus.mikaelson@example.com', '555-123-4597', 21),
-(2, 'Luna Lovegood', 'luna.lovegood@example.com', '555-123-4598', 2);
+INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID, Date_Created, Date_Last_Login) VALUES
+(1, 'John Doe', 'john.doe@example.com', '123-456-7890', 1, '2024-07-01', '2024-12-04'),
+(2, 'Jane Smith', 'jane.smith@example.com', '987-654-3210', 2, '2024-07-05', '2024-12-03'),
+(1, 'Alice Walker', 'alice.walker@example.com', '555-123-4561', 3, '2024-07-10', '2024-12-02'),
+(2, 'Bob Brown', 'bob.brown@example.com', '555-123-4562', 4, '2024-07-15', '2024-12-01'),
+(1, 'Charlie Johnson', 'charlie.johnson@example.com', '555-123-4563', 5, '2024-07-20', '2024-11-30'),
+(2, 'Diana Prince', 'diana.prince@example.com', '555-123-4564', 6, '2024-07-25', '2024-11-29'),
+(1, 'Edward Elric', 'edward.elric@example.com', '555-123-4565', 7, '2024-08-01', '2024-11-28'),
+(2, 'Fiona Gallagher', 'fiona.gallagher@example.com', '555-123-4566', 8, '2024-08-05', '2024-11-27'),
+(1, 'George Washington', 'george.washington@example.com', '555-123-4567', 9, '2024-08-10', '2024-11-26'),
+(2, 'Hannah Montana', 'hannah.montana@example.com', '555-123-4568', 10, '2024-08-15', '2024-11-25'),
+(1, 'Ivy League', 'ivy.league@example.com', '555-123-4569', 11, '2024-08-20', '2024-11-24'),
+(2, 'Jack Sparrow', 'jack.sparrow@example.com', '555-123-4570', 12, '2024-08-25', '2024-11-23'),
+(1, 'Katherine Johnson', 'katherine.johnson@example.com', '555-123-4571', 13, '2024-09-01', '2024-11-22'),
+(2, 'Liam Neeson', 'liam.neeson@example.com', '555-123-4572', 14, '2024-09-05', '2024-11-21'),
+(1, 'Mia Wallace', 'mia.wallace@example.com', '555-123-4573', 15, '2024-09-10', '2024-11-20'),
+(2, 'Nina Simone', 'nina.simone@example.com', '555-123-4574', 16, '2024-09-15', '2024-11-19'),
+(1, 'Oscar Wilde', 'oscar.wilde@example.com', '555-123-4575', 17, '2024-09-20', '2024-11-18'),
+(2, 'Peter Parker', 'peter.parker@example.com', '555-123-4576', 18, '2024-09-25', '2024-11-17'),
+(1, 'Quinn Fabray', 'quinn.fabray@example.com', '555-123-4577', 19, '2024-10-01', '2024-11-16'),
+(2, 'Ron Weasley', 'ron.weasley@example.com', '555-123-4578', 20, '2024-10-05', '2024-11-15'),
+(1, 'Steve Rogers', 'steve.rogers@example.com', '555-123-4579', 21, '2024-10-10', '2024-11-14'),
+(2, 'Tony Stark', 'tony.stark@example.com', '555-123-4580', 22, '2024-10-15', '2024-11-13'),
+(1, 'Uma Thurman', 'uma.thurman@example.com', '555-123-4581', 23, '2024-10-20', '2024-11-12'),
+(2, 'Vince Vaughn', 'vince.vaughn@example.com', '555-123-4582', 24, '2024-10-25', '2024-11-11'),
+(1, 'Will Smith', 'will.smith@example.com', '555-123-4583', 25, '2024-11-01', '2024-11-10'),
+(2, 'Xena Warrior', 'xena.warrior@example.com', '555-123-4584', 26, '2024-11-05', '2024-11-09'),
+(1, 'Yoda Jedi', 'yoda.jedi@example.com', '555-123-4585', 27, '2024-11-10', '2024-11-08'),
+(2, 'Zoe Saldana', 'zoe.saldana@example.com', '555-123-4586', 28, '2024-11-15', '2024-11-07'),
+(1, 'Albus Dumbledore', 'albus.dumbledore@example.com', '555-123-4587', 29, '2024-11-20', '2024-11-06'),
+(2, 'Bella Swan', 'bella.swan@example.com', '555-123-4588', 30, '2024-11-25', '2024-11-05'),
+(1, 'Cinderella', 'cinderella@example.com', '555-123-4589', 27, '2024-11-27', '2024-11-04'),
+(2, 'Darth Vader', 'darth.vader@example.com', '555-123-4590', 6, '2024-11-29', '2024-11-03'),
+(1, 'Eleanor Rigby', 'eleanor.rigby@example.com', '555-123-4591', 8, '2024-12-01', '2024-11-02'),
+(2, 'Frodo Baggins', 'frodo.baggins@example.com', '555-123-4592', 2, '2024-12-01', '2024-11-01'),
+(1, 'Gandalf Grey', 'gandalf.grey@example.com', '555-123-4593', 3, '2024-12-02', '2024-10-31'),
+(2, 'Hermione Granger', 'hermione.granger@example.com', '555-123-4594', 3, '2024-12-02', '2024-10-30'),
+(1, 'Icarus Flight', 'icarus.flight@example.com', '555-123-4595', 3, '2024-12-03', '2024-10-29'),
+(2, 'Jasmine Aladdin', 'jasmine.aladdin@example.com', '555-123-4596', 8, '2024-12-03', '2024-10-28'),
+(1, 'Klaus Mikaelson', 'klaus.mikaelson@example.com', '555-123-4597', 21, '2024-12-04', '2024-10-27'),
+(2, 'Luna Lovegood', 'luna.lovegood@example.com', '555-123-4598', 2, '2024-12-04', '2024-10-26'),
+(4, 'Michael Bloomberg', 'michael.bloomberg@finance.com', '555-123-4599', 3, '2024-11-15', '2024-12-04'),
+(4, 'Warren Buffett', 'warren.buffett@finance.com', '555-123-4600', 2, '2024-11-20', '2024-12-03'),
+(5, 'Sarah Connor', 'sarah.connor@family.com', '555-123-4601', 1, '2024-11-25', '2024-12-02'),
+(5, 'Molly Weasley', 'molly.weasley@family.com', '555-123-4602', 4, '2024-11-28', '2024-12-01'),
+(6, 'Neo Matrix', 'neo.matrix@sysadmin.com', '555-123-4603', 5, '2024-12-01', '2024-11-30'),
+(6, 'Barbara Gordon', 'barbara.gordon@sysadmin.com', '555-123-4604', 3, '2024-12-02', '2024-11-29'),
+(4, 'Peter Lynch', 'peter.lynch@finance.com', '555-123-4605', 1, '2024-12-03', '2024-11-28'),
+(5, 'Marge Simpson', 'marge.simpson@family.com', '555-123-4606', 2, '2024-12-03', '2024-11-27'),
+(6, 'Elliot Alderson', 'elliot.alderson@sysadmin.com', '555-123-4607', 4, '2024-12-04', '2024-11-26');
+
+
 #Housing data
 INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) VALUES
 (1, 02115, '123 Main St, Boston', 1500, 750),
@@ -912,19 +914,6 @@ FROM Hospital H
 JOIN Airport A ON H.City_ID = A.City_ID
 WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 
-SELECT c1.Name,
-                       c1.Avg_Cost_Of_Living,
-                       c1.Avg_Rent,
-                       c1.Avg_Wage,
-                       c1.Avg_Cost_Of_Living / c1.Avg_Wage as cost_to_wage_ratio,
-                       c1.Avg_Rent / c1.Avg_Wage as rent_to_wage_ratio,
-                       (SELECT AVG(Avg_Cost_Of_Living) FROM City) as avg_national_col,
-                       (SELECT AVG(Avg_Rent) FROM City) as avg_national_rent,
-                       (SELECT AVG(Avg_Wage) FROM City) as avg_national_wage
-                FROM City c1
-                WHERE c1.Avg_Cost_Of_Living BETWEEN 2000 AND 2500
-                ORDER BY ABS(c1.Avg_Cost_Of_Living - 2500)
-                LIMIT 1;
-SELECT Compensation, User_ID
-FROM JobPosting
-Where JobPosting.Location_ID = 2115;
+Select Performance.Date, Avg_Speed, Top_Speed
+From Performance
+where date(Date) = '2025-03-12'
