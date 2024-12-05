@@ -93,5 +93,14 @@ if st.button('Act as Helen, a mother of a Northeastern University Student',
         st.session_state['role'] = 'parent'
         st.session_state['first_name'] = 'Helen'
         logger.info('Logging in as Parent Persona')
-        st.switch_page('pages/40_Parent_Home.py')
+        st.swtich_page('pages/40_Parent_Home.py')
         
+# Persona 5: Student
+if st.button('Act as Sarah, a Northeastern University Student',
+             type='primary',
+             use_container_width=True):
+    st.session_state['authenticated'] = True
+    st.session_state['role'] = 'student'
+    st.session_state['first_name'] = 'Sarah'
+    logger.info('Logging in as Student Persona')
+    st.switch_page('pages/37_Browse_Jobs.py')
