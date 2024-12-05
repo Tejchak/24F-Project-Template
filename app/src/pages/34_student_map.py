@@ -152,6 +152,7 @@ try:
     df_housing, df_airports, df_hospitals = get_location_data(selected_city)
     
     if not df_housing.empty:
+        # Create layers for the map with adjusted parameters
         ALL_LAYERS = {
             "Housing Locations": pdk.Layer(
                 "ScatterplotLayer",
@@ -160,6 +161,12 @@ try:
                 get_color=[200, 30, 0, 160],
                 get_radius=50,
                 pickable=True,
+                auto_highlight=True,
+                tooltip={
+                    "html": "<b>Housing Location</b><br/>" +
+                           "Address: {address}<br/>" +
+                           "Rent: ${rent}"
+                }
             ),
             "Rent Heatmap": pdk.Layer(
                 "HexagonLayer",
@@ -169,28 +176,42 @@ try:
                 elevation_scale=2,
                 elevation_range=[0, 500],
                 get_elevation="rent",
-                pickable=True,
                 extruded=True,
+                pickable=True,
+                auto_highlight=True,
+                tooltip={
+                    "html": "<b>Rent Heatmap Area</b><br/>" +
+                           "Average Rent: ${elevationValue}<br/>" +
+                           "Properties: {points.length}"
+                }
             ),
             "Airports": pdk.Layer(
                 "ScatterplotLayer",
                 data=df_airports,
                 get_position=["lon", "lat"],
-                get_color=[66, 135, 245, 160],  # Blue color for airports
-                get_radius=75,
+                get_color=[0, 255, 0, 200],
+                get_radius=100,
                 pickable=True,
+                auto_highlight=True,
+                tooltip={
+                    "html": "✈️ <b>{name}</b>"
+                }
             ),
             "Hospitals": pdk.Layer(
                 "ScatterplotLayer",
                 data=df_hospitals,
                 get_position=["lon", "lat"],
-                get_color=[245, 66, 66, 160],  # Red color for hospitals
-                get_radius=75,
+                get_color=[255, 0, 0, 200],
+                get_radius=100,
                 pickable=True,
+                auto_highlight=True,
+                tooltip={
+                    "html": "🏥 <b>{name}</b>"
+                }
             )
         }
 
-        # Create layer selector in sidebar
+        # Create layer selector and legend in sidebar
         st.sidebar.markdown("### Map Layers")
         selected_layers = [
             layer
@@ -198,39 +219,73 @@ try:
             if st.sidebar.checkbox(layer_name, True)
         ]
 
-        # Create the map
-        if selected_layers:
-            st.pydeck_chart(
-                pdk.Deck(
-                    map_style="mapbox://styles/mapbox/light-v9",
-                    initial_view_state={
-                        "latitude": df_housing['lat'].mean(),
-                        "longitude": df_housing['lon'].mean(),
-                        "zoom": 12,  # Adjust zoom level for better focus
-                        "pitch": 50,
-                    },
-                    layers=selected_layers,
-                    tooltip={
-                        "html": "<b>Address:</b> {address}<br/>"
-                                "<b>Rent:</b> ${rent}<br/>"
-                                "<b>Square Feet:</b> {sqft}<br/>"
-                                "<b>Zipcode:</b> {zipcode}",
-                        "style": {
-                            "backgroundColor": "steelblue",
-                            "color": "white"
-                        }
-                    }
-                )
+        # Add legend to sidebar
+        st.sidebar.markdown("### Map Legend")
+        st.sidebar.markdown("""
+        🔴 **Housing Locations** - Small red circles
+        📊 **Rent Heatmap** - Colored hexagons (higher = more expensive)
+        🟢 **Airports** - Large green circles
+        🔴 **Hospitals** - Large red circles
+        """)
+
+        # Create the map with tooltip configuration
+        st.pydeck_chart(
+            pdk.Deck(
+                map_style="mapbox://styles/mapbox/light-v9",
+                initial_view_state={
+                    "latitude": df_housing['lat'].mean(),
+                    "longitude": df_housing['lon'].mean(),
+                    "zoom": 12,
+                    "pitch": 50,
+                },
+                layers=selected_layers,
+                tooltip={"html": True}
+            )
+        )
+
+        # Add filters and data tables below the map
+        st.markdown("### Location Details")
+
+        # Create columns for filters
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Category filter
+            category = st.selectbox(
+                "Filter by category:",
+                ["Housing", "Airports", "Hospitals"]
             )
 
-            # Display data table below map
-            st.subheader(f"Location Details for {selected_city}")
-            st.dataframe(
-                df_housing[['city', 'zipcode', 'address', 'rent', 'sqft']],
-                hide_index=True
-            )
-        else:
-            st.error("Please choose at least one layer above.")
+        with col2:
+            # Dynamic filter based on category
+            if category == "Housing":
+                filter_option = st.selectbox(
+                    "Filter housing by:",
+                    ["Zipcode", "Rent Range", "Square Footage"]
+                )
+                if filter_option == "Zipcode":
+                    filter_value = st.text_input("Enter zipcode:")
+                    filtered_df = df_housing[df_housing['zipcode'].astype(str).str.contains(filter_value, case=False, na=False)]
+                elif filter_option == "Rent Range":
+                    min_rent = st.number_input("Minimum rent:", min_value=0)
+                    max_rent = st.number_input("Maximum rent:", min_value=0)
+                    filtered_df = df_housing[(df_housing['rent'] >= min_rent) & (df_housing['rent'] <= max_rent)]
+                else:  # Square Footage
+                    min_sqft = st.number_input("Minimum square feet:", min_value=0)
+                    max_sqft = st.number_input("Maximum square feet:", min_value=0)
+                    filtered_df = df_housing[(df_housing['sqft'] >= min_sqft) & (df_housing['sqft'] <= max_sqft)]
+                
+                st.dataframe(filtered_df[['address', 'zipcode', 'rent', 'sqft']])
+
+            elif category == "Airports":
+                search_term = st.text_input("Search airports by name:")
+                filtered_df = df_airports[df_airports['name'].str.contains(search_term, case=False, na=False)]
+                st.dataframe(filtered_df[['name', 'lat', 'lon']])
+
+            else:  # Hospitals
+                search_term = st.text_input("Search hospitals by name:")
+                filtered_df = df_hospitals[df_hospitals['name'].str.contains(search_term, case=False, na=False)]
+                st.dataframe(filtered_df[['name', 'lat', 'lon']])
     else:
         st.error(f"No data available for {selected_city}")
 except URLError as e:
