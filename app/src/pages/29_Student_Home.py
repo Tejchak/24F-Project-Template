@@ -1,34 +1,50 @@
+import logging
 import streamlit as st
-import requests
+from modules.nav import SideBarLinks
 
+logger = logging.getLogger(__name__)
 
-st.title("Apply for a Job")
-st.write("Submit an application for a job posting.")
+st.set_page_config(layout='wide')
 
-if 'student_id' in st.session_state:
-    student_id = st.session_state.student_id
+# Show appropriate sidebar links for the role of the currently logged in user
+SideBarLinks()
 
-    # Fetch available jobs
-    try:
-        response = requests.get(f"http://api:4000/students/{student_id}/jobs")
-        response.raise_for_status()
-        jobs = response.json()
-
-        if jobs:
-            job_id = st.selectbox("Select a job to apply for", [job['job_posting_id'] for job in jobs])
-            if st.button("Apply"):
-                try:
-                    apply_response = requests.post(
-                        f"http://api:4000/students/{student_id}/apply",
-                        json={"job_posting_id": job_id}
-                    )
-                    apply_response.raise_for_status()
-                    st.success("Application submitted successfully!")
-                except requests.exceptions.RequestException as e:
-                    st.error(f"Error applying for the job: {e}")
-        else:
-            st.warning("No available jobs to apply for.")
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error fetching jobs: {e}")
+# Welcome message for the student
+if 'first_name' in st.session_state:
+    st.title(f"Welcome Student, {st.session_state['first_name']}.")
 else:
-    st.error("Please log in to access this page.")
+    st.title("Welcome Student.")
+st.write('')
+st.write('')
+st.write('### What would you like to do today?')
+
+# Navigation options for student persona
+if st.button('Browse Available Jobs', 
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/37_Browse_Jobs.py')
+
+if st.button('Apply for a Job', 
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/38_Apply_Job.py')
+
+if st.button('View Application Status',
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/39_View_Applications.py')
+
+if st.button('Get Personalized Recommendations',
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/41_Job_Recommendations.py')
+
+if st.button('Update Your Profile',
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/42_Update_Profile.py')
+
+if st.button('Delete an Application',
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/43_Delete_Application.py')
