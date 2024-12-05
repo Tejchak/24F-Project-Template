@@ -32,10 +32,3 @@ def add_housing():
         db.get_db().rollback()
         return jsonify({"error": "Database error", "message": str(e)}), 500
 
-
-@housing.route('/housing', methods=['GET'])
-def get_housing():
-    cursor = db.get_db().cursor()
-    cursor.execute('SELECT * FROM Housing')
-    housing_data = cursor.fetchall()
-    return jsonify(housing_data), 200
