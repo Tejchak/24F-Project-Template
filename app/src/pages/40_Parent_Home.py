@@ -23,4 +23,6 @@ if st.button('Moving Information',
     st.switch_page('pages/41_Moving_Info.py')
     
 
+#Access safety information for a specific city
+
 
