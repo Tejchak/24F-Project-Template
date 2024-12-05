@@ -425,8 +425,6 @@ INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID) VALUES
 (2, 'Jasmine Aladdin', 'jasmine.aladdin@example.com', '555-123-4596', 8),
 (1, 'Klaus Mikaelson', 'klaus.mikaelson@example.com', '555-123-4597', 21),
 (2, 'Luna Lovegood', 'luna.lovegood@example.com', '555-123-4598', 2);
-
-
 #Housing data
 INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) VALUES
 (1, 02115, '123 Main St, Boston', 1500, 750),
@@ -818,7 +816,7 @@ ORDER BY L.Safety_Rating DESC;
 
 ## Quickly add data to the database:
 INSERT INTO City (Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, Name, Population, Prop_Hybrid_Workers)
-VALUES (2500, 1200, 3000, 'Seattle', 800000, 0.3000);
+VALUES (2500, 1200, 3000, 'Vander', 800000, 0.3000);
 
 ## Efficiently delete unused data:
 DELETE FROM Performance
@@ -927,3 +925,6 @@ SELECT c1.Name,
                 WHERE c1.Avg_Cost_Of_Living BETWEEN 2000 AND 2500
                 ORDER BY ABS(c1.Avg_Cost_Of_Living - 2500)
                 LIMIT 1;
+SELECT Compensation, User_ID
+FROM JobPosting
+Where JobPosting.Location_ID = 2115;

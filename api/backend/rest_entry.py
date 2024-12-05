@@ -7,7 +7,6 @@ from backend.simple.simple_routes import simple_routes
 from backend.coopconnect_routes.city_routes import cities
 from backend.coopconnect_routes.performance_routes import performance
 from backend.coopconnect_routes.user_routes import users
-from backend.coopconnect_routes.job_routes import jobs
 from backend.coopconnect_routes.employer import employer
 
 import os
@@ -51,7 +50,6 @@ def create_app():
     app.register_blueprint(cities)
     app.register_blueprint(performance)
     app.register_blueprint(users)
-    app.register_blueprint(jobs)
     app.register_blueprint(employer)
 
     # Don't forget to return the app object

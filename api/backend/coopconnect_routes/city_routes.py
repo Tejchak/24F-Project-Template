@@ -12,7 +12,7 @@ cities = Blueprint('City', __name__)
 @cities.route('/city', methods=['GET'])
 def get_all_cities():
     try:
-        cursor = db.cursor()
+        cursor = db.get_db().cursor()
         cursor.execute("SELECT * FROM City")
         cities_data = cursor.fetchall()
         cursor.close()
@@ -20,13 +20,13 @@ def get_all_cities():
         cities_list = []
         for city in cities_data:
             cities_list.append({
-                'city_id': city[0],
-                'avg_cost_of_living': city[1],
-                'avg_rent': city[2],
-                'avg_wage': city[3],
-                'name': city[4],
-                'population': city[5],
-                'prop_hybrid_workers': float(city[6]) if city[6] else None
+                'city_id': city['City_ID'],
+                'avg_cost_of_living': city['Avg_Cost_Of_Living'],
+                'avg_rent': city['Avg_Rent'],
+                'avg_wage': city['Avg_Wage'],
+                'name': city['Name'],
+                'population': city['Population'],
+                'prop_hybrid_workers': float(city['Prop_Hybrid_Workers']) if city['Prop_Hybrid_Workers'] else None
             })
 
         return jsonify(cities_list), 200
