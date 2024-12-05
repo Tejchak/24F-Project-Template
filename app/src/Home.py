@@ -84,3 +84,9 @@ if st.button('Login as System Admin',
             type = 'primary', 
             use_container_width=True):
     st.switch_page('pages/33_Login_System_Admin.py')
+
+
+if st.button('Student Map', 
+            type = 'primary', 
+            use_container_width=True):
+    st.switch_page('pages/34_student_map.py')

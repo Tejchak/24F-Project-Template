@@ -180,6 +180,3 @@ def get_cities_by_hybrid_proportion(Prop_Hybrid_Workers):
 @cities.route('/city/test', methods=['GET'])
 def test_route():
     return jsonify({"message": "City routes are working"}), 200
-
-
-
