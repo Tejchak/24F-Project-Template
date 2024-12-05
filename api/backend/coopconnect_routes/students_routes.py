@@ -52,3 +52,80 @@ def apply_to_job(student_id):
         return jsonify({'message': 'Application submitted successfully'}), 201
     except Exception as e:
         return jsonify({'error': f'Failed to apply for job: {str(e)}'}), 500
+
+@student_routes.route('/students/<int:student_id>/applications', methods=['GET'])
+def get_application_status(student_id):
+    """
+    Retrieve the status of all applications submitted by the student.
+    """
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("""
+            SELECT Application.*, JobPosting.title AS job_title 
+            FROM Application 
+            JOIN JobPosting ON Application.job_posting_id = JobPosting.job_posting_id
+            WHERE Application.student_id = %s
+        """, (student_id,))
+        applications = cursor.fetchall()
+        if not applications:
+            return jsonify({'message': 'No applications found'}), 404
+        return jsonify(applications), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve applications: {str(e)}'}), 500
+
+@student_routes.route('/students/<int:student_id>/recommendations', methods=['GET'])
+def get_job_recommendations(student_id):
+    """
+    Fetch personalized job recommendations for the student.
+    """
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("""
+            SELECT * 
+            FROM JobPosting 
+            WHERE skills_required IN (
+                SELECT skill 
+                FROM StudentSkills 
+                WHERE student_id = %s
+            )
+            AND job_posting_id NOT IN (
+                SELECT job_posting_id 
+                FROM Application 
+                WHERE student_id = %s
+            )
+            LIMIT 10
+        """, (student_id, student_id))
+        recommendations = cursor.fetchall()
+        if not recommendations:
+            return jsonify({'message': 'No recommendations available'}), 404
+        return jsonify(recommendations), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch recommendations: {str(e)}'}), 500
+
+@student_routes.route('/students/<int:student_id>', methods=['PUT'])
+def update_student_profile(student_id):
+    """
+    Update the student's profile information.
+    """
+    try:
+        data = request.get_json()
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("""
+            UPDATE Student 
+            SET name = %s, email = %s, phone = %s, address = %s
+            WHERE student_id = %s
+        """, (
+            data.get('name'),
+            data.get('email'),
+            data.get('phone'),
+            data.get('address'),
+            student_id
+        ))
+        db.commit()
+        return jsonify({'message': 'Profile updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to update profile: {str(e)}'}), 500
+
