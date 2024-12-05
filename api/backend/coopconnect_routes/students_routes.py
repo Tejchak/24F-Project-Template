@@ -129,3 +129,41 @@ def update_student_profile(student_id):
     except Exception as e:
         return jsonify({'error': f'Failed to update profile: {str(e)}'}), 500
 
+from flask import Blueprint, request, jsonify, make_response
+from db_connection import db
+
+student_routes = Blueprint('student_routes', __name__)
+
+@student_routes.route('/students/<int:student_id>/applications/<int:application_id>', methods=['DELETE'])
+def delete_application(student_id, application_id):
+    """
+    Deletes a job application for a specific student.
+    """
+    cursor = db.get_db().cursor()
+
+    try:
+        # Check if the application exists and belongs to the student
+        cursor.execute('''
+            SELECT * FROM Application
+            WHERE application_id = %s AND student_id = %s
+        ''', (application_id, student_id))
+        application = cursor.fetchone()
+
+        if not application:
+            return make_response(jsonify({'error': 'Application not found or does not belong to this student'}), 404)
+
+        # Perform the deletion
+        cursor.execute('''
+            DELETE FROM Application
+            WHERE application_id = %s
+        ''', (application_id,))
+        db.get_db().commit()
+
+        # Check if the deletion was successful
+        if cursor.rowcount > 0:
+            return make_response(jsonify({'message': 'Application deleted successfully'}), 200)
+        else:
+            return make_response(jsonify({'error': 'Failed to delete application'}), 500)
+
+    except Exception as e:
+        return make_response(jsonify({'error': f'Database error: {str(e)}'}), 500)
