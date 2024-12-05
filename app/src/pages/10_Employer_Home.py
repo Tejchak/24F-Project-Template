@@ -19,12 +19,12 @@ if st.button('Find Best Locations to Set Up CO-OP',
              use_container_width=True):
   st.switch_page('pages/11_Population_Per_Zip.py')
 
-if st.button('View the Simple API Demo', 
+if st.button('Create a new job posting', 
              type='primary',
              use_container_width=True):
-  st.switch_page('pages/12_API_Test.py')
+  st.switch_page('pages/12_Create_Job_Posting.py')
 
-if st.button("View Classification Demo",
+if st.button("Job Postings Management",
              type='primary',
              use_container_width=True):
-  st.switch_page('pages/13_Classification.py')
+  st.switch_page('pages/13_Job_Postings_Management.py')

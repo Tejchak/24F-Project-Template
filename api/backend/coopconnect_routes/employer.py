@@ -195,3 +195,48 @@ def create_job_posting():
     db.get_db().commit()  
     return make_response(jsonify({'message': 'Job posting created successfully'}), 201)
 
+# Get all job postings for a specific user by email
+@employer.route('/users/email/<string:user_email>/job_postings', methods=['GET'])
+def get_user_job_postings_by_email(user_email):
+    cursor = db.get_db().cursor()
+    
+    try:
+        # Fetch user ID using the provided email
+        cursor.execute('''
+            SELECT UserID 
+            FROM User 
+            WHERE email = %s
+        ''', (user_email,))
+        
+        user_id = cursor.fetchone()  # Fetch the user ID
+        
+        if not user_id:
+            return make_response(jsonify({'error': 'Email not found in the database'}), 404)
+
+        user_id = user_id['UserID']  # Get the actual UserID from the tuple
+
+        # Fetch job postings for the user
+        cursor.execute('''
+            SELECT Post_ID, Compensation, Location_ID, User_ID
+            FROM JobPosting
+            WHERE User_ID = %s
+        ''', (user_id,))
+        
+        job_postings = cursor.fetchall()  # Fetch all job postings for the user
+        
+        if job_postings:
+            postings_list = []
+            for posting in job_postings:
+                postings_list.append({
+                    'Post_ID': posting['Post_ID'],
+                    'Compensation': posting["Compensation"],
+                    'Location_ID': posting['Location_ID'],
+                    'User_ID': posting['User_ID']
+                })
+            return make_response(jsonify(postings_list), 200)
+        else:
+            return make_response(jsonify({'error': 'No job postings found for this user'}), 404)
+
+    except Exception as e:
+        return make_response(jsonify({'error': f'Database error: {str(e)}'}), 500)
+
