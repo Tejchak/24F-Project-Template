@@ -63,3 +63,77 @@ def get_available_dates():
         print(f"Error in get_available_dates: {str(e)}")  # Debug print
         return jsonify({'error': str(e)}), 500
     
+
+# Add new performance entry
+@performance.route('/performance/add', methods=['POST'])
+def add_performance():
+    try:
+        data = request.json
+        cursor = db.get_db().cursor()
+        
+        query = '''
+        INSERT INTO Performance (`Date`, Avg_Speed, Median_Speed, Top_Speed, Low_Speed)
+        VALUES (%s, %s, %s, %s, %s)
+        '''
+        
+        cursor.execute(query, (
+            data['date'],
+            data['cpu_usage'],
+            data['memory_usage'],
+            data['network_usage'],
+            data['disk_usage']
+        ))
+        
+        db.get_db().commit()
+        cursor.close()
+        return jsonify({"message": "Performance entry added successfully"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Update existing performance entry
+@performance.route('/performance/update/<date>', methods=['PUT'])
+def update_performance(date):
+    try:
+        data = request.json
+        cursor = db.get_db().cursor()
+        
+        query = '''
+        UPDATE Performance 
+        SET Avg_Speed = %s, 
+            Median_Speed = %s, 
+            Top_Speed = %s, 
+            Low_Speed = %s
+        WHERE date(`Date`) = %s
+        '''
+        
+        cursor.execute(query, (
+            data['cpu_usage'],
+            data['memory_usage'],
+            data['network_usage'],
+            data['disk_usage'],
+            date
+        ))
+        
+        db.get_db().commit()
+        cursor.close()
+        return jsonify({"message": "Performance entry updated successfully"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Delete performance entry
+@performance.route('/performance/delete/<date>', methods=['DELETE'])
+def delete_performance(date):
+    try:
+        cursor = db.get_db().cursor()
+        query = 'DELETE FROM Performance WHERE date(`Date`) = %s'
+        cursor.execute(query, (date,))
+        
+        db.get_db().commit()
+        cursor.close()
+        return jsonify({"message": "Performance entry deleted successfully"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
