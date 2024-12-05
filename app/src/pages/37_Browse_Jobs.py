@@ -1,32 +1,27 @@
 import streamlit as st
 import requests
+import pandas as pd
 
-# Set page title
-st.set_page_config(page_title="Email Verification", layout="wide")
+st.title("Browse Available Jobs")
+st.write("Explore job opportunities that match your interests and skills.")
 
-# Title and description
-st.title("Email Verification")
-st.write("Please enter your email to verify your account.")
+# Check if student is logged in
+if 'student_id' in st.session_state:
+    student_id = st.session_state.student_id
 
-# Input for email
-user_email = st.text_input("Enter your email (E.x: klaus.mikaelson@example.com)", placeholder="klaus.mikaelson@example.com")
+    # Fetch available jobs
+    try:
+        response = requests.get(f"http://api:4000/students/{student_id}/jobs")
+        response.raise_for_status()
+        jobs = response.json()
 
-if st.button("Verify Email"):
-    if user_email:
-        try:
-            # Check if the email exists in the database
-            response = requests.get(f'http://api:4000/users/email/{user_email}')
-            response.raise_for_status()
-            user_data = response.json()
-
-            # If the email is found, store user ID in session state
-            user_id = user_data['UserID']  # Assuming the response contains UserID
-            st.session_state.user_id = user_id  # Store user ID in session state
-            
-            st.session_state.page = "job_postings_management"  # Set session state for redirection
-            st.switch_page('pages/13_Job_Postings_Management.py')
-
-        except requests.exceptions.HTTPError:
-            st.error("Email not found in the database.")
-    else:
-        st.warning("Please enter a valid email.")
+        if jobs:
+            st.success("Available jobs retrieved successfully!")
+            df = pd.DataFrame(jobs)
+            st.dataframe(df[['job_posting_id', 'title', 'compensation', 'location_id']], use_container_width=True)
+        else:
+            st.warning("No available jobs at the moment.")
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error fetching jobs: {e}")
+else:
+    st.error("Please log in to access this page.")
