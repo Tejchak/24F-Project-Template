@@ -40,7 +40,7 @@ def get_performance(Date):
 def get_available_dates():
     try:
         cursor = db.get_db().cursor()
-        cursor.execute('SELECT DISTINCT Date FROM Performance ORDER BY Date DESC')
+        cursor.execute('SELECT DISTINCT Date FROM Performance Join ORDER BY Date DESC')
         dates = cursor.fetchall()
         cursor.close()
         

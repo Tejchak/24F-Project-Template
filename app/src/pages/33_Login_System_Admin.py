@@ -110,7 +110,7 @@ with tab2:
     # Create user metrics visualizations
     if not df_users.empty:
         # User categories distribution
-        category_counts = df_users['CategoryID'].value_counts()
+        category_counts = df_users['CategoryName'].value_counts()
         fig_categories = px.pie(values=category_counts.values, 
                                 names=category_counts.index,
                                 title='User Distribution by Category')
@@ -136,6 +136,6 @@ with tab2:
     with col2:
         if 'Date_Created' in df_users.columns:
             recent_users = df_users[df_users['Date_Created'] > 
-                                    (datetime.now() - timedelta(days=7))].shape[0]
-            st.metric("New Users (Last 7 Days)", recent_users)
+                                    (datetime.now() - timedelta(days=30))].shape[0]
+            st.metric("New Users (Last 30 Days)", recent_users)
             
