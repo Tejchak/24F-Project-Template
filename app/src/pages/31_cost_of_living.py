@@ -15,11 +15,11 @@ def setup_sidebar():
         
         # Home button
         if st.button("🏠 Home"):
-            st.switch_page("app/src/Home.py")
+            st.switch_page("Home.py")
             
         # Back button
         if st.button("⬅️ Back"):
-            st.switch_page("app/src/pages/30_dashboard.py")  # Adjust this path as needed
+            st.switch_page("pages/30_dashboard.py")  # Adjust this path as needed
             
         # Logout button
         if st.button("🚪 Logout"):

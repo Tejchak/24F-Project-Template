@@ -4,15 +4,46 @@ from modules.nav import SideBarLinks
 
 SideBarLinks()
 
-st.write("# About this App")
+st.write("# About CoopConnect")
 
-st.markdown (
+st.markdown(
     """
-    This is a demo app for CS 3200 Course Project.  
+    Welcome to CoopConnect - Your Complete Co-op/Internship Planning Platform!
 
-    The goal of this demo is to provide information on the tech stack 
-    being used as well as demo some of the features of the various platforms. 
+    CoopConnect is a comprehensive solution designed to help Northeastern University students, 
+    employers, and parents navigate the co-op experience. Our platform connects all aspects 
+    of co-op planning in one place:
 
-    Stay tuned for more information and features to come!
+    ### For Students
+    - Find and compare housing options across different cities
+    - Access detailed cost of living data
+    - Connect with other students in your target city
+    - Browse and apply for co-op positions
+    - Find sublet opportunities
+
+    ### For Employers
+    - Post co-op positions
+    - Access demographic data about student populations
+    - Analyze remote work trends
+    - View city-specific wage and cost data
+
+    ### For Parents
+    - Research safe housing options
+    - Access city safety ratings
+    - Find nearby hospitals and airports
+    - Connect with local communities
+    - Plan budgets with accurate cost-of-living data
+
+    ### Key Features
+    - Real-time housing market data
+    - Safety ratings by neighborhood
+    - Cost of living comparisons
+    - Student population demographics
+    - Healthcare and transportation information
+    - Job posting management
+    - Sublet coordination
+
+    Built as part of CS 3200 Database Design course at Northeastern University, 
+    CoopConnect aims to streamline the co-op experience for all stakeholders involved.
     """
-        )
+)
