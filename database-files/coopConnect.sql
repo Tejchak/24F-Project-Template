@@ -816,9 +816,9 @@ INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID) VALUES
 ('Product Designer', 'Design products that meet user needs.', 58000, 60619, 2),  -- Chicago
 ('Financial Consultant', 'Provide financial advice and planning.', 64000, 10006, 3),  -- New York
 ('IT Project Manager', 'Manage IT projects from start to finish.', 53000, 94108, 4),  -- San Francisco
-('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 61000, 98106, 5),  -- Seattle
-('E-commerce Specialist', 'Manage online sales and marketing.', 56000, 33106, 6),  -- Miami
-('Content Strategist', 'Develop content strategies for brands.', 59000, 48206, 7);  -- Detroit
+('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 61000, 98106, 39),  -- Seattle
+('E-commerce Specialist', 'Manage online sales and marketing.', 56000, 33106, 39),  -- Miami
+('Content Strategist', 'Develop content strategies for brands.', 59000, 48206, 39);  -- Detroit
 
 
 ## Persona 1: Timothy (Northeastern Student)**
