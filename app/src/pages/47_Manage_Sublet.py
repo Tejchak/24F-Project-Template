@@ -12,10 +12,8 @@ st.set_page_config(layout='wide')
 # Page title
 st.title("View and Manage Sublets")
 
-# Ensure user is logged in and their ID is in the session
-if 'user_id' not in st.session_state:
-    st.error("You must be logged in to manage sublets.")
-    st.stop()
+# Default user ID for demonstration purposes (remove session dependency)
+DEFAULT_USER_ID = "default_user"  # Use this ID for API calls
 
 # Function to fetch sublets for the user
 def fetch_sublets(user_id):
@@ -73,9 +71,8 @@ def delete_sublet(sublet_id):
     except requests.exceptions.RequestException as e:
         st.error(f"Error deleting sublet: {e}")
 
-# Fetch and display the user's sublets
-user_id = st.session_state['user_id']
-sublets = fetch_sublets(user_id)
+# Fetch and display sublets for the default user
+sublets = fetch_sublets(DEFAULT_USER_ID)
 
 if sublets:
     st.write("### Your Sublets")
@@ -105,7 +102,7 @@ with st.expander("Create a New Sublet"):
     end_date = st.date_input("End Date")
     if st.button("Create Sublet"):
         if housing_id and start_date and end_date:
-            create_sublet(user_id, housing_id, start_date, end_date)
+            create_sublet(DEFAULT_USER_ID, housing_id, start_date, end_date)
         else:
             st.error("Please fill out all fields.")
 
@@ -133,8 +130,5 @@ with st.expander("Delete a Sublet"):
         else:
             st.error("Please provide a valid Sublet ID.")
 
-# Add a logout button in the sidebar
+# Sidebar (optional actions)
 st.sidebar.header('Actions')
-if st.sidebar.button('Logout'):
-    st.session_state.clear()  # Clear session state on logout
-    st.experimental_rerun()  # Refresh the app to go back to the homepage
