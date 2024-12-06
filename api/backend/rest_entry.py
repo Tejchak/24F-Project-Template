@@ -10,6 +10,8 @@ from backend.coopconnect_routes.user_routes import users
 from backend.coopconnect_routes.employer import employer
 from backend.coopconnect_routes.housing_routes import housing
 from backend.coopconnect_routes.airport_routes import airports
+from backend.coopconnect_routes.hospital_routes import hospitals
+from backend.coopconnect_routes.location_routes import locations
 
 import os
 from dotenv import load_dotenv
@@ -55,6 +57,8 @@ def create_app():
     app.register_blueprint(employer)
     app.register_blueprint(housing)
     app.register_blueprint(airports)
+    app.register_blueprint(hospitals)
+    app.register_blueprint(locations)
 
     # Don't forget to return the app object
     return app

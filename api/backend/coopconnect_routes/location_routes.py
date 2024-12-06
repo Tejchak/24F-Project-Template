@@ -38,22 +38,26 @@ def get_location_details(Zip):
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 
-#Returns the safety rating of a specific city
-@locations.route('/location/safety/<City_ID>', methods=['GET'])
-def get_safety_rating(City_ID):
-    try:
-        query = '''
-        SELECT City_ID, Safety_Rating
-        FROM Locations
-        WHERE City_ID = %s
-        '''
-        cursor = db.get_db().cursor()
-        cursor.execute(query, (City_ID,))
-        theData = cursor.fetchone()
-        if theData:
-            return make_response(jsonify(theData), 200)
-        else:
-            return make_response(jsonify({"error": "City_ID not found"}), 404)
-    except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
+
+@locations.route('/cities/<string:city_name>/safety_rating', methods=['GET'])
+def get_safety_rating_by_zip(city_name):
+    cursor = db.get_db().cursor()
+    cursor.execute('''
+        SELECT L.Zip, L.Safety_Rating
+        FROM Location L
+        WHERE L.City_ID = (SELECT City_ID FROM City WHERE Name = %s)
+    ''', (city_name,))
     
+    safety_rating_data = cursor.fetchall()  # Fetch all results
+    print(safety_rating_data)
+    
+    if safety_rating_data:
+        result = [{'Zip': row['Zip'], 'Safety_Rating': row['Safety_Rating']} for row in safety_rating_data]
+        return make_response(jsonify(result), 200)
+    else:
+        return "No zipcodes for selected city", 404
+
+
+
+      
+

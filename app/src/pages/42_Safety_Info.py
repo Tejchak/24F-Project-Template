@@ -1,40 +1,73 @@
-import streamlit as st
+import logging
 import requests
+import streamlit as st
 import pandas as pd
 
+# Set up logging
+logger = logging.getLogger(__name__)
+
+# Set page configuration
 st.set_page_config(layout='wide')
 
-st.title('Safety Information')
+# Title of the page
+st.title('City Information: Hospitals and Safety Ratings')
 
-# Input for City_ID
-city_id = st.text_input('Enter City_ID:', '')
+# Function to fetch cities
+def fetch_cities():
+    response = requests.get('http://api:4000/city')  # Adjust the URL as needed
+    if response.status_code == 200:
+        return [city['name'] for city in response.json()]  # Extract city names from the response
+    else:
+        st.error('Error fetching cities from the server: ' + str(response.status_code))
+        return []
 
-if city_id:
-    # Gets Safety rating of a city
-    st.subheader('Safety Rating')
+# Sidebar for city selection
+st.sidebar.header('Select a City')
+city_list = fetch_cities()
+city_name = st.sidebar.selectbox('City:', city_list)
+
+# Add a button to fetch hospitals and safety ratings for the selected city
+if st.sidebar.button('Get City Info'):
+    # Fetch hospitals for the selected city
+    response = requests.get(f'http://api:4000/hospitals/{city_name}')
+    
     try:
-        safety_response = requests.get(f"http://api:4000/location/safety/{city_id}")  
-        if safety_response.status_code == 200:
-            safety_data = safety_response.json()
-            st.write(f"Safety Rating for City_ID {city_id}: {safety_data.get('Safety_Rating', 'Unknown')}")
-        elif safety_response.status_code == 404:
-            st.warning(f"No safety information found for City_ID {city_id}.")
+        hospital_data = response.json()  # Attempt to parse the response as JSON
+    except ValueError as e:
+        hospital_data = None
+        st.error("Error parsing JSON response: " + str(e))
+    
+    if hospital_data:
+        # Display the hospital data
+        st.subheader(f"Hospitals in {city_name}")
+        st.dataframe(hospital_data)
+    else:
+        if response.status_code == 404:
+            st.write("No hospitals found for the selected city.")
         else:
-            st.error(f"Error fetching safety information: {safety_response.status_code}")
-    except Exception as e:
-        st.error(f"An error occurred while fetching safety information: {e}")
+            st.error('Error fetching hospital data.')
 
-    # Gets hospitals that match with the city_id
-    st.subheader('Nearby Hospitals')
+    # Fetch safety ratings for each ZIP code in the selected city
     try:
-        hospitals_response = requests.get(f"http://api:4000/hospitals/{city_id}")  
-        if hospitals_response.status_code == 200:
-            hospitals_data = hospitals_response.json()
-            hospitals_df = pd.DataFrame(hospitals_data)
-            st.dataframe(hospitals_df, use_container_width=True)
-        elif hospitals_response.status_code == 404:
-            st.warning(f"No hospitals found for City_ID {city_id}.")
+        safety_response = requests.get(f'http://api:4000/cities/{city_name}/safety_rating')
+        safety_response.raise_for_status()
+        safety_data = safety_response.json()
+
+        # Display the safety ratings
+        st.subheader(f"Safety Ratings for ZIP Codes in {city_name}")
+        if safety_data:
+            # Create a DataFrame and reorder columns
+            safety_df = pd.DataFrame(safety_data)
+            safety_df = safety_df[['Zip', 'Safety_Rating']]  # Ensure ZIP comes before Safety Rating
+            st.dataframe(safety_df)
         else:
-            st.error(f"Error fetching hospital information: {hospitals_response.status_code}")
-    except Exception as e:
-        st.error(f"An error occurred while fetching hospital information: {e}")
+            st.write("No safety ratings found for the specified city.")
+        
+    except requests.exceptions.RequestException as e:
+        st.error(f'Error fetching safety ratings: {e}')
+
+logger.info(f'User selected city: {city_name}')
+
+# Add a logout button in the sidebar
+if st.sidebar.button('Logout'):
+    st.switch_page('Home.py')# Refresh the app to go back to the homepage

@@ -93,7 +93,7 @@ if st.button('Act as Helen, a mother of a Northeastern University Student',
         st.session_state['role'] = 'parent'
         st.session_state['first_name'] = 'Helen'
         logger.info('Logging in as Parent Persona')
-        st.swtich_page('pages/40_Parent_Home.py')
+        st.switch_page('pages/40_Parent_Home.py')
         
 # Persona 5: Student
 if st.button('Act as Sarah, a Northeastern University Student',
