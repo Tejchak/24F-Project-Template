@@ -37,14 +37,15 @@ if st.button('View Application Status',
 if st.button('Get Personalized Recommendations',
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/41_Job_Recommendations.py')
+    st.switch_page('pages/43_Job_Recs.py')
+
 
 if st.button('Update Your Profile',
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/42_Update_Profile.py')
+    st.switch_page('pages/44_Update_Profile.py')
 
 if st.button('Delete an Application',
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/43_Delete_Application.py')
+    st.switch_page('pages/45_Delete_App.py')
