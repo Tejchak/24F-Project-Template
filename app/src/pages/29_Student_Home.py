@@ -2,7 +2,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 import streamlit as st
+import sys
+import os
+# Add the root directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from modules.nav import SideBarLinks
+
 
 st.set_page_config(layout='wide')
 
@@ -44,4 +49,3 @@ if st.button("View Map",
              type='primary',
              use_container_width=True):
     st.switch_page('pages/34_student_map.py')
-
