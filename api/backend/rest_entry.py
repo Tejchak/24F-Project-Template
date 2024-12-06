@@ -5,7 +5,6 @@ from backend.customers.customer_routes import customers
 from backend.products.products_routes import products
 from backend.simple.simple_routes import simple_routes
 from backend.coopconnect_routes.city_routes import cities
-from backend.coopconnect_routes.performance_routes import performance
 from backend.coopconnect_routes.user_routes import users
 from backend.coopconnect_routes.employer import employer
 from backend.coopconnect_routes.housing_routes import housing
@@ -14,6 +13,7 @@ from backend.coopconnect_routes.hospital_routes import hospitals
 from backend.coopconnect_routes.student_route import student
 from backend.coopconnect_routes.location_routes import locations
 from backend.coopconnect_routes.job_routes import job_routes
+from backend.coopconnect_routes.system_admin_routes import system_admin
 import os
 from dotenv import load_dotenv
 
@@ -53,7 +53,7 @@ def create_app():
     app.register_blueprint(customers,   url_prefix='/c')
     app.register_blueprint(products,    url_prefix='/p')
     app.register_blueprint(cities)
-    app.register_blueprint(performance)
+    app.register_blueprint(system_admin)
     app.register_blueprint(users)
     app.register_blueprint(employer)
     app.register_blueprint(housing)

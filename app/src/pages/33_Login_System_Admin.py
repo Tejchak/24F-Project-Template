@@ -151,4 +151,7 @@ with tab2:
             recent_users = df_users[df_users['Date_Created'] > 
                                     (datetime.now() - timedelta(days=30))].shape[0]
             st.metric("New Users (Last 30 Days)", recent_users)
+
+    
+    
             
