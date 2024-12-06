@@ -209,12 +209,90 @@ try:
 
         # Add legend to sidebar
         st.sidebar.markdown("### Map Legend")
-        st.sidebar.markdown("""
-        🔴 **Housing Locations** - Small red circles
-        📊 **Rent Heatmap** - Colored hexagons (higher = more expensive)
-        🟢 **Airports** - Large green circles
-        🔴 **Hospitals** - Large red circles
-        """)
+        legend_html = """
+            <style>
+                .legend-item {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                    background: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                }
+                .legend-icon {
+                    width: 15px;
+                    height: 15px;
+                    border-radius: 50%;
+                    margin-right: 10px;
+                }
+                .legend-text {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .legend-title {
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                }
+                .legend-description {
+                    font-size: 0.85em;
+                    color: #666;
+                }
+                .heatmap-icon {
+                    background: linear-gradient(to right, #ff4b1f, #ff9068);
+                    border-radius: 3px;
+                }
+                .heatmap-details {
+                    margin-top: 5px;
+                    font-size: 0.8em;
+                    color: #666;
+                    padding-left: 5px;
+                    border-left: 2px solid #ff9068;
+                }
+            </style>
+            
+            <div class="legend-item">
+                <div class="legend-icon" style="background-color: rgba(200, 30, 0, 0.6);"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Housing Locations</div>
+                    <div class="legend-description">Individual housing properties</div>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-icon heatmap-icon"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Rent Heatmap</div>
+                    <div class="legend-description">3D visualization of rental prices</div>
+                    <div class="heatmap-details">
+                        • Taller hexagons = Higher rent<br>
+                        • Darker colors = More properties<br>
+                        • Clusters show rental hotspots
+                    </div>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-icon" style="background-color: rgba(0, 255, 0, 0.8);"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Airports ✈️</div>
+                    <div class="legend-description">Major airports in the area</div>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-icon" style="background-color: rgba(255, 0, 0, 0.8);"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Hospitals 🏥</div>
+                    <div class="legend-description">Medical facilities</div>
+                </div>
+            </div>
+        """
+        st.sidebar.markdown(legend_html, unsafe_allow_html=True)
+        
+        # Add back button to sidebar
+        st.sidebar.markdown("---")  # Add a divider
+        if st.sidebar.button("← Back to Student Home", use_container_width=True):
+            st.switch_page("pages/29_Student_Home.py")
 
         # Create the map
         st.pydeck_chart(
