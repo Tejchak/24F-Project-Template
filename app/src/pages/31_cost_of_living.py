@@ -43,22 +43,35 @@ def display_cost_analysis():
             response = requests.get(api_url)
             
             if response.status_code == 200:
-                cities_data = response.json()
+                try:
+                    data = response.json()
+                except json.JSONDecodeError as je:
+                    st.error("Invalid JSON response from API")
+                    st.write("Debug: Raw response:")
+                    st.write(response.text)
+                    return
+                
+                # Convert single city response to list
+                cities_data = [data] if isinstance(data, dict) else data
+                
+                if not isinstance(cities_data, list):
+                    st.error("Received invalid data structure from API")
+                    st.write("Debug: Response data structure:")
+                    st.write(data)
+                    return
+                
                 st.subheader(f"Found {len(cities_data)} cities closest to ${target_cost:,}")
                 
                 for city_data in cities_data:
-                    display_city_card(city_data)
-                
-            else:
-                st.error("No cities found matching the specified cost of living.")
-                st.write("Debug info:")
-                st.write(f"Target URL: {api_url}")
-                st.write(f"Response status: {response.status_code}")
-                try:
-                    st.write(f"Response JSON: {response.json()}")
-                except:
-                    st.write(f"Response text: {response.text}")
-                
+                    if not isinstance(city_data, dict):
+                        st.error(f"Invalid city data format: {city_data}")
+                        continue
+                    try:
+                        display_city_card(city_data)
+                    except KeyError as ke:
+                        st.error(f"Missing required field in city data: {ke}")
+                        st.write("City data structure:", city_data)
+        
         except Exception as e:
             st.error(f"Error occurred: {str(e)}")
             st.write("Debug info:")

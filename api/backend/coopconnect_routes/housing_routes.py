@@ -31,3 +31,4 @@ def add_housing():
     except Exception as e:
         db.get_db().rollback()
         return jsonify({"error": "Database error", "message": str(e)}), 500
+

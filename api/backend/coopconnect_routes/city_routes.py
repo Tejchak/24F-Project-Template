@@ -185,4 +185,3 @@ def test_route():
     return jsonify({"message": "City routes are working"}), 200
 
 
-
