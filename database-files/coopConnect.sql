@@ -966,3 +966,7 @@ WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 Select Performance.Date, Avg_Speed, Top_Speed
 From Performance
 where date(Date) = '2025-03-12';
+
+Select *
+From User
+where UserID = 39;

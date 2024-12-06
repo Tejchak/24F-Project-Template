@@ -3,6 +3,8 @@ from flask import request
 from flask import jsonify
 from flask import make_response
 from flask import current_app
+from datetime import datetime
+from flask import abort
 from backend.db_connection import db
 
 student = Blueprint('student_routes', __name__)
@@ -41,14 +43,15 @@ def update_student_profile(student_id):
         data = request.get_json()
         cursor = db.get_db().cursor()
         cursor.execute("""
-            UPDATE Student 
-            SET name = %s, email = %s, phone = %s, address = %s
-            WHERE student_id = %s
+            UPDATE User 
+            SET name = %s, email = %s, Phone_Number = %s, address = %s, CategoryID = %s
+            WHERE UserID = %s
         """, (
             data.get('name'),
             data.get('email'),
-            data.get('phone'),
+            data.get('phone_number'),
             data.get('address'),
+            data.get('CategoryID', 1),  # Default to CategoryID 1 if not provided
             student_id
         ))
         db.get_db().commit()

@@ -59,7 +59,7 @@ def create_app():
     app.register_blueprint(housing)
     app.register_blueprint(airports)
     app.register_blueprint(hospitals)
-    app.register_blueprint(student, url_prefix='/students')
+    app.register_blueprint(student)
     app.register_blueprint(locations)
     app.register_blueprint(job_routes)
     # Don't forget to return the app object

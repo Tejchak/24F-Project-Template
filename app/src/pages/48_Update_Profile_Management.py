@@ -18,7 +18,7 @@ if 'verified_email' not in st.session_state:
 
 def fetch_profile(user_id):
     try:
-        response = requests.get(f"{API_BASE_URL}/user/{user_id}")
+        response = requests.get(f"{API_BASE_URL}/students/{user_id}")
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -27,7 +27,7 @@ def fetch_profile(user_id):
 
 def update_profile(user_id, profile_data):
     try:
-        response = requests.put(f"{API_BASE_URL}/user/{user_id}", json=profile_data)
+        response = requests.put(f"{API_BASE_URL}/students/{user_id}", json=profile_data)
         if response.status_code == 200:
             st.success("Profile updated successfully!")
         else:
@@ -35,34 +35,51 @@ def update_profile(user_id, profile_data):
     except requests.exceptions.RequestException as e:
         st.error(f"Error updating profile: {e}")
 
-# Fetch and display current profile information
+# Fetch profile information
 profile = fetch_profile(st.session_state.user_id)
 
 if profile:
-    st.write("### Update Your Details")
+    # Create tabs for viewing and editing profile
+    view_tab, edit_tab = st.tabs(["View Profile", "Edit Profile"])
     
-    # Pre-fill form fields with current profile information
-    name = st.text_input("Name", value=profile.get('name', ''))
-    email = st.text_input("Email", value=st.session_state.verified_email)
-    phone = st.text_input("Phone Number", value=profile.get('phone_number', ''))
-    address = st.text_input("Address", value=profile.get('address', ''))
+    with view_tab:
+        st.write("### Your Profile Information")
+        
+        # Display profile information in a more readable format
+        st.write("**Name:**", profile.get('name', 'Not provided'))
+        st.write("**Email:**", st.session_state.verified_email)
+        st.write("**Phone Number:**", profile.get('phone_number', 'Not provided'))
+        st.write("**Address:**", profile.get('address', 'Not provided'))
+        
+        # Add a divider for better visual separation
+        st.divider()
+        st.write("*Last updated: " + profile.get('Date_Last_Login', 'Unknown') + "*")
+    
+    with edit_tab:
+        st.write("### Update Your Details")
+        
+        # Pre-fill form fields with current profile information
+        name = st.text_input("Name", value=profile.get('name', ''))
+        email = st.text_input("Email", value=st.session_state.verified_email)
+        phone = st.text_input("Phone Number", value=profile.get('phone_number', ''))
+        address = st.text_input("Address", value=profile.get('address', ''))
 
-    # Save changes button
-    if st.button("Save Changes"):
-        # Validate inputs
-        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
-            st.error("Invalid email format.")
-        elif not re.match(r'^\d{10}$', phone.replace('-', '')):
-            st.error("Phone number must be 10 digits.")
-        else:
-            updated_profile = {
-                "name": name,
-                "email": email,
-                "phone_number": phone,
-                "address": address,
-                "CategoryID": 1
-            }
-            update_profile(st.session_state.user_id, updated_profile)
+        # Save changes button
+        if st.button("Save Changes"):
+            # Validate inputs
+            if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+                st.error("Invalid email format.")
+            elif not re.match(r'^\d{10}$', phone.replace('-', '')):
+                st.error("Phone number must be 10 digits.")
+            else:
+                updated_profile = {
+                    "name": name,
+                    "email": email,
+                    "phone_number": phone,
+                    "address": address,
+                    "CategoryID": 1
+                }
+                update_profile(st.session_state.user_id, updated_profile)
 else:
     st.warning("Unable to fetch your current profile information.")
 
