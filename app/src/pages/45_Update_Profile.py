@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import re
 
 # Backend API base URL
 API_BASE_URL = "http://localhost:4000"  
@@ -18,7 +19,8 @@ if 'user_id' not in st.session_state:
 # Function to fetch current profile information
 def fetch_profile(user_id):
     try:
-        response = requests.get(f"{API_BASE_URL}/users/{user_id}")
+        # Fetch user details from the backend using GET /user/<user_id>
+        response = requests.get(f"{API_BASE_URL}/user/{user_id}")
         response.raise_for_status()
         return response.json()  # Return user profile data as a JSON object
     except requests.exceptions.RequestException as e:
@@ -28,7 +30,8 @@ def fetch_profile(user_id):
 # Function to update profile information
 def update_profile(user_id, profile_data):
     try:
-        response = requests.put(f"{API_BASE_URL}/users/{user_id}", json=profile_data)
+        # Send updated user data to the backend using PUT /user/<user_id>
+        response = requests.put(f"{API_BASE_URL}/user/{user_id}", json=profile_data)
         if response.status_code == 200:
             st.success("Profile updated successfully!")
         else:
@@ -51,13 +54,19 @@ if profile:
 
     # Save changes button
     if st.button("Save Changes"):
-        updated_profile = {
-            "name": name,
-            "email": email,
-            "phone_number": phone,
-            "address": address,
-        }
-        update_profile(user_id, updated_profile)
+        # Validate inputs
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+            st.error("Invalid email format.")
+        elif not re.match(r'^\d{10}$', phone.replace('-', '')):
+            st.error("Phone number must be 10 digits.")
+        else:
+            updated_profile = {
+                "name": name,
+                "email": email,
+                "phone_number": phone,
+                "address": address,
+            }
+            update_profile(user_id, updated_profile)
 else:
     st.warning("Unable to fetch your current profile information.")
 
