@@ -97,7 +97,9 @@ CREATE table if not exists Sublet
     End_Date datetime,
     PRIMARY KEY(Sublet_ID, Subleter_ID),
     CONSTRAINT fk_05
-        foreign key (Housing_ID) references Housing (Housing_ID),
+        foreign key (Housing_ID) references Housing (Housing_ID)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
     CONSTRAINT fk_06
         foreign key (Subleter_ID) references User (UserID)
 );

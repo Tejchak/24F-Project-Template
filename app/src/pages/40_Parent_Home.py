@@ -29,3 +29,8 @@ if st.button('Safety Information',
              use_container_width=True):
     st.switch_page('pages/42_Safety_Info.py')
 
+if st.button('Housing',
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/46_Housing_Management.py')
+
