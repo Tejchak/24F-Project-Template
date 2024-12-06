@@ -13,7 +13,7 @@ st.set_page_config(layout='wide')
 st.title('Browse Available Jobs')
 
 # Backend API base URL
-API_BASE_URL = "http://localhost:5000"  # Replace with your Flask app's base URL
+API_BASE_URL = "http://localhost:4000"  
 
 # Function to fetch all job postings
 def fetch_all_jobs():
