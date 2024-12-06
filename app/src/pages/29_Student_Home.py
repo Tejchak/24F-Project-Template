@@ -44,6 +44,7 @@ if st.button('Update Your Profile',
              type='primary',
              use_container_width=True):
     st.switch_page('pages/44_Update_Profile.py')
+    
 
 if st.button('Delete an Application',
              type='primary',

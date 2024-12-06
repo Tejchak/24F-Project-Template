@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from backend.db_connection import db
 
 # Create a new blueprint for housing-related routes
@@ -12,9 +12,11 @@ def get_housing():
     return jsonify(housing_data), 200
 
 @housing.route('/housing', methods=['POST'])
-def add_housing():
+def insert_housing():
     data = request.get_json()
-    if not all(key in data for key in ['City_ID', 'zipID', 'Address', 'Rent', 'Sq_Ft']):
+    required_keys = ['City_ID', 'zipID', 'Address', 'Rent', 'Sq_Ft']
+    
+    if not all(key in data for key in required_keys):
         return jsonify({"error": "Missing data"}), 400
     
     query = '''
@@ -32,3 +34,41 @@ def add_housing():
         db.get_db().rollback()
         return jsonify({"error": "Database error", "message": str(e)}), 500
 
+@housing.route('/housing/<int:housing_id>', methods=['PUT'])
+def update_housing(housing_id):
+    data = request.get_json()
+    query = '''
+    UPDATE Housing
+    SET City_ID = %s, zipID = %s, Address = %s, Rent = %s, Sq_Ft = %s
+    WHERE Housing_ID = %s
+    '''
+    args = (data['City_ID'], data['zipID'], data['Address'], data['Rent'], data['Sq_Ft'], housing_id)
+    
+    cursor = db.get_db().cursor()
+    try:
+        cursor.execute(query, args)
+        db.get_db().commit()
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Housing not found"}), 404
+        return jsonify({"success": True, "message": "Housing updated successfully"}), 200
+    except Exception as e:
+        db.get_db().rollback()
+        return jsonify({"error": "Database error", "message": str(e)}), 500
+
+
+#Deletes a specific Housing listing given the Housing_ID
+@housing.route('/housing/<int:housing_id>', methods=['DELETE'])
+def delete_housing_post(housing_id):
+    cursor = db.get_db().cursor()
+    cursor.execute('''
+        DELETE FROM Housing
+        WHERE Housing_ID = %s
+    ''', (housing_id,))
+    
+    db.get_db().commit()  # Commit the transaction
+    
+    if cursor.rowcount > 0:
+        return make_response(jsonify({'message': 'Housing deleted successfully'}), 200)
+    else:
+        return make_response(jsonify({'error': 'Housing listing not found'}), 404)
+    
