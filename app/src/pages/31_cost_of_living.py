@@ -3,6 +3,33 @@ import requests
 import json
 import os
 
+def setup_sidebar():
+    with st.sidebar:
+        st.markdown("""
+        <div style='text-align: center; font-size: 144px; color: #4CAF50; margin-top: -70px; margin-left: -20px;'>
+            💰
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.title("Navigation")
+        
+        # Home button
+        if st.button("🏠 Home"):
+            st.switch_page("app/src/Home.py")
+            
+        # Back button
+        if st.button("⬅️ Back"):
+            st.switch_page("app/src/pages/30_dashboard.py")  # Adjust this path as needed
+            
+        # Logout button
+        if st.button("🚪 Logout"):
+            # Clear session state if you're using it
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            st.switch_page("app/src/pages/00_login.py")  # Adjust this path as needed
+            
+        st.divider()
+
 def display_city_card(city_data):
     with st.container():
         st.subheader(f"📍 {city_data['name']}")
@@ -78,4 +105,5 @@ def display_cost_analysis():
             st.write(f"Target URL: {api_url}")
 
 if __name__ == "__main__":
+    setup_sidebar()
     display_cost_analysis()

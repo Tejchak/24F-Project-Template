@@ -24,6 +24,11 @@ if st.button('Browse Available Jobs',
              use_container_width=True):
     st.switch_page('pages/37_Browse_Jobs.py')
 
+if st.button('Student Map', 
+            type = 'primary', 
+            use_container_width=True):
+    st.switch_page('pages/34_student_map.py')
+
 if st.button('Apply for a Job', 
              type='primary',
              use_container_width=True):

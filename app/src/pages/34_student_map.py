@@ -74,19 +74,14 @@ def get_location_data(selected_city):
                 break
         
         if not city_id:
-            st.warning(f"No data found for city: {selected_city}")
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
         
         # Process housing data
         locations_data = []
         city_housing = [h for h in housing_data if h['City_ID'] == city_id]
         
-        base_coords = CITY_COORDINATES.get(selected_city)
-        if not base_coords:
-            st.error(f"No coordinates found for city: {selected_city}")
-            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
-            
         for house in city_housing:
+            base_coords = CITY_COORDINATES.get(selected_city, {'lat': 0, 'lon': 0})
             locations_data.append({
                 'city': selected_city,
                 'zipcode': house['zipID'],
@@ -100,6 +95,7 @@ def get_location_data(selected_city):
         # Process airport data
         airports_data_processed = []
         city_airports = [a for a in airports_data if a['City_ID'] == city_id]
+        base_coords = CITY_COORDINATES.get(selected_city, {'lat': 0, 'lon': 0})
         
         for airport in city_airports:
             airports_data_processed.append({
@@ -132,6 +128,14 @@ def get_location_data(selected_city):
         if not df_hospitals.empty:
             df_hospitals['tooltip'] = df_hospitals['name'].astype(str) + ' (Hospital)'
         
+        # Debug logging
+        print("Airports Response:", airports_response.text)
+        print("Hospitals Response:", hospitals_response.text)
+        
+        # Get airport data
+        airports_response = requests.get('http://api:4000/airports')
+        airports_data = airports_response.json()
+        
         return df_housing, df_airports, df_hospitals
                 
     except Exception as e:
@@ -156,7 +160,9 @@ try:
                 get_position=["lon", "lat"],
                 get_color=[200, 30, 0, 160],
                 get_radius=50,
-                pickable=False  # Disabled hover interaction
+                pickable=True,
+                auto_highlight=True,
+                get_tooltip="Housing Location"
             ),
             "Rent Heatmap": pdk.Layer(
                 "HexagonLayer",
@@ -167,7 +173,9 @@ try:
                 elevation_range=[0, 500],
                 get_elevation="rent",
                 extruded=True,
-                pickable=False  # Disabled hover interaction
+                pickable=True,
+                auto_highlight=True,
+                get_tooltip="Rent Heatmap Area"
             ),
             "Airports": pdk.Layer(
                 "ScatterplotLayer",
@@ -175,7 +183,9 @@ try:
                 get_position=["lon", "lat"],
                 get_color=[0, 255, 0, 200],
                 get_radius=100,
-                pickable=False  # Disabled hover interaction
+                pickable=True,
+                auto_highlight=True,
+                get_tooltip="✈️ Airport"
             ),
             "Hospitals": pdk.Layer(
                 "ScatterplotLayer",
@@ -183,7 +193,9 @@ try:
                 get_position=["lon", "lat"],
                 get_color=[255, 0, 0, 200],
                 get_radius=100,
-                pickable=False  # Disabled hover interaction
+                pickable=True,
+                auto_highlight=True,
+                get_tooltip="🏥 Hospital"
             )
         }
 
@@ -197,14 +209,92 @@ try:
 
         # Add legend to sidebar
         st.sidebar.markdown("### Map Legend")
-        st.sidebar.markdown("""
-        🔴 **Housing Locations** - Small red circles
-        📊 **Rent Heatmap** - Colored hexagons (higher = more expensive)
-        🟢 **Airports** - Large green circles
-        🔴 **Hospitals** - Large red circles
-        """)
+        legend_html = """
+            <style>
+                .legend-item {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                    background: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                }
+                .legend-icon {
+                    width: 15px;
+                    height: 15px;
+                    border-radius: 50%;
+                    margin-right: 10px;
+                }
+                .legend-text {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .legend-title {
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                }
+                .legend-description {
+                    font-size: 0.85em;
+                    color: #666;
+                }
+                .heatmap-icon {
+                    background: linear-gradient(to right, #ff4b1f, #ff9068);
+                    border-radius: 3px;
+                }
+                .heatmap-details {
+                    margin-top: 5px;
+                    font-size: 0.8em;
+                    color: #666;
+                    padding-left: 5px;
+                    border-left: 2px solid #ff9068;
+                }
+            </style>
+            
+            <div class="legend-item">
+                <div class="legend-icon" style="background-color: rgba(200, 30, 0, 0.6);"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Housing Locations</div>
+                    <div class="legend-description">Individual housing properties</div>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-icon heatmap-icon"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Rent Heatmap</div>
+                    <div class="legend-description">3D visualization of rental prices</div>
+                    <div class="heatmap-details">
+                        • Taller hexagons = Higher rent<br>
+                        • Darker colors = More properties<br>
+                        • Clusters show rental hotspots
+                    </div>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-icon" style="background-color: rgba(0, 255, 0, 0.8);"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Airports ✈️</div>
+                    <div class="legend-description">Major airports in the area</div>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-icon" style="background-color: rgba(255, 0, 0, 0.8);"></div>
+                <div class="legend-text">
+                    <div class="legend-title">Hospitals 🏥</div>
+                    <div class="legend-description">Medical facilities</div>
+                </div>
+            </div>
+        """
+        st.sidebar.markdown(legend_html, unsafe_allow_html=True)
+        
+        # Add back button to sidebar
+        st.sidebar.markdown("---")  # Add a divider
+        if st.sidebar.button("← Back to Student Home", use_container_width=True):
+            st.switch_page("pages/29_Student_Home.py")
 
-        # Create the map without tooltip configuration
+        # Create the map
         st.pydeck_chart(
             pdk.Deck(
                 map_style="mapbox://styles/mapbox/light-v9",
@@ -214,53 +304,13 @@ try:
                     "zoom": 12,
                     "pitch": 50,
                 },
-                layers=selected_layers
+                layers=selected_layers,
+                tooltip={"text": "🏥 Hospital"} if "Hospitals" in df_hospitals else None or
+                {"text": "✈️ Airport"} if "Airports" in selected_layers else None or
+                {"text": "📊 Rent Heatmap"} if "Rent Heatmap" in selected_layers else None or
+                {"text": "🔴 Housing Locations"} if "Housing Locations" in selected_layers else None
             )
         )
-
-        # Add filters and data tables below the map
-        st.markdown("### Location Details")
-
-        # Create columns for filters
-        col1, col2 = st.columns(2)
-
-        with col1:
-            # Category filter
-            category = st.selectbox(
-                "Filter by category:",
-                ["Housing", "Airports", "Hospitals"]
-            )
-
-        with col2:
-            # Dynamic filter based on category
-            if category == "Housing":
-                filter_option = st.selectbox(
-                    "Filter housing by:",
-                    ["Zipcode", "Rent Range", "Square Footage"]
-                )
-                if filter_option == "Zipcode":
-                    filter_value = st.text_input("Enter zipcode:")
-                    filtered_df = df_housing[df_housing['zipcode'].astype(str).str.contains(filter_value, case=False, na=False)]
-                elif filter_option == "Rent Range":
-                    min_rent = st.number_input("Minimum rent:", min_value=0)
-                    max_rent = st.number_input("Maximum rent:", min_value=0)
-                    filtered_df = df_housing[(df_housing['rent'] >= min_rent) & (df_housing['rent'] <= max_rent)]
-                else:  # Square Footage
-                    min_sqft = st.number_input("Minimum square feet:", min_value=0)
-                    max_sqft = st.number_input("Maximum square feet:", min_value=0)
-                    filtered_df = df_housing[(df_housing['sqft'] >= min_sqft) & (df_housing['sqft'] <= max_sqft)]
-                
-                st.dataframe(filtered_df[['address', 'zipcode', 'rent', 'sqft']])
-
-            elif category == "Airports":
-                search_term = st.text_input("Search airports by name:")
-                filtered_df = df_airports[df_airports['name'].str.contains(search_term, case=False, na=False)]
-                st.dataframe(filtered_df[['name', 'lat', 'lon']])
-
-            else:  # Hospitals
-                search_term = st.text_input("Search hospitals by name:")
-                filtered_df = df_hospitals[df_hospitals['name'].str.contains(search_term, case=False, na=False)]
-                st.dataframe(filtered_df[['name', 'lat', 'lon']])
     else:
         st.error(f"No data available for {selected_city}")
 except URLError as e:
@@ -271,3 +321,200 @@ except URLError as e:
     """
         % e.reason
     )
+
+# Add this after the map visualization
+
+# Location Details header
+st.markdown("""
+    <h2 style='color: #4285F4;'>Location Details</h2>
+""", unsafe_allow_html=True)
+
+# Category selector
+st.markdown("#### 🔍 Select Category to Filter:")
+category = st.selectbox(
+    "Category",
+    ["🏠 Housing", "✈️ Airports", "🏥 Hospitals"],
+    key="category_filter",
+    label_visibility="collapsed"
+)
+
+# Create columns for filters and metrics
+col_filters, col_metrics = st.columns([2, 1])
+
+with col_filters:
+    if "🏠 Housing" in category:
+        st.markdown("#### 🎯 Filter Housing By:")
+        filter_type = st.selectbox(
+            "Filter Type",
+            ["📋 All", "📍 Zipcode", "💰 Price Range", "📐 Square Footage"],
+            key="housing_filter",
+            label_visibility="collapsed"
+        )
+
+        # Filter inputs based on type
+        if "📍 Zipcode" in filter_type:
+            zipcode = st.text_input("Enter zipcode:", placeholder="e.g., 02115")
+            if zipcode:
+                filtered_df = df_housing[df_housing['city'] == selected_city] if not df_housing.empty else pd.DataFrame()
+                filtered_df = filtered_df[filtered_df['zipcode'].astype(str).str.contains(zipcode)]
+        
+        elif "💰 Price Range" in filter_type:
+            col3, col4 = st.columns(2)
+            with col3:
+                min_rent = st.number_input("Min rent ($):", min_value=0, step=100)
+            with col4:
+                max_rent = st.number_input("Max rent ($):", min_value=0, step=100)
+            
+            if min_rent > 0 or max_rent > 0:
+                filtered_df = df_housing[df_housing['city'] == selected_city] if not df_housing.empty else pd.DataFrame()
+                filtered_df = filtered_df[
+                    (filtered_df['rent'] >= min_rent) & 
+                    (filtered_df['rent'] <= max_rent if max_rent > 0 else True)
+                ]
+        
+        elif "📐 Square Footage" in filter_type:
+            col3, col4 = st.columns(2)
+            with col3:
+                min_sqft = st.number_input("Min sq ft:", min_value=0, step=100)
+            with col4:
+                max_sqft = st.number_input("Max sq ft:", min_value=0, step=100)
+            
+            if min_sqft > 0 or max_sqft > 0:
+                filtered_df = df_housing[df_housing['city'] == selected_city] if not df_housing.empty else pd.DataFrame()
+                filtered_df = filtered_df[
+                    (filtered_df['sqft'] >= min_sqft) & 
+                    (filtered_df['sqft'] <= max_sqft if max_sqft > 0 else True)
+                ]
+        else:  # All
+            filtered_df = df_housing[df_housing['city'] == selected_city] if not df_housing.empty else pd.DataFrame()
+
+with col_metrics:
+    if not filtered_df.empty:
+        st.markdown("""
+            <style>
+            .metric-container {
+                padding: 10px;
+                width: 100%;
+            }
+            .metric-card {
+                background-color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+                margin-bottom: 15px;
+                width: 100%;
+            }
+            .metric-title {
+                color: #666;
+                font-size: 1.1em;
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+            .metric-value {
+                color: #4285F4;
+                font-size: 2.5em;
+                font-weight: bold;
+                margin: 0;
+                line-height: 1.1;
+            }
+            .metrics-column {
+                display: flex;
+                flex-direction: column;
+                width: 250px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        # Calculate metrics
+        avg_rent = f"${filtered_df['rent'].mean():,.0f}"
+        avg_sqft = f"{filtered_df['sqft'].mean():,.0f}"
+        loc_count = str(len(filtered_df))
+        
+        metrics_html = f"""
+        <div class="metrics-column">
+            <div class='metric-card'>
+                <div class='metric-title'>Average Rent</div>
+                <div class='metric-value'>{avg_rent}</div>
+            </div>
+            <div class='metric-card'>
+                <div class='metric-title'>Average Sq Ft</div>
+                <div class='metric-value'>{avg_sqft}</div>
+            </div>
+            <div class='metric-card'>
+                <div class='metric-title'>Locations Found</div>
+                <div class='metric-value'>{loc_count}</div>
+            </div>
+        </div>
+        """
+        
+        st.markdown(metrics_html, unsafe_allow_html=True)
+
+# Search Results (outside the columns, full width)
+if "🏠 Housing" in category and not filtered_df.empty:
+    st.markdown("#### Search Results")
+    st.dataframe(
+        filtered_df[['address', 'zipcode', 'rent', 'sqft']],
+        column_config={
+            'address': st.column_config.TextColumn('📍 Address'),
+            'zipcode': st.column_config.TextColumn('🏘️ Zipcode'),
+            'rent': st.column_config.NumberColumn('💰 Rent', format="$%d"),
+            'sqft': st.column_config.NumberColumn('📐 Square Feet', format="%d sq ft")
+        },
+        hide_index=True,
+        use_container_width=True
+    )
+
+    # Add detailed view option
+    if st.checkbox("Show Detailed View", key="detailed_view"):
+        st.markdown("#### 📋 Detailed Property Information")
+        for _, row in filtered_df.iterrows():
+            with st.expander(f"📍 {row['address']} - ${row['rent']:,}/month"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown(f"""
+                        * **🏘️ Zipcode:** {row['zipcode']}
+                        * **💰 Monthly Rent:** ${row['rent']:,}
+                    """)
+                with col2:
+                    st.markdown(f"""
+                        * **📐 Square Feet:** {row['sqft']:,}
+                        * **💵 Price per Sq Ft:** ${row['rent']/row['sqft']:.2f}/sq ft
+                    """)
+                
+                # Add a divider between properties
+                st.markdown("---")
+
+elif "✈️ Airports" in category and not df_airports.empty:
+    st.markdown("#### Search Results")
+    search_term = st.text_input("🔍 Search by name:", placeholder="Enter airport name...")
+    filtered_airports = df_airports if not search_term else df_airports[
+        df_airports['name'].str.contains(search_term, case=False, na=False)
+    ]
+    st.dataframe(
+        filtered_airports[['name', 'zip']],
+        column_config={
+            'name': st.column_config.TextColumn('✈️ Airport Name'),
+            'zip': st.column_config.TextColumn('📍 Zip Code')
+        },
+        hide_index=True,
+        use_container_width=True
+    )
+
+elif "🏥 Hospitals" in category and not df_hospitals.empty:
+    st.markdown("#### Search Results")
+    search_term = st.text_input("🔍 Search by name:", placeholder="Enter hospital name...")
+    filtered_hospitals = df_hospitals if not search_term else df_hospitals[
+        df_hospitals['name'].str.contains(search_term, case=False, na=False)
+    ]
+    st.dataframe(
+        filtered_hospitals[['name', 'zip']],
+        column_config={
+            'name': st.column_config.TextColumn('🏥 Hospital Name'),
+            'zip': st.column_config.TextColumn('📍 Zip Code')
+        },
+        hide_index=True,
+        use_container_width=True
+    )
+
+# Add some spacing at the bottom
+st.markdown("<br><br>", unsafe_allow_html=True)

@@ -377,7 +377,28 @@ INSERT INTO Location (Zip, City_ID, Student_pop, Safety_Rating) VALUES
 (94109, 4, 430, 2),
 (98107, 5, 440, 3),
 (33107, 6, 450, 1),
-(48207, 7, 460, 5);
+(48207, 7, 460, 5),
+(90001, 7, 200, 7),  -- Los Angeles
+(90002, 7, 250, 6),
+(90003, 7, 300, 8),
+(90004, 7, 180, 7),
+(90005, 7, 220, 6),
+(90006, 7, 270, 8),
+(90007, 7, 310, 7),
+(75201, 9, 150, 8),  -- Dallas
+(75202, 9, 200, 7),
+(75203, 9, 250, 6),
+(75204, 9, 180, 8),
+(75205, 9, 220, 7),
+(75206, 9, 270, 6),
+(75207, 9, 310, 8),
+(77001, 10, 160, 7),  -- Houston
+(77002, 10, 210, 6),
+(77003, 10, 260, 8),
+(77004, 10, 190, 7),
+(77005, 10, 230, 6),
+(77006, 10, 280, 8),
+(77007, 10, 320, 7);
 
 #User data
 INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID, Date_Created, Date_Last_Login) VALUES
@@ -434,48 +455,77 @@ INSERT INTO User (CategoryID, name, email, Phone_Number, Current_City_ID, Date_C
 
 #Housing data
 INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) VALUES
-(1, 02115, '123 Main St, Boston', 1500, 750),
-(2, 60616, '456 Oak St, Chicago', 1200, 850),
-(3, 10001, '789 Broadway, New York', 3000, 600),
-(4, 94103, '321 Pine St, San Francisco', 2500, 800),
-(5, 98101, '654 Elm St, Seattle', 1800, 700),
-(6, 33101, '987 Maple St, Miami', 2000, 900),
-(7, 48201, '135 Cherry St, Detroit', 1100, 650),
-(1, 02130, '246 Birch St, Boston', 1600, 800),
-(2, 60614, '357 Cedar St, Chicago', 1300, 750),
-(3, 10002, '468 Walnut St, New York', 3100, 550),
-(4, 94105, '579 Spruce St, San Francisco', 2700, 850),
-(5, 98102, '680 Fir St, Seattle', 1900, 720),
-(6, 33102, '791 Palm St, Miami', 2100, 950),
-(7, 48202, '802 Ash St, Detroit', 1200, 680),
-(1, 02131, '913 Poplar St, Boston', 1700, 780),
-(2, 60615, '024 Willow St, Chicago', 1400, 800),
-(3, 10003, '135 Chestnut St, New York', 3200, 600),
-(4, 94104, '246 Fir St, San Francisco', 2800, 900),
-(5, 98103, '357 Spruce St, Seattle', 2000, 750),
-(6, 33103, '468 Maple St, Miami', 2200, 800),
-(7, 48203, '579 Oak St, Detroit', 1300, 700),
-(1, 02132, '680 Pine St, Boston', 1800, 800),
-(2, 60617, '791 Cedar St, Chicago', 1500, 750),
-(3, 10004, '802 Elm St, New York', 3300, 550),
-(4, 94106, '913 Birch St, San Francisco', 2900, 850),
-(5, 98104, '024 Maple St, Seattle', 2100, 720),
-(6, 33104, '135 Fir St, Miami', 2300, 950),
-(7, 48204, '246 Ash St, Detroit', 1400, 680),
-(1, 02133, '357 Poplar St, Boston', 1900, 780),
-(2, 60618, '468 Willow St, Chicago', 1600, 800),
-(3, 10005, '579 Chestnut St, New York', 3400, 600),
-(4, 94107, '680 Fir St, San Francisco', 3000, 900),
-(5, 98105, '791 Spruce St, Seattle', 2200, 750),
-(6, 33105, '802 Palm St, Miami', 2400, 800),
-(7, 48205, '913 Oak St, Detroit', 1500, 700),
-(1, 02134, '024 Pine St, Boston', 2000, 800),
-(2, 60619, '135 Cedar St, Chicago', 1700, 750),
-(3, 10006, '246 Elm St, New York', 3500, 550),
-(4, 94108, '357 Birch St, San Francisco', 3100, 850),
-(5, 98106, '468 Maple St, Seattle', 2300, 720),
-(6, 33106, '579 Fir St, Miami', 2500, 950),
-(7, 48206, '680 Ash St, Detroit', 1600, 680);
+(1, 02115, '123 Beacon St, Boston', 2500, 800),
+(1, 02130, '456 Commonwealth Ave, Boston', 2700, 850),
+(1, 02131, '789 Newbury St, Boston', 2800, 900),
+(1, 02132, '321 Boylston St, Boston', 2900, 850),
+(1, 02133, '654 Marlborough St, Boston', 3000, 900),
+(1, 02134, '987 Huntington Ave, Boston', 3100, 850),
+(1, 02135, '135 Harvard Ave, Boston', 3200, 875),
+
+(2, 60616, '123 Michigan Ave, Chicago', 2200, 800),
+(2, 60614, '456 State St, Chicago', 2400, 850),
+(2, 60615, '789 Wacker Dr, Chicago', 2600, 900),
+(2, 60617, '321 Lake Shore Dr, Chicago', 2800, 850),
+(2, 60618, '654 Clark St, Chicago', 3000, 900),
+(2, 60619, '987 Rush St, Chicago', 3200, 850),
+(2, 60620, '741 Wells St, Chicago', 3300, 875),
+
+(3, 10001, '123 Broadway, New York', 3500, 750),
+(3, 10002, '456 5th Avenue, New York', 3700, 800),
+(3, 10003, '789 Madison Ave, New York', 3800, 850),
+(3, 10004, '321 Park Avenue, New York', 3900, 800),
+(3, 10005, '654 Lexington Ave, New York', 4000, 900),
+(3, 10006, '987 3rd Avenue, New York', 4100, 850),
+(3, 10007, '159 7th Avenue, New York', 4200, 875),
+
+(4, 98101, '123 Pike St, Seattle', 2800, 800),
+(4, 98102, '456 Pine St, Seattle', 3000, 850),
+(4, 98103, '789 Union St, Seattle', 3200, 900),
+(4, 98104, '321 Madison St, Seattle', 3400, 850),
+(4, 98105, '654 Spring St, Seattle', 3600, 900),
+(4, 98106, '987 Seneca St, Seattle', 3800, 850),
+(4, 98107, '258 Mercer St, Seattle', 4000, 875),
+
+(5, 94103, '123 Market St, Atlanta', 3800, 750),
+(5, 94104, '456 Mission St, Atlanta', 4000, 800),
+(5, 94105, '789 Howard St, Atlanta', 4200, 850),
+(5, 94106, '321 Folsom St, Atlanta', 4400, 800),
+(5, 94107, '654 Valencia St, Atlanta', 4600, 900),
+(5, 94108, '987 Harrison St, Atlanta', 4800, 850),
+(5, 94109, '147 Brannan St, Atlanta', 5000, 875),
+
+(6, 33101, '123 Ocean Drive, San Francisco', 2600, 800),
+(6, 33102, '456 Collins Ave, San Francisco', 2800, 850),
+(6, 33103, '789 Washington Ave, San Francisco', 3000, 900),
+(6, 33104, '321 Lincoln Rd, San Francisco', 3200, 850),
+(6, 33105, '654 Alton Rd, San Francisco', 3400, 900),
+(6, 33106, '987 Biscayne Blvd, San Francisco', 3600, 850),
+(6, 33107, '369 Collins Ave, San Francisco', 3800, 875),
+
+(7, 90001, '123 Sunset Blvd, Los Angeles', 3300, 750),
+(7, 90002, '456 Hollywood Blvd, Los Angeles', 3500, 800),
+(7, 90003, '789 Venice Blvd, Los Angeles', 3700, 850),
+(7, 90004, '321 Wilshire Blvd, Los Angeles', 3900, 800),
+(7, 90005, '654 Santa Monica Blvd, Los Angeles', 4100, 900),
+(7, 90006, '987 Melrose Ave, Los Angeles', 4300, 850),
+(7, 90007, '147 Rodeo Dr, Los Angeles', 4500, 875),
+
+(8, 75201, '123 Main St, Miami', 2100, 800),
+(8, 75202, '456 Commerce St, Miami', 2300, 850),
+(8, 75203, '789 Elm St, Miami', 2500, 900),
+(8, 75204, '321 McKinney Ave, Miami', 2700, 850),
+(8, 75205, '654 Ross Ave, Miami', 2900, 900),
+(8, 75206, '987 Live Oak St, Miami', 3100, 850),
+(8, 75207, '369 Pearl St, Miami', 3300, 875),
+
+(9, 77001, '123 Main St, Dallas', 2000, 800),
+(9, 77002, '456 Travis St, Dallas', 2200, 850),
+(9, 77003, '789 Congress Ave, Dallas', 2400, 900),
+(9, 77004, '321 Louisiana St, Dallas', 2600, 850),
+(9, 77005, '654 Smith St, Dallas', 2800, 900),
+(9, 77006, '987 Milam St, Dallas', 3000, 850),
+(9, 77007, '258 Washington Ave, Dallas', 3200, 875);
 
 #Sublet data
 INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date) VALUES
@@ -727,54 +777,48 @@ INSERT INTO Hospital (Name, City_ID, Zip) VALUES
 
 -- Sample data for JobPosting (50 rows)
 INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID) VALUES
-('Software Engineer', 'Develop and maintain software applications.', 800, 02115, 1),  -- Boston
-('Data Scientist', 'Analyze data to drive business solutions.', 950, 60616, 2),  -- Chicago
-('Web Developer', 'Create and manage websites and web applications.', 750, 10001, 3),  -- New York
-('Product Manager', 'Lead product development and strategy.', 600, 94103, 4),  -- San Francisco
-('UX Designer', 'Design user-friendly interfaces and experiences.', 700, 98101, 5),  -- Seattle
-('Marketing Specialist', 'Develop marketing strategies and campaigns.', 850, 33101, 6),  -- Miami
-('Project Coordinator', 'Assist in project planning and execution.', 900, 48201, 7),  -- Detroit
-('Systems Analyst', 'Analyze and improve IT systems.', 650, 02130, 1),  -- Boston
-('Database Administrator', 'Manage and maintain database systems.', 720, 60614, 2),  -- Chicago
-('Network Engineer', 'Design and implement network solutions.', 680, 10002, 3),  -- New York
-('DevOps Engineer', 'Automate and streamline operations.', 620, 94105, 4),  -- San Francisco
-('Content Writer', 'Create engaging content for various platforms.', 580, 98102, 5),  -- Seattle
-('Sales Representative', 'Drive sales and build customer relationships.', 540, 33102, 6),  -- Miami
-('Quality Assurance Tester', 'Ensure software quality through testing.', 500, 48202, 7),  -- Detroit
-('Business Analyst', 'Analyze business needs and provide solutions.', 640, 02131, 1),  -- Boston
-('Graphic Designer', 'Create visual content for marketing materials.', 560, 60615, 2),  -- Chicago
-('SEO Specialist', 'Optimize website content for search engines.', 670, 10003, 3),  -- New York
-('Technical Writer', 'Document software and technical processes.', 600, 94104, 4),  -- San Francisco
-('Customer Support Specialist', 'Provide support to customers.', 580, 98103, 5),  -- Seattle
-('HR Manager', 'Manage human resources and employee relations.', 620, 33103, 6),  -- Miami
-('Financial Analyst', 'Analyze financial data and trends.', 530, 48203, 7),  -- Detroit
-('Operations Manager', 'Oversee daily operations and processes.', 610, 02132, 1),  -- Boston
-('IT Support Specialist', 'Provide technical support to users.', 570, 60617, 2),  -- Chicago
-('Network Administrator', 'Manage and maintain network infrastructure.', 640, 10004, 3),  -- New York
-('Web Designer', 'Design and create visually appealing websites.', 530, 94106, 4),  -- San Francisco
-('Mobile Developer', 'Develop applications for mobile devices.', 610, 98104, 5),  -- Seattle
-('Data Analyst', 'Analyze data to inform business decisions.', 560, 33104, 6),  -- Miami
-('Research Scientist', 'Conduct research and experiments.', 590, 48204, 7),  -- Detroit
-('Account Manager', 'Manage client accounts and relationships.', 650, 02133, 1),  -- Boston
-('Social Media Manager', 'Manage social media accounts and campaigns.', 580, 60618, 2),  -- Chicago
-('Event Coordinator', 'Plan and coordinate events.', 590, 10005, 3),  -- New York
-('Software Tester', 'Test software for bugs and issues.', 630, 94107, 4),  -- San Francisco
-('Business Development Manager', 'Identify and pursue new business opportunities.', 540, 98105, 5),  -- Seattle
-('Logistics Coordinator', 'Manage logistics and supply chain operations.', 610, 33105, 6),  -- Miami
-('Compliance Officer', 'Ensure compliance with regulations and policies.', 570, 48205, 7),  -- Detroit
-('Sales Manager', 'Lead the sales team and drive sales strategies.', 650, 02134, 1),  -- Boston
-('Product Designer', 'Design products that meet user needs.', 580, 60619, 2),  -- Chicago
-('Financial Consultant', 'Provide financial advice and planning.', 640, 10006, 3),  -- New York
-('IT Project Manager', 'Manage IT projects from start to finish.', 530, 94108, 4),  -- San Francisco
-('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 610, 98106, 5),  -- Seattle
-('E-commerce Specialist', 'Manage online sales and marketing.', 560, 33106, 6),  -- Miami
-('Content Strategist', 'Develop content strategies for brands.', 590, 48206, 7),  -- Detroit
-('Software Engineer', 'Develop and maintain software applications.', 800, 02115, 39),  -- Boston
-('Data Scientist', 'Analyze data to drive business solutions.', 950, 60616, 39),  -- Chicago
-('Web Developer', 'Create and manage websites and web applications.', 750, 10001, 39),  -- New York
-('Product Manager', 'Lead product development and strategy.', 600, 94103, 39),  -- San Francisco
-('UX Designer', 'Design user-friendly interfaces and experiences.', 700, 98101, 39),  -- Seattle
-('Marketing Specialist', 'Develop marketing strategies and campaigns.', 850, 33101, 39);  -- Miami
+('Software Engineer', 'Develop and maintain software applications.', 80000, 02115, 1),  -- Boston
+('Data Scientist', 'Analyze data to drive business solutions.', 95000, 60616, 2),  -- Chicago
+('Web Developer', 'Create and manage websites and web applications.', 75000, 10001, 3),  -- New York
+('Product Manager', 'Lead product development and strategy.', 60000, 94103, 4),  -- San Francisco
+('UX Designer', 'Design user-friendly interfaces and experiences.', 70000, 98101, 5),  -- Seattle
+('Marketing Specialist', 'Develop marketing strategies and campaigns.', 85000, 33101, 6),  -- Miami
+('Project Coordinator', 'Assist in project planning and execution.', 90000, 48201, 7),  -- Detroit
+('Systems Analyst', 'Analyze and improve IT systems.', 65000, 02130, 1),  -- Boston
+('Database Administrator', 'Manage and maintain database systems.', 72000, 60614, 2),  -- Chicago
+('Network Engineer', 'Design and implement network solutions.', 68000, 10002, 3),  -- New York
+('DevOps Engineer', 'Automate and streamline operations.', 62000, 94105, 4),  -- San Francisco
+('Content Writer', 'Create engaging content for various platforms.', 58000, 98102, 5),  -- Seattle
+('Sales Representative', 'Drive sales and build customer relationships.', 54000, 33102, 6),  -- Miami
+('Quality Assurance Tester', 'Ensure software quality through testing.', 50000, 48202, 7),  -- Detroit
+('Business Analyst', 'Analyze business needs and provide solutions.', 64000, 02131, 1),  -- Boston
+('Graphic Designer', 'Create visual content for marketing materials.', 56000, 60615, 2),  -- Chicago
+('SEO Specialist', 'Optimize website content for search engines.', 67000, 10003, 3),  -- New York
+('Technical Writer', 'Document software and technical processes.', 60000, 94104, 4),  -- San Francisco
+('Customer Support Specialist', 'Provide support to customers.', 58000, 98103, 5),  -- Seattle
+('HR Manager', 'Manage human resources and employee relations.', 62000, 33103, 6),  -- Miami
+('Financial Analyst', 'Analyze financial data and trends.', 53000, 48203, 7),  -- Detroit
+('Operations Manager', 'Oversee daily operations and processes.', 61000, 02132, 1),  -- Boston
+('IT Support Specialist', 'Provide technical support to users.', 57000, 60617, 2),  -- Chicago
+('Network Administrator', 'Manage and maintain network infrastructure.', 64000, 10004, 3),  -- New York
+('Web Designer', 'Design and create visually appealing websites.', 53000, 94106, 4),  -- San Francisco
+('Mobile Developer', 'Develop applications for mobile devices.', 61000, 98104, 5),  -- Seattle
+('Data Analyst', 'Analyze data to inform business decisions.', 56000, 33104, 6),  -- Miami
+('Research Scientist', 'Conduct research and experiments.', 59000, 48204, 7),  -- Detroit
+('Account Manager', 'Manage client accounts and relationships.', 65000, 02133, 1),  -- Boston
+('Social Media Manager', 'Manage social media accounts and campaigns.', 58000, 60618, 2),  -- Chicago
+('Event Coordinator', 'Plan and coordinate events.', 59000, 10005, 3),  -- New York
+('Software Tester', 'Test software for bugs and issues.', 63000, 94107, 4),  -- San Francisco
+('Business Development Manager', 'Identify and pursue new business opportunities.', 54000, 98105, 5),  -- Seattle
+('Logistics Coordinator', 'Manage logistics and supply chain operations.', 61000, 33105, 6),  -- Miami
+('Compliance Officer', 'Ensure compliance with regulations and policies.', 57000, 48205, 7),  -- Detroit
+('Sales Manager', 'Lead the sales team and drive sales strategies.', 65000, 02134, 1),  -- Boston
+('Product Designer', 'Design products that meet user needs.', 58000, 60619, 2),  -- Chicago
+('Financial Consultant', 'Provide financial advice and planning.', 64000, 10006, 3),  -- New York
+('IT Project Manager', 'Manage IT projects from start to finish.', 53000, 94108, 4),  -- San Francisco
+('Cybersecurity Analyst', 'Protect systems and networks from cyber threats.', 61000, 98106, 5),  -- Seattle
+('E-commerce Specialist', 'Manage online sales and marketing.', 56000, 33106, 6),  -- Miami
+('Content Strategist', 'Develop content strategies for brands.', 59000, 48206, 7);  -- Detroit
 
 
 ## Persona 1: Timothy (Northeastern Student)**
@@ -801,14 +845,14 @@ SELECT Name, Population, Prop_Hybrid_Workers
 FROM City
 WHERE Name = 'New York';
 
-## Sublet existing apartment:
-INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date)
-VALUES (
-    (SELECT Housing_ID FROM Housing WHERE Address = '123 Main St, Boston'),
-    (SELECT UserID FROM User WHERE email = 'john.doe@example.com'),
-    '2024-06-01',
-    '2024-12-01'
-);
+-- ## Sublet existing apartment:
+-- INSERT INTO Sublet (Housing_ID, Subleter_ID, Start_Date, End_Date)
+-- VALUES (
+--     (SELECT Housing_ID FROM Housing WHERE Address = '123 Main St, Boston'),
+--     (SELECT UserID FROM User WHERE email = 'john.doe@example.com'),
+--     '2024-06-01',
+--     '2024-12-01'
+-- );
 
 ## Find housing close to work:
 SELECT H.Address, H.Rent, H.Sq_Ft, L.Safety_Rating
@@ -867,7 +911,7 @@ INSERT INTO JobPosting (Title, Bio, Compensation, Location_ID, User_ID)
 VALUES (
     'Junior Developer',
     'Assist in the development of software applications.',
-    500,
+    5000,
     (SELECT Zip FROM Location WHERE City_ID = (SELECT City_ID FROM City WHERE Name = 'Boston') LIMIT 1),
     (SELECT UserID FROM User WHERE email = 'jane.smith@example.com')
 );
@@ -922,8 +966,3 @@ WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 Select Performance.Date, Avg_Speed, Top_Speed
 From Performance
 where date(Date) = '2025-03-12';
-
-SELECT L.Zip, L.Safety_Rating
-        FROM Location L
-        JOIN City C ON L.City_ID = C.City_ID
-        WHERE C.Name = 'Boston'
