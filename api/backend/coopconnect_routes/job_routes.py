@@ -5,8 +5,9 @@ from flask import make_response  # To structure the HTTP response with status co
 from flask import current_app  # To access the Flask application context if needed.
 from backend.db_connection import db  # To interact with your database connection object.
 
+job_routes = Blueprint('job_routes', __name__)
 
-@performance.route('/jobs', methods=['GET'])
+@job_routes.route('/jobs', methods=['GET'])
 def get_all_jobs():
     cursor = db.get_db().cursor()
     query = "SELECT * FROM Job"
@@ -17,7 +18,7 @@ def get_all_jobs():
     the_response.status_code = 200
     return the_response
 
-@performance.route('/jobs/user/<UserID>', methods=['GET'])
+@job_routes.route('/jobs/user/<UserID>', methods=['GET'])
 def get_jobs_by_user(UserID):
     cursor = db.get_db().cursor()
     query = """
@@ -32,7 +33,7 @@ def get_jobs_by_user(UserID):
     the_response.status_code = 200
     return the_response
 
-@performance.route('/job_postings', methods=['GET'])
+@job_routes.route('/job_postings', methods=['GET'])
 def get_all_job_postings():
     cursor = db.get_db().cursor()
     query = "SELECT * FROM JobPosting"
@@ -43,7 +44,7 @@ def get_all_job_postings():
     the_response.status_code = 200
     return the_response
 
-@performance.route('/job_postings/location/<Location_ID>', methods=['GET'])
+@job_routes.route('/job_postings/location/<Location_ID>', methods=['GET'])
 def get_job_postings_by_location(Location_ID):
     cursor = db.get_db().cursor()
     query = """
@@ -58,7 +59,7 @@ def get_job_postings_by_location(Location_ID):
     the_response.status_code = 200
     return the_response
 
-@performance.route('/job_postings/details', methods=['GET'])
+@job_routes.route('/job_postings/details', methods=['GET'])
 def get_job_postings_with_employer():
     cursor = db.get_db().cursor()
     query = """

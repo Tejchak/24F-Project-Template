@@ -40,7 +40,7 @@ def setup_sidebar():
 # Function to fetch all job postings
 def fetch_all_jobs():
     try:
-        response = requests.get(f"http://localhost:4000/job_postings")  # Update to match your backend URL
+        response = requests.get(f"http://api:4000/job_postings")  # Update to match your backend URL
         response.raise_for_status()
         return response.json()  # Return job data as a JSON object
     except requests.exceptions.RequestException as e:
