@@ -33,7 +33,7 @@ if st.button("Update Your Profile",
 if st.button("View and Manage Sublets",
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/47_Manage_Sublet.py')
+    st.switch_page('pages/37_Student_Email_Verification.py')
 
 if st.button('Learn about cost of living',
              type='primary',

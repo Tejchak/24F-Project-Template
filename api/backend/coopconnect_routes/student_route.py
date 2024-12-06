@@ -91,17 +91,17 @@ def update_sublet(sublet_id):
         data = request.get_json()
 
         # Validate the presence of necessary fields
-        required_fields = ['title', 'description', 'rent', 'address', 'start_date', 'end_date']
+        required_fields = ['Housing_ID', 'Start_Date', 'End_Date']
         for field in required_fields:
             if field not in data:
                 abort(400, description=f"Missing required field: {field}")
 
         # Validate dates
         try:
-            start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
-            end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
+            start_date = datetime.strptime(data['Start_Date'], '%Y-%m-%d')
+            end_date = datetime.strptime(data['End_Date'], '%Y-%m-%d')
             if start_date > end_date:
-                abort(400, description="start_date must be before end_date")
+                abort(400, description="Start_Date must be before End_Date")
         except ValueError:
             abort(400, description="Invalid date format. Please use YYYY-MM-DD format.")
 
@@ -109,15 +109,12 @@ def update_sublet(sublet_id):
         cursor = db.get_db().cursor()
         cursor.execute('''
             UPDATE Sublet
-            SET Title = %s, Description = %s, Rent = %s, Address = %s, Start_Date = %s, End_Date = %s
+            SET Housing_ID = %s, Start_Date = %s, End_Date = %s
             WHERE Sublet_ID = %s
         ''', (
-            data['title'],
-            data['description'],
-            data['rent'],
-            data['address'],
-            data['start_date'],
-            data['end_date'],
+            data['Housing_ID'],
+            start_date,
+            end_date,
             sublet_id
         ))
         db.get_db().commit()
@@ -144,3 +141,54 @@ def delete_sublet(sublet_id):
         return jsonify({'message': 'Sublet deleted successfully'}), 200
     except Exception as e:
         abort(500, description=str(e))
+
+@student.route('/sublets', methods=['GET'])
+def get_all_sublets():
+    """
+    Retrieve a list of all sublets.
+    """
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute("SELECT * FROM Sublet")
+        sublets = cursor.fetchall()
+        
+        if not sublets:
+            return jsonify({'message': 'No sublets found'}), 404
+        
+        # Convert the result to a list of dictionaries for better JSON serialization
+        sublet_list = []
+        for sublet in sublets:
+            sublet_list.append({
+                'Start_Date': sublet['Start_Date'],
+                'End_Date': sublet['End_Date'],
+                'Sublet_ID': sublet['Sublet_ID'],
+                'Housing_ID': sublet['Housing_ID'],
+                'Subleter_ID': sublet['Subleter_ID']
+            })
+        
+        return jsonify(sublet_list), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve sublets: {str(e)}'}), 500
+
+@student.route('/students/<int:user_id>/sublets', methods=['GET'])
+def get_sublets_for_user(user_id):
+    """
+    Retrieve all sublets for a specific user ID.
+    """
+    try:
+    
+        cursor = cursor = db.get_db().cursor()
+        
+        # Query to fetch all sublets for the given user ID
+        query = """
+        SELECT * FROM Sublet
+        WHERE Subleter_ID = %s
+        """
+        cursor.execute(query, (user_id,))
+        sublets = cursor.fetchall()
+        
+        cursor.close()
+        
+        return jsonify(sublets), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
