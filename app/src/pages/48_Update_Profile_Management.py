@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import re
+import time
 
 # Backend API base URL
 API_BASE_URL = "http://api:4000"
@@ -27,16 +28,32 @@ def fetch_profile(user_id):
 
 def update_profile(user_id, profile_data):
     try:
-        response = requests.put(f"{API_BASE_URL}/students/{user_id}", json=profile_data)
-        if response.status_code == 200:
-            st.success("Profile updated successfully!")
-        else:
-            st.error(f"Failed to update profile: {response.json().get('error', 'Unknown error')}")
+        response = requests.put(f"{API_BASE_URL}/user/{user_id}", json=profile_data)
+        response.raise_for_status()
+        return True
     except requests.exceptions.RequestException as e:
         st.error(f"Error updating profile: {e}")
+        return False
+
+def format_phone_number(phone):
+    # Remove any non-digit characters
+    digits = ''.join(filter(str.isdigit, phone))
+    # Format as XXX-XXX-XXXX
+    if len(digits) == 10:
+        return f"{digits[:3]}-{digits[3:6]}-{digits[6:]}"
+    return digits
 
 # Fetch profile information
-profile = fetch_profile(st.session_state.user_id)
+def load_profile():
+    return fetch_profile(st.session_state.user_id)
+
+# Check for update success message
+if 'update_success' in st.session_state and st.session_state.update_success:
+    st.success("Profile updated successfully!")
+    # Clear the success message flag
+    del st.session_state.update_success
+    
+profile = load_profile()
 
 if profile:
     # Create tabs for viewing and editing profile
@@ -48,8 +65,7 @@ if profile:
         # Display profile information in a more readable format
         st.write("**Name:**", profile.get('name', 'Not provided'))
         st.write("**Email:**", st.session_state.verified_email)
-        st.write("**Phone Number:**", profile.get('phone_number', 'Not provided'))
-        st.write("**Address:**", profile.get('address', 'Not provided'))
+        st.write("**Phone Number:**", profile.get('Phone_Number', 'Not provided'))
         
         # Add a divider for better visual separation
         st.divider()
@@ -61,25 +77,30 @@ if profile:
         # Pre-fill form fields with current profile information
         name = st.text_input("Name", value=profile.get('name', ''))
         email = st.text_input("Email", value=st.session_state.verified_email)
-        phone = st.text_input("Phone Number", value=profile.get('phone_number', ''))
-        address = st.text_input("Address", value=profile.get('address', ''))
+        phone = st.text_input("Phone Number (Format: XXX-XXX-XXXX)", value=profile.get('Phone_Number', ''))
 
         # Save changes button
         if st.button("Save Changes"):
             # Validate inputs
             if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
                 st.error("Invalid email format.")
-            elif not re.match(r'^\d{10}$', phone.replace('-', '')):
-                st.error("Phone number must be 10 digits.")
+            elif not re.match(r'^\d{3}-\d{3}-\d{4}$', format_phone_number(phone)):
+                st.error("Phone number must be in format XXX-XXX-XXXX")
             else:
                 updated_profile = {
                     "name": name,
                     "email": email,
-                    "phone_number": phone,
-                    "address": address,
+                    "Phone_Number": format_phone_number(phone),
                     "CategoryID": 1
                 }
-                update_profile(st.session_state.user_id, updated_profile)
+                
+                # Update the profile
+                if update_profile(st.session_state.user_id, updated_profile):
+                    # Set success flag in session state
+                    st.session_state.update_success = True
+                    # Add a small delay to ensure the message is visible
+                    time.sleep(0.5)
+                    st.rerun()
 else:
     st.warning("Unable to fetch your current profile information.")
 
@@ -87,7 +108,7 @@ else:
 st.sidebar.header('Actions')
 if st.sidebar.button('Logout'):
     st.session_state.clear()  # Clear session state on logout
-    st.experimental_rerun()  # Refresh the app to go back to the homepage
+    st.rerun()  # Refresh the app to go back to the homepage
 
 # Back button
 if st.sidebar.button("⬅️ Back"):
