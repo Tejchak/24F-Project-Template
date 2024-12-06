@@ -14,16 +14,26 @@ def get_housing():
 @housing.route('/housing', methods=['POST'])
 def insert_housing():
     data = request.get_json()
-    required_keys = ['City_ID', 'zipID', 'Address', 'Rent', 'Sq_Ft']
+    required_keys = ['City_Name', 'zipID', 'Address', 'Rent', 'Sq_Ft']
     
     if not all(key in data for key in required_keys):
         return jsonify({"error": "Missing data"}), 400
     
+    # Fetch the City_ID based on the provided City_Name
+    cursor = db.get_db().cursor()
+    cursor.execute('SELECT City_ID FROM City WHERE Name = %s', (data['City_Name'],))
+    city_result = cursor.fetchone()
+    
+    if not city_result:
+        return jsonify({"error": "City not found"}), 404
+    
+    city_id = city_result['City_ID']  # Get the City_ID from the result
+
     query = '''
     INSERT INTO Housing (City_ID, zipID, Address, Rent, Sq_Ft) 
     VALUES (%s, %s, %s, %s, %s)
     '''
-    args = (data['City_ID'], data['zipID'], data['Address'], data['Rent'], data['Sq_Ft'])
+    args = (city_id, data['zipID'], data['Address'], data['Rent'], data['Sq_Ft'])
     
     cursor = db.get_db().cursor()
     try:
@@ -37,12 +47,27 @@ def insert_housing():
 @housing.route('/housing/<int:housing_id>', methods=['PUT'])
 def update_housing(housing_id):
     data = request.get_json()
+    required_keys = ['City_Name', 'zipID', 'Address', 'Rent', 'Sq_Ft']
+    
+    if not all(key in data for key in required_keys):
+        return jsonify({"error": "Missing data"}), 400
+    
+    # Fetch the City_ID based on the provided City_Name
+    cursor = db.get_db().cursor()
+    cursor.execute('SELECT City_ID FROM City WHERE Name = %s', (data['City_Name'],))
+    city_result = cursor.fetchone()
+    
+    if not city_result:
+        return jsonify({"error": "City not found"}), 404
+    
+    city_id = city_result['City_ID']  # Get the City_ID from the result
+
     query = '''
     UPDATE Housing
     SET City_ID = %s, zipID = %s, Address = %s, Rent = %s, Sq_Ft = %s
     WHERE Housing_ID = %s
     '''
-    args = (data['City_ID'], data['zipID'], data['Address'], data['Rent'], data['Sq_Ft'], housing_id)
+    args = (city_id, data['zipID'], data['Address'], data['Rent'], data['Sq_Ft'], housing_id)
     
     cursor = db.get_db().cursor()
     try:

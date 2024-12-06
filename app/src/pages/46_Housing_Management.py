@@ -21,7 +21,14 @@ try:
 except requests.exceptions.HTTPError:
     zip_codes = []
     st.error("Error fetching zip codes. Ensure the API endpoint is correct.")
-
+def fetch_cities():
+    response = requests.get('http://api:4000/city')  # Adjust the URL as needed
+    if response.status_code == 200:
+        return [city['name'] for city in response.json()]  # Extract city names from the response
+    else:
+        st.error('Error fetching cities from the server: ' + str(response.status_code))
+        return []
+city_list = fetch_cities()
 # Fetch housing records for the user
 try:
     response = requests.get('http://api:4000/housing')  # Adjust the endpoint as necessary
@@ -40,10 +47,10 @@ try:
         # Display the DataFrame
         st.subheader("Housing Records")
         st.dataframe(df[['Housing_ID', 'Address', 'Rent', 'Sq_Ft', 'City_ID']])  # Display relevant columns
-
+        
         # Section for adding new housing
         st.header("Add New Housing")
-        new_city_id = st.number_input("City ID", min_value=1, step=1)
+        new_city_id = st.selectbox('City:', options=city_list, format_func=lambda x: str(x), key= 'add_housing')
         new_zip_id = st.selectbox("Zip Code", options=zip_codes, format_func=lambda x: str(x))
         new_address = st.text_input("Address")
         new_rent = st.number_input("Rent", min_value=0, step=1)
@@ -52,7 +59,7 @@ try:
         if st.button("Add Housing"):
             if new_address:
                 add_data = {
-                    "City_ID": new_city_id,
+                    "City_Name": new_city_id,
                     "zipID": new_zip_id,
                     "Address": new_address,
                     "Rent": new_rent,
@@ -75,7 +82,7 @@ try:
         selected_record = next((record for record in housing_records if record['Housing_ID'] == update_housing_id), None)
 
         if selected_record:
-            update_city_id = st.number_input("New City ID", value=selected_record['City_ID'], min_value=1, step=1)
+            update_city_id = st.selectbox('City:', options=city_list, format_func=lambda x: str(x), key='update_housing')
             update_zip_id = st.selectbox("New Zip Code", options=zip_codes, index=zip_codes.index(selected_record['zipID']) if selected_record['zipID'] in zip_codes else 0)
             update_address = st.text_input("New Address", value=selected_record['Address'])
             update_rent = st.number_input("New Rent", value=selected_record['Rent'], min_value=0, step=1)
@@ -83,7 +90,7 @@ try:
 
             if st.button("Update Housing"):
                 update_data = {
-                    "City_ID": update_city_id,
+                    "City_Name": update_city_id,
                     "zipID": update_zip_id,
                     "Address": update_address,
                     "Rent": update_rent,
