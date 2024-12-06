@@ -18,7 +18,7 @@ if 'verified_email' not in st.session_state:
 
 def fetch_profile(user_id):
     try:
-        response = requests.get(f"{API_BASE_URL}/students/{user_id}")
+        response = requests.get(f"{API_BASE_URL}/user/{user_id}")
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
