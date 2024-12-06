@@ -39,3 +39,8 @@ if st.button("View and Manage Sublets",
              type='primary',
              use_container_width=True):
     st.switch_page('pages/47_Manage_Sublets.py')
+
+if st.button("View Map",
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/34_student_map.py')
