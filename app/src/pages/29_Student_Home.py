@@ -33,7 +33,7 @@ if st.button("Update Your Profile",
 if st.button("View and Manage Sublets",
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/47_Manage_Sublets.py')
+    st.switch_page('pages/47_Manage_Sublet.py')
 
 if st.button('Learn about cost of living',
              type='primary',
@@ -45,15 +45,3 @@ if st.button("View Map",
              use_container_width=True):
     st.switch_page('pages/34_student_map.py')
 
-# Add a toggle switch for convenience
-st.markdown("---")
-view_map_toggle = st.checkbox("🗺️ Switch to Student Map", key="map_toggle")
-
-if view_map_toggle:
-    st.switch_page('pages/34_student_map.py')
-
-
-if st.button("View Map",
-             type='primary',
-             use_container_width=True):
-    st.switch_page('pages/34_student_map.py')

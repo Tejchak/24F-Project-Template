@@ -19,14 +19,7 @@ def setup_sidebar():
             
         # Back button
         if st.button("⬅️ Back"):
-            st.switch_page("pages/30_dashboard.py")  # Adjust this path as needed
-            
-        # Logout button
-        if st.button("🚪 Logout"):
-            # Clear session state if you're using it
-            for key in st.session_state.keys():
-                del st.session_state[key]
-            st.switch_page("app/src/pages/00_login.py")  # Adjust this path as needed
+            st.switch_page("pages/29_Student_Home.py")  # Adjust this path as needed
             
         st.divider()
 
