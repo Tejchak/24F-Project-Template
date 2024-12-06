@@ -7,9 +7,7 @@ from backend.simple.simple_routes import simple_routes
 from backend.coopconnect_routes.city_routes import cities
 from backend.coopconnect_routes.user_routes import users
 from backend.coopconnect_routes.employer import employer
-from backend.coopconnect_routes.housing_routes import housing
-from backend.coopconnect_routes.airport_routes import airports
-from backend.coopconnect_routes.hospital_routes import hospitals
+from backend.coopconnect_routes.parent_routes import parent
 from backend.coopconnect_routes.student_route import student
 from backend.coopconnect_routes.location_routes import locations
 from backend.coopconnect_routes.job_routes import job_routes
@@ -56,9 +54,7 @@ def create_app():
     app.register_blueprint(system_admin)
     app.register_blueprint(users)
     app.register_blueprint(employer)
-    app.register_blueprint(housing)
-    app.register_blueprint(airports)
-    app.register_blueprint(hospitals)
+    app.register_blueprint(parent)
     app.register_blueprint(student)
     app.register_blueprint(locations)
     app.register_blueprint(job_routes)

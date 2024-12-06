@@ -33,38 +33,6 @@ def get_all_cities():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-#returns the details of a specific city
-@cities.route('/city/<CityID>', methods=['GET'])
-def get_city_details(CityID):
-    try:
-        cursor = db.cursor()
-        cursor.execute("""
-            SELECT City_ID, Avg_Cost_Of_Living, Avg_Rent, Avg_Wage, 
-                   Name, Population, Prop_Hybrid_Workers 
-            FROM City 
-            WHERE Name = (Select Name FROM City WHERE City_ID = %s)
-        """, (CityID,))
-        city_data = cursor.fetchall()
-        cursor.close()
-
-        if not city_data:
-            return jsonify({'error': 'City not found'}), 404
-
-        city_details = {
-            'city_id': city_data[0],
-            'avg_cost_of_living': city_data[1],
-            'avg_rent': city_data[2],
-            'avg_wage': city_data[3],
-            'name': city_data[4],
-            'population': city_data[5],
-            'prop_hybrid_workers': float(city_data[6]) if city_data[6] else None
-        }
-
-        return jsonify(city_details), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 
 #returns the cost analysis of a specific city
 @cities.route('/city/<CityID>/<Avg_Cost_Of_Living>', methods=['GET'])
@@ -124,64 +92,5 @@ def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
     except Exception as e:
         print(f"Error in get_city_cost_analysis: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
-#Finds cities with a similar proportion of hybrid workers
-@cities.route('/city/<CityID>/<Prop_Hybrid_Workers>', methods=['GET'])
-def get_cities_by_hybrid_proportion(Prop_Hybrid_Workers):
-    try:
-        # Validate input range (0-1)
-        if not 0 <= Prop_Hybrid_Workers <= 1:
-            return jsonify({'error': 'Target proportion must be between 0 and 1'}), 400
-
-        cursor = db.cursor()
-        
-        # Find cities within ±10% of target proportion, ordered by closest match
-        cursor.execute("""
-            SELECT 
-                Name,
-                Prop_Hybrid_Workers,
-                Avg_Cost_Of_Living,
-                Avg_Rent,
-                Avg_Wage,
-                Population,
-                ABS(Prop_Hybrid_Workers - %s) as proportion_difference
-            FROM City
-            WHERE Prop_Hybrid_Workers BETWEEN %s - 0.1 AND %s + 0.1
-            ORDER BY proportion_difference ASC
-        """, (Prop_Hybrid_Workers, Prop_Hybrid_Workers, Prop_Hybrid_Workers))
-        
-        cities_data = cursor.fetchall()
-        cursor.close()
-
-        if not cities_data:
-            return jsonify({'message': 'No cities found matching the target hybrid work proportion',
-                          'cities': []}), 200
-
-        cities_list = []
-        for city in cities_data:
-            cities_list.append({
-                'name': city[0],
-                'prop_hybrid_workers': float(city[1]),
-                'avg_cost_of_living': city[2],
-                'avg_rent': city[3],
-                'avg_wage': city[4],
-                'population': city[5],
-                'difference_from_target': float(city[6])
-            })
-
-        response = {
-            'target_proportion': Prop_Hybrid_Workers,
-            'cities_found': len(cities_list),
-            'cities': cities_list
-        }
-
-        return jsonify(response), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@cities.route('/city/test', methods=['GET'])
-def test_route():
-    return jsonify({"message": "City routes are working"}), 200
 
 
