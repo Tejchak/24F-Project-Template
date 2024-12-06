@@ -23,19 +23,19 @@ st.write('### What would you like to do today?')
 if st.button('Browse Available Jobs', 
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/37_Browse_Jobs.py')
+    st.switch_page('pages/43_Browse_Jobs.py')
 
 if st.button('Apply for a Job', 
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/38_Apply_Job.py')
+    st.switch_page('pages/44_Apply_Job.py')
 
 if st.button("Update Your Profile",
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/44_Update_Profile.py')
+    st.switch_page('pages/45_Update_Profile.py')
 
 if st.button("View and Manage Sublets",
              type='primary',
              use_container_width=True):
-    st.switch_page('pages/45_Manage_Sublets.py')
+    st.switch_page('pages/47_Manage_Sublets.py')
