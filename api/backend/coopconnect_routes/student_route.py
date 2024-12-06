@@ -57,7 +57,7 @@ def update_student_profile(student_id):
     except Exception as e:
         return jsonify({'error': f'Failed to update profile: {str(e)}'}), 500
     
-@users.route('/students/<int:student_id>/sublet', methods=['POST'])
+@student.route('/students/<int:student_id>/sublet', methods=['POST'])
 def create_sublet(student_id):
     try:
         data = request.json
@@ -78,7 +78,7 @@ def create_sublet(student_id):
         return make_response(jsonify({"error": str(e)}), 500)
 
 
-@housing.route('/sublets/<int:sublet_id>', methods=['PUT'])
+@student.route('/sublets/<int:sublet_id>', methods=['PUT'])
 def update_sublet(sublet_id):
     """
     Update details of a sublet.
@@ -124,7 +124,7 @@ def update_sublet(sublet_id):
         abort(500, description=str(e))
 
 
-@housing.route('/sublets/<int:sublet_id>', methods=['DELETE'])
+@student.route('/sublets/<int:sublet_id>', methods=['DELETE'])
 def delete_sublet(sublet_id):
     """
     Delete a sublet.
