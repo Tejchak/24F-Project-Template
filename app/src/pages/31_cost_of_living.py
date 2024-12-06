@@ -17,10 +17,6 @@ def setup_sidebar():
         if st.button("🏠 Home"):
             st.switch_page("Home.py")
             
-        # Back button
-        if st.button("⬅️ Back"):
-            st.switch_page("pages/29_Student_Home.py")  # Adjust this path as needed
-            
         st.divider()
 
 def display_city_card(city_data):

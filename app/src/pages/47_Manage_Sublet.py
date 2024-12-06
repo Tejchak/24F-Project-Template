@@ -159,7 +159,7 @@ with st.expander("Delete a Sublet"):
     else:
         st.write("You have no sublets to delete.")
 
-# Add a logout button in the sidebar
+# Sidebar (optional actions)
 st.sidebar.header('Actions')
 if st.sidebar.button('Logout'):
     st.session_state.clear()  # Clear session state on logout

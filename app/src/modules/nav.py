@@ -59,11 +59,14 @@ def AdminPageNav():
 # --------------------------------Links Function -----------------------------------------------
 def SideBarLinks(show_home=False):
     """
-    This function handles adding links to the sidebar of the app based upon the logged-in user's role, which was put in the streamlit session_state object when logging in.
+    This function handles adding links to the sidebar of the app based upon the logged-in user's role.
     """
-
-    # add a logo to the sidebar always
-    st.sidebar.image("assets/logo.png", width=150)
+    # Create three columns in the sidebar to center the image
+    left_spacer, center_col, right_spacer = st.sidebar.columns([1,3,1])
+    
+    # Place the image in the center column with increased width
+    with center_col:
+        st.image("assets/logo.png", width=200)
 
     # If there is no logged in user, redirect to the Home (Landing) page
     if "authenticated" not in st.session_state:

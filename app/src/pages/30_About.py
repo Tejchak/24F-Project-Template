@@ -47,3 +47,7 @@ st.markdown(
     CoopConnect aims to streamline the co-op experience for all stakeholders involved.
     """
 )
+
+# Add a button to switch back to the home page
+if st.sidebar.button("Home"):
+    st.switch_page("Home.py")

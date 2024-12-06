@@ -34,43 +34,61 @@ SideBarLinks(show_home=True)
 
 # set the title of the page and provide a simple prompt. 
 logger.info("Loading the Home page of the app")
-st.title('CS 3200 Sample Semester Project App')
-st.write('\n\n')
-st.write('### HI! As which user would you like to log in?')
+st.title('Welcome to Coop Connect 🎓')
+st.markdown("""
+    <div style='background-color: #f0f2f6; padding: 2rem; border-radius: 10px; margin: 1rem 0;'>
+        <h3>Your Gateway to Professional Opportunities</h3>
+        <p>Coop Connect brings together students, employers, and families in a seamless platform 
+        for managing cooperative education experiences. Whether you're seeking talent, 
+        exploring opportunities, or supporting a student's journey, we're here to help.</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# For each of the user personas for which we are implementing
-# functionality, we put a button on the screen that the user 
-# can click to MIMIC logging in as that mock user. 
+# Login Section
+st.write('### Choose Your Role to Get Started')
 
-if st.button('Act as Edward, an Employer looking for Co-op Students', 
-            type = 'primary', 
-            use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'employer'
-    st.session_state['first_name'] = 'Edward'
-    st.switch_page('pages/10_Employer_Home.py')
+# Create two columns for better layout
+col1, col2 = st.columns(2)
 
-if st.button('Act as John, Login as System Admin', 
-            type = 'primary', 
-            use_container_width=True):
-    st.switch_page('pages/33_Login_System_Admin.py')
+with col1:
     
-#Persona 4: Helen
-if st.button('Act as Helen, a mother of a Northeastern University Student',
-             type = 'primary',
-             use_container_width=True):
+    if st.button('🎓 Login as Sarah (Student)', 
+                type='primary', 
+                use_container_width=True):
+        st.session_state['authenticated'] = True
+        st.session_state['role'] = 'student'
+        st.session_state['first_name'] = 'Sarah'
+        logger.info('Logging in as Student Persona')
+        st.switch_page('pages/29_Student_Home.py')
+    
+    if st.button('💼 Login as Edward (Employer)', 
+                type='primary', 
+                use_container_width=True):
+        st.session_state['authenticated'] = True
+        st.session_state['role'] = 'employer'
+        st.session_state['first_name'] = 'Edward'
+        st.switch_page('pages/10_Employer_Home.py')
+
+with col2:
+    
+    if st.button('👨‍👩‍👧‍👦 Login as Helen (Parent)', 
+                type='primary', 
+                use_container_width=True):
         st.session_state['authenticated'] = True
         st.session_state['role'] = 'parent'
         st.session_state['first_name'] = 'Helen'
         logger.info('Logging in as Parent Persona')
         st.switch_page('pages/40_Parent_Home.py')
-        
-# Persona 5: Student
-if st.button('Act as Sarah, a Northeastern University Student',
-             type='primary',
-             use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'student'
-    st.session_state['first_name'] = 'Sarah'
-    logger.info('Logging in as Student Persona')
-    st.switch_page('pages/29_Student_Home.py')
+
+    if st.button('⚙️ Login as John (System Admin)', 
+                type='primary', 
+                use_container_width=True):
+        st.switch_page('pages/33_Login_System_Admin.py')
+
+# Add footer with additional information
+st.markdown("""
+    <div style='background-color: #f0f2f6; padding: 1rem; border-radius: 10px; margin-top: 2rem; text-align: center;'>
+        <p><small>Coop Connect is Northeastern University's premier platform for cooperative education management.
+        For technical support, please contact the system administrator.</small></p>
+    </div>
+""", unsafe_allow_html=True)

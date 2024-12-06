@@ -44,79 +44,82 @@ try:
         # Convert housing records to a DataFrame for better display
         df = pd.DataFrame(housing_records)
 
-        # Display the DataFrame
-        st.subheader("Housing Records")
-        st.dataframe(df[['Housing_ID', 'Address', 'Rent', 'Sq_Ft', 'City_ID']])  # Display relevant columns
-        
-        # Section for adding new housing
-        st.header("Add New Housing")
-        new_city_id = st.selectbox('City:', options=city_list, format_func=lambda x: str(x), key= 'add_housing')
-        new_zip_id = st.selectbox("Zip Code", options=zip_codes, format_func=lambda x: str(x))
-        new_address = st.text_input("Address")
-        new_rent = st.number_input("Rent", min_value=0, step=1)
-        new_sq_ft = st.number_input("Square Feet", min_value=1, step=1)
+        # Create tabs for different operations
+        view_tab, add_tab, update_tab, delete_tab = st.tabs(["View Housing", "Add Housing", "Update Housing", "Delete Housing"])
 
-        if st.button("Add Housing"):
-            if new_address:
-                add_data = {
-                    "City_Name": new_city_id,
-                    "zipID": new_zip_id,
-                    "Address": new_address,
-                    "Rent": new_rent,
-                    "Sq_Ft": new_sq_ft
-                }
-                try:
-                    response = requests.post('http://api:4000/housing', json=add_data)
-                    response.raise_for_status()
-                    st.success("Housing added successfully!")
-                except requests.exceptions.HTTPError as e:
-                    st.error(f"Error adding housing: {e}")
-            else:
-                st.warning("Please provide a valid address.")
+        # View Housing Tab
+        with view_tab:
+            st.subheader("Housing Records")
+            st.dataframe(df[['Housing_ID', 'Address', 'Rent', 'Sq_Ft', 'City_ID']])
 
-        # Section for updating housing records
-        st.header("Update Housing")
-        update_housing_id = st.selectbox("Select Housing ID to Update", options=[record['Housing_ID'] for record in housing_records])
-        
-        # Fetch the selected housing details
-        selected_record = next((record for record in housing_records if record['Housing_ID'] == update_housing_id), None)
+        # Add Housing Tab
+        with add_tab:
+            new_city_id = st.selectbox('City:', options=city_list, format_func=lambda x: str(x), key='add_housing')
+            new_zip_id = st.selectbox("Zip Code", options=zip_codes, format_func=lambda x: str(x))
+            new_address = st.text_input("Address")
+            new_rent = st.number_input("Rent", min_value=0, step=1)
+            new_sq_ft = st.number_input("Square Feet", min_value=1, step=1)
 
-        if selected_record:
-            update_city_id = st.selectbox('City:', options=city_list, format_func=lambda x: str(x), key='update_housing')
-            update_zip_id = st.selectbox("New Zip Code", options=zip_codes, index=zip_codes.index(selected_record['zipID']) if selected_record['zipID'] in zip_codes else 0)
-            update_address = st.text_input("New Address", value=selected_record['Address'])
-            update_rent = st.number_input("New Rent", value=selected_record['Rent'], min_value=0, step=1)
-            update_sq_ft = st.number_input("New Square Feet", value=selected_record['Sq_Ft'], min_value=1, step=1)
+            if st.button("Add Housing"):
+                if new_address:
+                    add_data = {
+                        "City_Name": new_city_id,
+                        "zipID": new_zip_id,
+                        "Address": new_address,
+                        "Rent": new_rent,
+                        "Sq_Ft": new_sq_ft
+                    }
+                    try:
+                        response = requests.post('http://api:4000/housing', json=add_data)
+                        response.raise_for_status()
+                        st.success("Housing added successfully!")
+                    except requests.exceptions.HTTPError as e:
+                        st.error(f"Error adding housing: {e}")
+                else:
+                    st.warning("Please provide a valid address.")
 
-            if st.button("Update Housing"):
-                update_data = {
-                    "City_Name": update_city_id,
-                    "zipID": update_zip_id,
-                    "Address": update_address,
-                    "Rent": update_rent,
-                    "Sq_Ft": update_sq_ft
-                }
-                try:
-                    response = requests.put(f'http://api:4000/housing/{update_housing_id}', json=update_data)
-                    response.raise_for_status()
-                    st.success("Housing updated successfully!")
-                except requests.exceptions.HTTPError as e:
-                    st.error(f"Error updating housing: {e}")
+        # Update Housing Tab
+        with update_tab:
+            update_housing_id = st.selectbox("Select Housing ID to Update", options=[record['Housing_ID'] for record in housing_records])
+            
+            selected_record = next((record for record in housing_records if record['Housing_ID'] == update_housing_id), None)
 
-        # Section for deleting housing records
-        st.header("Delete Housing")
-        delete_housing_id = st.selectbox("Select Housing ID to Delete", options=[record['Housing_ID'] for record in housing_records])
+            if selected_record:
+                update_city_id = st.selectbox('City:', options=city_list, format_func=lambda x: str(x), key='update_housing')
+                update_zip_id = st.selectbox("New Zip Code", options=zip_codes, index=zip_codes.index(selected_record['zipID']) if selected_record['zipID'] in zip_codes else 0)
+                update_address = st.text_input("New Address", value=selected_record['Address'])
+                update_rent = st.number_input("New Rent", value=selected_record['Rent'], min_value=0, step=1)
+                update_sq_ft = st.number_input("New Square Feet", value=selected_record['Sq_Ft'], min_value=1, step=1)
 
-        if st.button("Delete Housing"):
-            if delete_housing_id:
-                try:
-                    response = requests.delete(f'http://api:4000/housing/{delete_housing_id}')
-                    response.raise_for_status()
-                    st.success("Housing deleted successfully!")
-                except requests.exceptions.HTTPError as e:
-                    st.error(f"Error deleting housing: {e}")
-            else:
-                st.warning("Please select a valid Housing ID.")
+                if st.button("Update Housing"):
+                    update_data = {
+                        "City_Name": update_city_id,
+                        "zipID": update_zip_id,
+                        "Address": update_address,
+                        "Rent": update_rent,
+                        "Sq_Ft": update_sq_ft
+                    }
+                    try:
+                        response = requests.put(f'http://api:4000/housing/{update_housing_id}', json=update_data)
+                        response.raise_for_status()
+                        st.success("Housing updated successfully!")
+                    except requests.exceptions.HTTPError as e:
+                        st.error(f"Error updating housing: {e}")
+
+        # Delete Housing Tab
+        with delete_tab:
+            delete_housing_id = st.selectbox("Select Housing ID to Delete", options=[record['Housing_ID'] for record in housing_records])
+
+            if st.button("Delete Housing"):
+                if delete_housing_id:
+                    try:
+                        response = requests.delete(f'http://api:4000/housing/{delete_housing_id}')
+                        response.raise_for_status()
+                        st.success("Housing deleted successfully!")
+                    except requests.exceptions.HTTPError as e:
+                        st.error(f"Error deleting housing: {e}")
+                else:
+                    st.warning("Please select a valid Housing ID.")
 
 except requests.exceptions.HTTPError:
     st.write("Error fetching housing records.")

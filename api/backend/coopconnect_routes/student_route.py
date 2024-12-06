@@ -44,13 +44,12 @@ def update_student_profile(student_id):
         cursor = db.get_db().cursor()
         cursor.execute("""
             UPDATE User 
-            SET name = %s, email = %s, Phone_Number = %s, address = %s, CategoryID = %s
+            SET name = %s, email = %s, Phone_Number = %s, CategoryID = %s
             WHERE UserID = %s
         """, (
             data.get('name'),
             data.get('email'),
             data.get('phone_number'),
-            data.get('address'),
             data.get('CategoryID', 1),  # Default to CategoryID 1 if not provided
             student_id
         ))
