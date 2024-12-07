@@ -191,3 +191,14 @@ def get_sublets_for_user(user_id):
         return jsonify(sublets), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@student.route('/job_postings', methods=['GET'])
+def get_all_job_postings():
+    cursor = db.get_db().cursor()
+    query = "SELECT * FROM JobPosting"
+    cursor.execute(query)
+    theData = cursor.fetchall()
+
+    the_response = make_response(jsonify(theData))
+    the_response.status_code = 200
+    return the_response

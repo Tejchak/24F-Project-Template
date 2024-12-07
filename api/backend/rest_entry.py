@@ -4,13 +4,9 @@ from backend.db_connection import db
 from backend.customers.customer_routes import customers
 from backend.products.products_routes import products
 from backend.simple.simple_routes import simple_routes
-from backend.coopconnect_routes.city_routes import cities
-from backend.coopconnect_routes.user_routes import users
 from backend.coopconnect_routes.employer import employer
 from backend.coopconnect_routes.parent_routes import parent
 from backend.coopconnect_routes.student_route import student
-from backend.coopconnect_routes.location_routes import locations
-from backend.coopconnect_routes.job_routes import job_routes
 from backend.coopconnect_routes.system_admin_routes import system_admin
 import os
 from dotenv import load_dotenv
@@ -50,14 +46,10 @@ def create_app():
     app.register_blueprint(simple_routes)
     app.register_blueprint(customers,   url_prefix='/c')
     app.register_blueprint(products,    url_prefix='/p')
-    app.register_blueprint(cities)
     app.register_blueprint(system_admin)
-    app.register_blueprint(users)
     app.register_blueprint(employer)
     app.register_blueprint(parent)
     app.register_blueprint(student)
-    app.register_blueprint(locations)
-    app.register_blueprint(job_routes)
     # Don't forget to return the app object
     return app
 
