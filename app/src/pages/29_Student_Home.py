@@ -35,31 +35,34 @@ st.markdown("""
     </h3>
 """, unsafe_allow_html=True)
 
-# Navigation buttons for student actions
-if st.button('Browse Available Jobs', 
-             type='primary',
-             use_container_width=True):
-    st.switch_page('pages/43_Browse_Jobs.py')
+# Create two columns for the buttons
+col1, col2 = st.columns(2)
 
-if st.button("Update Your Profile",
-             type='primary',
-             use_container_width=True):
-    st.switch_page('pages/45_Update_Profile.py')
+with col1:
+    if st.button('🔍 Browse Available Jobs', 
+                type='primary',
+                use_container_width=True):
+        st.switch_page('pages/43_Browse_Jobs.py')
 
-if st.button("View and Manage Sublets",
-             type='primary',
-             use_container_width=True):
-    st.switch_page('pages/37_Student_Email_Verification.py')
+    if st.button("👤 Update Your Profile",
+                type='primary',
+                use_container_width=True):
+        st.switch_page('pages/45_Update_Profile.py')
+
+    if st.button("🏠 View and Manage Sublets",
+                type='primary',
+                use_container_width=True):
+        st.switch_page('pages/37_Student_Email_Verification.py')
 
 with col2:
     if st.button('💰 Learn About Cost of Living',
-                 type='primary',
-                 use_container_width=True):
+                type='primary',
+                use_container_width=True):
         st.switch_page('pages/31_cost_of_living.py')
     
     if st.button("🗺️ View Map",
-                 type='primary',
-                 use_container_width=True):
+                type='primary',
+                use_container_width=True):
         st.switch_page('pages/34_student_map.py')
 
 # Add footer space
