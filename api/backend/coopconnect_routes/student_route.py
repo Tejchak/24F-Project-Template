@@ -202,3 +202,25 @@ def get_all_job_postings():
     the_response = make_response(jsonify(theData))
     the_response.status_code = 200
     return the_response
+
+
+@student.route('/users/email/<string:email>', methods=['GET'])
+def get_user_by_email(email):
+    try:
+        query = '''
+        SELECT UserID, name, Phone_Number, Date_Created, Date_Last_Login 
+        FROM User 
+        WHERE email = %s
+        '''
+        cursor = db.get_db().cursor()
+        cursor.execute(query, (email,))
+        theData = cursor.fetchone()
+
+        if not theData:
+            return make_response(jsonify({"error": "User not found"}), 404)
+
+        return make_response(jsonify(theData), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+
