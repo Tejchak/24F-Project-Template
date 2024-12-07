@@ -129,3 +129,9 @@ The REST API provides endpoints for:
    - User activity tracking
 
 For detailed API documentation, see the route files in `./api/backend/coopconnect_routes/`.
+
+## Group Members
+Jake Oakley, Tej Chakravarthy, Anthony Termulo, Dane Kimura
+
+## Link to Video Presentation
+https://youtu.be/wW5AXTaAByE
