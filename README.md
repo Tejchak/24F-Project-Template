@@ -84,7 +84,7 @@ CoopConnect implements role-based access control to provide appropriate features
 ### Installation Steps
 
 1. Clone the repository
-2. Create `.env` file in `./api` directory using template
+2. Copy the `.envtemplate` file in `./api` directory using template
 3. Start the containers:
 
 ```bash
