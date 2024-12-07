@@ -162,30 +162,6 @@ def get_hospitals():
     hospital_data = cursor.fetchall()
     return jsonify(hospital_data), 200
 
-@parent.route('/city', methods=['GET'])
-def get_all_cities():
-    try:
-        cursor = db.get_db().cursor()
-        cursor.execute("SELECT * FROM City")
-        cities_data = cursor.fetchall()
-        cursor.close()
-
-        cities_list = []
-        for city in cities_data:
-            cities_list.append({
-                'city_id': city['City_ID'],
-                'avg_cost_of_living': city['Avg_Cost_Of_Living'],
-                'avg_rent': city['Avg_Rent'],
-                'avg_wage': city['Avg_Wage'],
-                'name': city['Name'],
-                'population': city['Population'],
-                'prop_hybrid_workers': float(city['Prop_Hybrid_Workers']) if city['Prop_Hybrid_Workers'] else None
-            })
-
-        return jsonify(cities_list), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 #returns the cost analysis of a specific city
 @parent.route('/city/<CityID>/<Avg_Cost_Of_Living>', methods=['GET'])
@@ -245,5 +221,3 @@ def get_city_cost_analysis(CityID, Avg_Cost_Of_Living):
     except Exception as e:
         print(f"Error in get_city_cost_analysis: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
-
