@@ -37,3 +37,9 @@ if 'verified_email' not in st.session_state:
             st.warning("Please enter a valid email.")
 else:
     st.switch_page("pages/48_Update_Profile_Management.py")
+
+
+st.sidebar.title("Navigation")
+
+if st.sidebar.button("Back"):
+    st.switch_page("pages/29_Student_Home.py") 

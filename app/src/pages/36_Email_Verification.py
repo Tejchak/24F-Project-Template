@@ -30,3 +30,8 @@ if st.button("Verify Email"):
             st.error("Email not found in the database.")
     else:
         st.warning("Please enter a valid email.")
+
+st.sidebar.title("Navigation")
+
+if st.sidebar.button("Back"):
+    st.switch_page("pages/10_Employer_Home.py") 
