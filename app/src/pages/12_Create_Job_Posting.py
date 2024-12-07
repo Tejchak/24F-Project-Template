@@ -30,7 +30,7 @@ with st.form(key='job_posting_form'):
     description = st.text_area('Job Description', value='Collaborator')  # Default value for description
     compensation = st.number_input('Compensation (in dollars)', min_value=0, step=1000)
     location_id = st.selectbox('Location ID', zipcodes)
-    user_email = st.text_input('User Email')
+    user_email = st.text_input('User Email (E.X. klaus.mikaelson@example.com)')
 
     # Submit button
     submit_button = st.form_submit_button(label='Create Job Posting')

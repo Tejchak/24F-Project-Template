@@ -970,3 +970,7 @@ where date(Date) = '2025-03-12';
 Select *
 From User
 where UserID = 39;
+
+SELECT *
+FROM JobPosting
+WHERE User_ID = 39;
