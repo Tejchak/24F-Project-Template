@@ -35,24 +35,21 @@ st.markdown("""
     </h3>
 """, unsafe_allow_html=True)
 
-# Create two columns for better button layout
-col1, col2 = st.columns(2, gap="large")
+# Navigation buttons for student actions
+if st.button('Browse Available Jobs', 
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/43_Browse_Jobs.py')
 
-with col1:
-    if st.button('🔍 Browse Available Jobs', 
-                 type='primary',
-                 use_container_width=True):
-        st.switch_page('pages/43_Browse_Jobs.py')
-    
-    if st.button("👤 Update Your Profile",
-                 type='primary',
-                 use_container_width=True):
-        st.switch_page('pages/45_Update_Profile.py')
-    
-    if st.button("🏠 View and Manage Sublets",
-                 type='primary',
-                 use_container_width=True):
-        st.switch_page('pages/47_Manage_Sublet.py')
+if st.button("Update Your Profile",
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/45_Update_Profile.py')
+
+if st.button("View and Manage Sublets",
+             type='primary',
+             use_container_width=True):
+    st.switch_page('pages/37_Student_Email_Verification.py')
 
 with col2:
     if st.button('💰 Learn About Cost of Living',

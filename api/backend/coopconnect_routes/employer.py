@@ -264,3 +264,28 @@ def get_average_wage_and_hybrid(city_name):
         }), 200)
     else:
         return make_response(jsonify({'error': 'City not found'}), 404)
+    
+@employer.route('/city', methods=['GET'])
+def get_all_cities():
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute("SELECT * FROM City")
+        cities_data = cursor.fetchall()
+        cursor.close()
+
+        cities_list = []
+        for city in cities_data:
+            cities_list.append({
+                'city_id': city['City_ID'],
+                'avg_cost_of_living': city['Avg_Cost_Of_Living'],
+                'avg_rent': city['Avg_Rent'],
+                'avg_wage': city['Avg_Wage'],
+                'name': city['Name'],
+                'population': city['Population'],
+                'prop_hybrid_workers': float(city['Prop_Hybrid_Workers']) if city['Prop_Hybrid_Workers'] else None
+            })
+
+        return jsonify(cities_list), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
