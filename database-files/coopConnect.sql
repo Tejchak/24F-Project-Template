@@ -963,10 +963,23 @@ FROM Hospital H
 JOIN Airport A ON H.City_ID = A.City_ID
 WHERE H.City_ID = (SELECT City_ID FROM City WHERE Name = 'New York');
 
-Select Performance.Date, Avg_Speed, Top_Speed
+Select *
 From Performance
-where date(Date) = '2025-03-12';
+where date(Date) = '2024-12-07';
 
 Select *
 From User
 where UserID = 39;
+
+SELECT *
+FROM Sublet
+WHERE Subleter_ID = 1;
+
+SELECT H.*
+FROM Housing H
+JOIN City C ON H.City_ID = C.City_ID
+WHERE C.Name = 'Boston';
+
+SELECT *
+FROM JobPosting
+WHERE User_ID = 39;
